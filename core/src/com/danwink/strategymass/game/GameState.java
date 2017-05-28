@@ -1,0 +1,51 @@
+package com.danwink.strategymass.game;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.danwink.strategymass.game.objects.Map;
+import com.danwink.strategymass.game.objects.Player;
+import com.danwink.strategymass.game.objects.Point;
+import com.danwink.strategymass.game.objects.Team;
+import com.danwink.strategymass.game.objects.Unit;
+
+public class GameState
+{
+	public ArrayList<Unit> units;
+	public HashMap<Integer, Unit> unitMap;
+	public Map map;
+	public ArrayList<Player> players;
+	public HashMap<Integer, Player> playerMap;
+	public ArrayList<Team> teams;
+	
+	public GameState()
+	{
+		units = new ArrayList<>();
+		unitMap = new HashMap<>();
+		players = new ArrayList<>();
+		playerMap = new HashMap<>();
+		teams = new ArrayList<>();
+	}
+	
+	public void clear()
+	{
+		units.clear();
+		unitMap.clear();
+		map = null;
+		players.clear();
+		playerMap.clear();
+		teams.clear();
+	}
+	
+	public void addPlayer( Player p )
+	{
+		players.add( p );
+		playerMap.put( p.playerId, p );
+	}
+
+	public void addUnit( Unit u )
+	{
+		units.add( u );
+		unitMap.put( u.syncId, u );
+	}
+}

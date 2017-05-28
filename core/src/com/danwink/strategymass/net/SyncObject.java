@@ -1,9 +1,11 @@
 package com.danwink.strategymass.net;
 
-public class SyncObject
+public abstract class SyncObject<E>
 {
-	int id;
-	boolean update;
-	boolean partial;
-	boolean remove;
+	public int syncId;
+	public boolean update;
+	public boolean partial;
+	public boolean remove;
+	
+	public abstract void set( E so );
 }

@@ -12,8 +12,7 @@ public class ListenerManager<E>
 		
 	}
 	
-	
-	public void listen( Object key, E e )
+	public void on( Object key, E e )
 	{
 		ArrayList<E> listenerList = this.listeners.get( key );
 		if( listenerList == null ) 

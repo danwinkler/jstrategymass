@@ -28,7 +28,7 @@ public class SyncServer
 			server.server.getKryo().register( c );
 		});
 		
-		server.listen( ClientMessages.JOIN, (id, o) -> {
+		server.on( ClientMessages.JOIN, (id, o) -> {
 			for( int i = 0; i < syncies.size(); i++ )
 			{
 				SyncObject so = syncies.get( i );
@@ -39,6 +39,7 @@ public class SyncServer
 	
 	public void add( SyncObject so )
 	{
+		so.syncId = nextId++;
 		syncies.add( so );
 		server.broadcastTCP( add, new AddPacket( so.getClass().hashCode(), so ) );
 	}
@@ -50,13 +51,13 @@ public class SyncServer
 			SyncObject so = syncies.get( i );
 			if( so.remove ) 
 			{
-				server.broadcastTCP( remove, so.id );
+				server.broadcastTCP( remove, so.syncId );
 			} 
 			else if( so.update ) 
 			{
 				if( so.partial ) 
 				{
-					server.broadcastTCP( partial, new PartialPacket( so.id, ((PartialUpdatable)so).partialMakePacket() ) );
+					server.broadcastTCP( partial, new PartialPacket( so.syncId, ((PartialUpdatable)so).partialMakePacket() ) );
 				} 
 				else 
 				{
@@ -83,11 +84,11 @@ public class SyncServer
 	public static class AddPacket
 	{
 		int classHash;
-		Object object;
+		SyncObject object;
 		
 		public AddPacket() {}
 		
-		public AddPacket( int classHash, Object object )
+		public AddPacket( int classHash, SyncObject object )
 		{
 			this.classHash = classHash;
 			this.object = object;

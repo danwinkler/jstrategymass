@@ -57,9 +57,8 @@ public class DClient
 		c.connect( 2500, address, tcpPort, udpPort );	
 	}
 	
-	public void update() throws IOException
+	public void update()
 	{
-		c.update( 0 );
 		if( handleMessages ) processMessages();
 	}
 	
@@ -74,6 +73,11 @@ public class DClient
 	public void sendTCP( Object key, Object value ) 
 	{
 		c.sendTCP( new Message( key, value ) );
+	}
+	
+	public void sendTCP( Object key ) 
+	{
+		sendTCP( key, null );
 	}
 	
 	public Message getNextClientMessage()
@@ -104,8 +108,8 @@ public class DClient
 		}
 	}
 	
-	public <E> void listen( Object key, ClientMessageListener<E> listener ) 
+	public <E> void on( Object key, ClientMessageListener<E> listener ) 
 	{
-		listenerManager.listen( key, listener );
+		listenerManager.on( key, listener );
 	}
 }

@@ -1,52 +1,81 @@
 package com.danwink.strategymass.net;
 
+import java.util.HashMap;
+
 import com.danwink.strategymass.net.SyncServer.AddPacket;
+import com.esotericsoftware.reflectasm.FieldAccess;
 
 public class SyncClient
 {
 	DClient client;
 	ListenerManager<ObjectListener> addLm;
 	ListenerManager<ObjectListener> initLm;
+	ListenerManager<ObjectListener> removeLm;
+	HashMap<Integer, SyncObject> syncies;
 	
-	@SuppressWarnings( "unchecked" )
+	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	public SyncClient( DClient client )
 	{
 		this.client = client;
 		
 		addLm = new ListenerManager<>();
 		initLm = new ListenerManager<>();
+		removeLm = new ListenerManager<>();
 		
-		client.listen( SyncServer.add, (AddPacket p) -> {
+		syncies = new HashMap<>();
+		
+		client.on( SyncServer.add, (AddPacket p) -> {
+			syncies.put( p.object.syncId, p.object );
 			addLm.call( p.classHash, l -> {
-				l.add( p.object );
+				l.object( p.object );
 			});
 		});
 		
-		client.listen( SyncServer.initial, (AddPacket p) -> {
+		client.on( SyncServer.initial, (AddPacket p) -> {
+			syncies.put( p.object.syncId, p.object );
 			addLm.call( p.classHash, l -> {
-				l.add( p.object );
+				l.object( p.object );
+			});
+		});
+		
+		client.on( SyncServer.update, (SyncObject so) -> {
+			SyncObject s = syncies.get( so.syncId );
+			s.set( so );
+		});
+		
+		client.on( SyncServer.remove, (Integer id) -> {
+			SyncObject so = syncies.remove( id );
+			so.remove = true;
+			
+			addLm.call( so.getClass().hashCode(), l -> {
+				l.object( so );
 			});
 		});
 	}
 	
 	public <E> void onAdd( Class<E> c, ObjectListener<E> listener )
 	{
-		addLm.listen( c.hashCode(), listener );
+		addLm.on( c.hashCode(), listener );
 	}
 	
 	public <E> void onJoin( Class<E> c, ObjectListener<E> listener )
 	{
-		initLm.listen( c.hashCode(), listener );
+		initLm.on( c.hashCode(), listener );
 	}
 	
 	public <E> void onAddAndJoin( Class<E> c, ObjectListener<E> listener )
 	{
-		addLm.listen( c.hashCode(), listener );
-		initLm.listen( c.hashCode(), listener );
+		addLm.on( c.hashCode(), listener );
+		initLm.on( c.hashCode(), listener );
+	}
+	
+	public <E> void onRemove( Class<E> c, ObjectListener<E> listener )
+	{
+		
 	}
 	
 	public interface ObjectListener<E>
 	{
-		public void add( E o );
+		public void object( E o );
 	}
 }

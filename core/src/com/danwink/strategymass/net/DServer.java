@@ -193,9 +193,9 @@ public class DServer extends Listener
 		}
 	}
 	
-	public <E> void listen( Object key, ServerMessageListener<E> listener ) 
+	public <E> void on( Object key, ServerMessageListener<E> listener ) 
 	{
-		listenerManager.listen( key, listener );
+		listenerManager.on( key, listener );
 	}
 	
 	public void register( Class...classes )

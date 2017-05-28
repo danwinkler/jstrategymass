@@ -2,21 +2,26 @@ package com.danwink.strategymass;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.danwink.strategymass.screens.play.Play;
+import com.danwink.strategymass.server.GameServer;
+import com.kotcrab.vis.ui.VisUI;
 
 public class StrategyMass extends Game
 {
-	GameServer server;
+	static StrategyMass game;
 	
-	SpriteBatch batch;
+	public GameServer server;
 	
 	public void create()
 	{
-		batch = new SpriteBatch();
-
+		VisUI.load();
+		
+		game = this;
+		
 		server = new GameServer();
 		server.start();
 		
-		setScreen( new Play( this ) );
+		setScreen( new MainMenu() );
 	}
 	
 	public void render()
@@ -26,6 +31,6 @@ public class StrategyMass extends Game
 	
 	public void dispose()
 	{
-		batch.dispose();
+		
 	}
 }
