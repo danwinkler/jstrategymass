@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
+import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Unit;
@@ -20,6 +22,8 @@ public class GameRenderer
 	Texture b0, b1;
 	
 	Texture m0, m1;
+	
+	Texture spear;
 	
 	float millSpeed = 60;
 	float r = 0;
@@ -45,6 +49,8 @@ public class GameRenderer
 		m0 = new Texture( Gdx.files.internal( "medievalUnit_02.png" ) );
 		m1 = new Texture( Gdx.files.internal( "medievalUnit_08.png" ) );
 		
+		spear = new Texture( Gdx.files.internal( "spear.png" ) );
+		
 		textureMap = new Texture[] { grass, tree, b0, p0 };
 	}
 	
@@ -64,6 +70,11 @@ public class GameRenderer
 			for( Unit u : state.units ) 
 			{
 				batch.draw( u.team == 0 ? m0 : m1, u.pos.x - 32, u.pos.y - 32 );
+			}
+			
+			for( Bullet b : state.bullets ) 
+			{
+				batch.draw( spear, b.pos.x - 16, b.pos.y - 16, 16, 16, 32, 32, 1, 1, MathUtils.radiansToDegrees * b.heading - 90, 0, 0, 32, 32, false, false );
 			}
 			
 			renderMapTop( batch );

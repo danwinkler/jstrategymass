@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.net.SyncObject;
 
@@ -28,7 +29,7 @@ public class Unit extends SyncObject<Unit>
 		this.path = u.path;
 	}
 
-	public void update( float dt, GameState state )
+	public void update( float dt, GameLogic logic, GameState state )
 	{
 		if( onPath != -1 )
 		{
@@ -48,6 +49,11 @@ public class Unit extends SyncObject<Unit>
 			}
 			
 			update = true;
+		}
+		
+		if( Math.random() < .1f )
+		{
+			logic.shootBullet( this, MathUtils.random( MathUtils.PI*2 ) );
 		}
 	}
 }

@@ -3,6 +3,7 @@ package com.danwink.strategymass.game;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
@@ -17,6 +18,7 @@ public class GameState
 	public ArrayList<Player> players;
 	public HashMap<Integer, Player> playerMap;
 	public ArrayList<Team> teams;
+	public ArrayList<Bullet> bullets;
 	
 	public GameState()
 	{
@@ -25,6 +27,7 @@ public class GameState
 		players = new ArrayList<>();
 		playerMap = new HashMap<>();
 		teams = new ArrayList<>();
+		bullets = new ArrayList<>();
 	}
 	
 	public void clear()
@@ -35,6 +38,7 @@ public class GameState
 		players.clear();
 		playerMap.clear();
 		teams.clear();
+		bullets.clear();
 	}
 	
 	public void addPlayer( Player p )
@@ -47,5 +51,10 @@ public class GameState
 	{
 		units.add( u );
 		unitMap.put( u.syncId, u );
+	}
+
+	public void removeBullet( int id )
+	{
+		bullets.removeIf( b -> b.syncId == id );
 	}
 }

@@ -52,6 +52,8 @@ public class SyncServer
 			if( so.remove ) 
 			{
 				server.broadcastTCP( remove, so.syncId );
+				syncies.remove( i );
+				i--;
 			} 
 			else if( so.update ) 
 			{

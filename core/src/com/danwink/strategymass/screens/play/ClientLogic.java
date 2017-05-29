@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.game.GameState;
+import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Unit;
 
 public class ClientLogic
@@ -43,5 +44,11 @@ public class ClientLogic
 		return units;
 	}
 	
-	
+	public void update( float dt )
+	{
+		for( Bullet b : state.bullets )
+		{
+			b.update( dt, state );
+		}
+	}
 }

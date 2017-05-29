@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
+import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
@@ -106,7 +107,17 @@ public class GameLogic
 	{
 		for( int i = 0; i < state.units.size(); i++ ) 
 		{
-			state.units.get( i ).update( dt, state );
+			state.units.get( i ).update( dt, this, state );
+		}
+		
+		for( int i = 0; i < state.bullets.size(); i++ )
+		{
+			Bullet b = state.bullets.get( i ); 
+			b.update( dt, state );
+			if( b.remove ) 
+			{
+				state.removeBullet( b.syncId );
+			}
 		}
 	}
 
@@ -132,5 +143,12 @@ public class GameLogic
 				}
 			}
 		}
+	}
+
+	public void shootBullet( Unit unit, float heading )
+	{
+		Bullet b = new Bullet( unit.pos.cpy(), heading );
+		sync.add( b );
+		state.bullets.add( b );
 	}
 }

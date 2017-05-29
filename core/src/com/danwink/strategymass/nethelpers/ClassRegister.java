@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
+import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
@@ -22,6 +23,7 @@ public class ClassRegister
 		Unit.class,
 		Team.class,
 		Player.class,
+		Bullet.class,
 		
 		ClientMessages.class,
 		MoveUnitPacket.class,

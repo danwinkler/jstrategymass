@@ -10,7 +10,7 @@ public class SyncClient
 	DClient client;
 	ListenerManager<ObjectListener> addLm;
 	ListenerManager<ObjectListener> initLm;
-	ListenerManager<ObjectListener> removeLm;
+	ListenerManager<IdListener> removeLm;
 	HashMap<Integer, SyncObject> syncies;
 	
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
@@ -47,8 +47,8 @@ public class SyncClient
 			SyncObject so = syncies.remove( id );
 			so.remove = true;
 			
-			addLm.call( so.getClass().hashCode(), l -> {
-				l.object( so );
+			removeLm.call( so.getClass().hashCode(), l -> {
+				l.id( id );
 			});
 		});
 	}
@@ -69,13 +69,23 @@ public class SyncClient
 		initLm.on( c.hashCode(), listener );
 	}
 	
-	public <E> void onRemove( Class<E> c, ObjectListener<E> listener )
+	public <E> void onRemove( Class<E> c, IdListener listener )
 	{
-		
+		removeLm.on( c.hashCode(), listener );
+	}
+	
+	public void remove( int id )
+	{
+		syncies.remove( id );
 	}
 	
 	public interface ObjectListener<E>
 	{
 		public void object( E o );
+	}
+	
+	public interface IdListener
+	{
+		public void id( int id );
 	}
 }

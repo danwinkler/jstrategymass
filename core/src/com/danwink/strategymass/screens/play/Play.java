@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.game.GameRenderer;
 import com.danwink.strategymass.game.GameState;
+import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Unit;
@@ -103,6 +104,14 @@ public class Play implements Screen, InputProcessor
 			state.units.add( u );
 		});
 		
+		sync.onAddAndJoin( Bullet.class, b -> {
+			state.bullets.add( b );
+		});
+		
+		sync.onRemove( Bullet.class, id -> {
+			state.removeBullet( id );
+		});
+		
 		try
 		{
 			client.connect( "localhost", GameServer.TCP_PORT, GameServer.UDP_PORT );
@@ -122,29 +131,30 @@ public class Play implements Screen, InputProcessor
 		});
 	}
 
-	public void render( float delta )
+	public void render( float dt )
 	{
 		client.update();
+		logic.update( dt );
 		
 		//Scrolling Logic
 		if( Gdx.input.isKeyPressed( Input.Keys.LEFT ) )
 		{
-			camera.translate( -scrollSpeed * delta * camera.zoom, 0 );
+			camera.translate( -scrollSpeed * dt * camera.zoom, 0 );
 			camera.update();
 		}
 		if( Gdx.input.isKeyPressed( Input.Keys.RIGHT ) )
 		{
-			camera.translate( scrollSpeed * delta * camera.zoom, 0 );
+			camera.translate( scrollSpeed * dt * camera.zoom, 0 );
 			camera.update();
 		}
 		if( Gdx.input.isKeyPressed( Input.Keys.DOWN ) )
 		{
-			camera.translate( 0, -scrollSpeed * delta * camera.zoom );
+			camera.translate( 0, -scrollSpeed * dt * camera.zoom );
 			camera.update();
 		}
 		if( Gdx.input.isKeyPressed( Input.Keys.UP ) )
 		{
-			camera.translate( 0, scrollSpeed * delta * camera.zoom );
+			camera.translate( 0, scrollSpeed * dt * camera.zoom );
 			camera.update();
 		}
 		
