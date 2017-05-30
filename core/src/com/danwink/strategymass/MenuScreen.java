@@ -19,6 +19,8 @@ public abstract class MenuScreen implements Screen
 		table.setFillParent( true );
 		stage.addActor( table );
 		
+		//table.setDebug( true );
+		
 		Gdx.input.setInputProcessor( stage );
 		build();
 	}

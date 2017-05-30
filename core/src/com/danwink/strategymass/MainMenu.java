@@ -12,9 +12,9 @@ public class MainMenu extends MenuScreen
 		VisTextButton start = new VisTextButton( "Start" );
 		VisTextButton editor = new VisTextButton( "Editor" );
 		
-		table.add( start );
+		table.add( start ).width( 300 );
 		table.row();
-		table.add( editor );
+		table.add( editor ).width( 300 );
 		
 		start.addListener( new ClickListener(){
 			public void clicked( InputEvent e, float x, float y ) {

@@ -13,4 +13,11 @@ public class Message
 		this.key = key;
 		this.value = value;
 	}
+	
+	public Message( Object key, Object value, int sender )
+	{
+		this.key = key;
+		this.value = value;
+		this.sender = sender;
+	}
 }

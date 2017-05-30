@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.danwink.strategymass.StrategyMass;
+import com.danwink.strategymass.game.GameClient;
 import com.danwink.strategymass.game.GameRenderer;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Bullet;
@@ -39,12 +40,8 @@ public class Play implements Screen, InputProcessor
 {
 	OrthographicCamera camera;
 	
-	DClient client;
-	SyncClient sync;
+	GameClient client;
 	
-	GameState state;
-	ClientLogic logic;
-	Player me;
 	GameRenderer renderer;
 	
 	InputMultiplexer input;
@@ -71,70 +68,25 @@ public class Play implements Screen, InputProcessor
 		ui = new PlayUI( input );
 		input.addProcessor( this );
 		
-		state = new GameState();
-		logic = new ClientLogic( state );
-		renderer = new GameRenderer( state );
+		client = new GameClient();
+		client.start();
+		renderer = new GameRenderer( client.state );
 		
 		selectBoxRenderer = new ShapeRenderer();
-		
-		client = new DClient();
-		client.register( ClassRegister.classes );
-		client.register( SyncServer.registerClasses );
-		
-		//Direct messages
-		client.on( DClient.CONNECTED, o -> {
-			client.sendTCP( ClientMessages.JOIN );
-		});
-		
-		client.on( ServerMessages.JOINSUCCESS, (Player p) -> {
-			me = p;
-		});
-		
-		//Sync handlers
-		sync = new SyncClient( client );
-		sync.onAddAndJoin( Map.class, map -> {
-			state.map = map;
-		});
-		
-		sync.onAddAndJoin( Player.class, p -> {
-			state.players.add( p );
-		});
-		
-		sync.onAddAndJoin( Unit.class, u -> {
-			state.units.add( u );
-		});
-		
-		sync.onAddAndJoin( Bullet.class, b -> {
-			state.bullets.add( b );
-		});
-		
-		sync.onRemove( Bullet.class, id -> {
-			state.removeBullet( id );
-		});
-		
-		try
-		{
-			client.connect( "localhost", GameServer.TCP_PORT, GameServer.UDP_PORT );
-		}
-		catch( IOException e )
-		{
-			e.printStackTrace();
-		}
 		
 		//UI
 		ui.create();
 		
 		ui.addUnit.addListener( new ClickListener() {
 			public void clicked( InputEvent e, float x, float y ) {
-				client.sendTCP( ClientMessages.BUILDUNIT );
+				client.client.sendTCP( ClientMessages.BUILDUNIT );
 			}
 		});
 	}
 
 	public void render( float dt )
 	{
-		client.update();
-		logic.update( dt );
+		client.update( dt );
 		
 		//Scrolling Logic
 		if( Gdx.input.isKeyPressed( Input.Keys.LEFT ) )
@@ -233,7 +185,7 @@ public class Play implements Screen, InputProcessor
 			selectEnd.set( projected.x, projected.y );
 		} else if( button == Buttons.RIGHT )
 		{
-			client.sendTCP( ClientMessages.MOVEUNITS, new Packets.MoveUnitPacket( new Vector2( projected.x, projected.y ), selected ) );
+			client.client.sendTCP( ClientMessages.MOVEUNITS, new Packets.MoveUnitPacket( new Vector2( projected.x, projected.y ), selected ) );
 		}
 		
 		return true;
@@ -244,7 +196,7 @@ public class Play implements Screen, InputProcessor
 		Vector3 projected = camera.unproject( new Vector3( screenX, screenY, 0 ) );
 		selectEnd.set( projected.x, projected.y );
 		
-		selected = logic.getUnitIds( selectStart, selectEnd );
+		selected = client.logic.getUnitIds( selectStart, selectEnd );
 		
 		selecting = false;
 		return true;

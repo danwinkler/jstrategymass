@@ -7,7 +7,24 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
-public class DClient
+
+/**
+ * Client class to connect to DServer. 
+ * 
+ * Essentially a wrapper around kryonet's Client class, but where every packet 
+ * sent is a Message object.
+ * 
+ * A thread is spawned when connect is called (through kryonet). This thread 
+ * receives messages and adds them to the messages queue. These can either be
+ * directly fetched through hasClientMessages and getNextClientMessage, but if
+ * using callbacks, the update method should be called from the main thread,
+ * which will simplify concurrency issues.
+ * 
+ * 
+ * @author Daniel Winkler
+ *
+ */
+public class DClient extends Listener
 {
 	public static final String CONNECTED = "net.CONNECTED";
 	public static final String DISCONNECTED = "net.CONNECTED";
@@ -15,7 +32,6 @@ public class DClient
 	boolean handleMessages = true;
 	
 	Client c;
-	Thread clientThread;
 	ConcurrentLinkedDeque<Message> messages = new  ConcurrentLinkedDeque<Message>();
 	
 	ListenerManager<ClientMessageListener> listenerManager;
@@ -27,28 +43,7 @@ public class DClient
 		c = new Client( 128000, 32000 );
 		c.getKryo().register( Message.class );
 		
-		c.addListener( new Listener() {
-			public void received( Connection c, Object o ) 
-			{
-				if( o instanceof Message )
-				{
-					synchronized( messages )
-					{
-						messages.addLast( (Message)o );
-					}
-				}
-			}
-			
-			public void connected( Connection c )
-			{
-				messages.addLast( new Message( CONNECTED, null ) );
-			}
-			
-			public void disconnected( Connection c )
-			{
-				
-			}
-		});
+		c.addListener( this );
 	}
 	
 	public void connect( String address, int tcpPort, int udpPort ) throws IOException 
@@ -111,5 +106,27 @@ public class DClient
 	public <E> void on( Object key, ClientMessageListener<E> listener ) 
 	{
 		listenerManager.on( key, listener );
+	}
+	
+	//Listener
+	public void received( Connection c, Object o ) 
+	{
+		if( o instanceof Message )
+		{
+			synchronized( messages )
+			{
+				messages.addLast( (Message)o );
+			}
+		}
+	}
+	
+	public void connected( Connection c )
+	{
+		messages.addLast( new Message( CONNECTED, null ) );
+	}
+	
+	public void disconnected( Connection c )
+	{
+		messages.addLast( new Message( DISCONNECTED, null ) );
 	}
 }

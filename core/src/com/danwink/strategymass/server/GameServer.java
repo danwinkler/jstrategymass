@@ -3,6 +3,8 @@ package com.danwink.strategymass.server;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.danwink.strategymass.ai.Bot;
+import com.danwink.strategymass.ai.PlaceholderAI;
 import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Player;
@@ -26,6 +28,8 @@ public class GameServer implements Updateable
 	GameState state;
 	GameLogic logic;
 	
+	ArrayList<Bot> bots;
+	
 	public GameServer()
 	{
 		server = new DServer();
@@ -39,6 +43,7 @@ public class GameServer implements Updateable
 		
 		server.on( ClientMessages.JOIN, (id, o) -> {
 			Player p = logic.addPlayer( id );
+			p.team = (state.players.size()-1) % 2; //TODO: have a real team select
 			server.sendTCP( id, ServerMessages.JOINSUCCESS, p );
 		});
 		
@@ -65,6 +70,11 @@ public class GameServer implements Updateable
 		server.startThread( this, 30 );
 		
 		logic.newGame();
+		
+		bots = new ArrayList<Bot>();
+		Bot a = new PlaceholderAI();
+		a.connect( server );
+		bots.add( a );
 	}
 
 	public void update( float dt )

@@ -46,9 +46,15 @@ public class ClientLogic
 	
 	public void update( float dt )
 	{
-		for( Bullet b : state.bullets )
+		for( int i = 0; i < state.bullets.size(); i++ )
 		{
+			Bullet b = state.bullets.get( i );
 			b.update( dt, state );
+			if( !b.alive )
+			{
+				state.bullets.remove( i );
+				i--;
+			}
 		}
 	}
 }

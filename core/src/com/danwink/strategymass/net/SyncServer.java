@@ -60,11 +60,13 @@ public class SyncServer
 				if( so.partial ) 
 				{
 					server.broadcastTCP( partial, new PartialPacket( so.syncId, ((PartialUpdatable)so).partialMakePacket() ) );
+					so.partial = false;
 				} 
 				else 
 				{
 					server.broadcastTCP( update, so );
 				}
+				so.update = false;
 			}
 		}
 	}

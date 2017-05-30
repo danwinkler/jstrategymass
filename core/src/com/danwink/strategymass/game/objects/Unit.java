@@ -45,15 +45,21 @@ public class Unit extends SyncObject<Unit>
 			if( tileX == gp.x && tileY == gp.y )
 			{
 				onPath++;
-				if( onPath >= path.size() ) onPath = -1;
+				if( onPath >= path.size() ) 
+				{
+					onPath = -1;
+				}
 			}
 			
 			update = true;
 		}
 		
-		if( Math.random() < .1f )
+		for( Unit u : state.units ) 
 		{
-			logic.shootBullet( this, MathUtils.random( MathUtils.PI*2 ) );
+			if( u.team == this.team ) continue;
+			
+			float heading = MathUtils.atan2( u.pos.y-pos.y, u.pos.x-pos.x );
+			logic.shootBullet( this, heading );
 		}
 	}
 }

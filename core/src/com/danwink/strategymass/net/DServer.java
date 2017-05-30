@@ -26,7 +26,7 @@ public class DServer extends Listener
 	
 	boolean handleMessages = true;
 	
-	ConcurrentLinkedDeque<Message> messages = new  ConcurrentLinkedDeque<Message>();
+	public ConcurrentLinkedDeque<Message> messages = new  ConcurrentLinkedDeque<Message>();
 	ConcurrentLinkedDeque<MessagePacket> messagesToSend = new  ConcurrentLinkedDeque<MessagePacket>();
 	HashMap<Integer, Connection> connections = new HashMap<Integer, Connection>();
 	ArrayList<Connection> connectionsArr = new ArrayList<Connection>();

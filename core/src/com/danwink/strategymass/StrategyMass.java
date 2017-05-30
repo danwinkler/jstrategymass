@@ -21,8 +21,8 @@ public class StrategyMass extends Game
 		server = new GameServer();
 		server.start();
 		
-		setScreen( new Play() );
-		//setScreen( new MainMenu() );
+		//setScreen( new Play() );
+		setScreen( new MainMenu() );
 	}
 	
 	public void render()

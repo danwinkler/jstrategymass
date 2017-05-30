@@ -12,6 +12,7 @@ public class Bullet extends SyncObject<Bullet>
 	public Vector2 pos;
 	public float heading;
 	public int team;
+	public boolean alive = true; //This is necessary so on client we can remove ourselves
 	
 	public Bullet() {}
 	
@@ -36,6 +37,7 @@ public class Bullet extends SyncObject<Bullet>
 		if( hitwall( state.map ) ) 
 		{
 			remove = true;
+			alive = false;
 		}
 	}
 	
