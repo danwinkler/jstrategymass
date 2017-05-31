@@ -57,6 +57,8 @@ public class Editor implements Screen, InputProcessor
 	TextButton base1;
 	TextButton point;
 	
+	VisSelectBox<Mirror> mirrorSelect;
+	
 	TextButton saveButton;
 	TextButton loadButton;
 	
@@ -99,6 +101,14 @@ public class Editor implements Screen, InputProcessor
 		base0 = buildBrushButton( "Base 0", new BaseBrush( 0 ) );
 		base1 = buildBrushButton( "Base 1", new BaseBrush( 1 ) );
 		point = buildBrushButton( "Point", new PointBrush() );
+		
+		mirrorSelect = new VisSelectBox<Mirror>();
+		mirrorSelect.setItems( 
+			new Mirrors.None(), 
+			new Mirrors.X(), 
+			new Mirrors.Y(),
+			new Mirrors.XY()
+		);
 		
 		saveButton = new VisTextButton( "Save" );
 		saveButton.addListener( new ClickListener() {
@@ -209,6 +219,9 @@ public class Editor implements Screen, InputProcessor
 		table.add( point ).fillX().padBottom( 20 );
 		table.row();
 		
+		table.add( mirrorSelect ).fillX().padBottom( 20 );
+		table.row();
+		
 		
 		table.add( saveButton ).fillX();
 		table.row();
@@ -244,7 +257,16 @@ public class Editor implements Screen, InputProcessor
 	
 	public void draw( int x, int y )
 	{
-		b.draw( x, y, state.map );
+		if( x < 0 || x >= state.map.width || y < 0 || y >= state.map.height ) return;
+		
+		if( b.mirrorable )
+		{
+			mirrorSelect.getSelected().draw( x, y, b, state.map );
+		}
+		else 
+		{
+			b.draw( x, y, state.map );
+		}
 	}
 
 	public void render( float dt )

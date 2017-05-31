@@ -2,7 +2,9 @@ package com.danwink.strategymass.screens.editor;
 
 import com.danwink.strategymass.game.objects.Map;
 
-public interface Brush
+public abstract class Brush
 {
-	public void draw( int x, int y, Map m );
+	public boolean mirrorable = true;
+	
+	public abstract void draw( int x, int y, Map m );
 }

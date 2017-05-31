@@ -4,7 +4,7 @@ import com.danwink.strategymass.game.objects.Map;
 
 public class Brushes
 {
-	public static class TileBrush implements Brush
+	public static class TileBrush extends Brush
 	{
 		int tile;
 		
@@ -20,13 +20,14 @@ public class Brushes
 		}
 	}
 	
-	public static class BaseBrush implements Brush
+	public static class BaseBrush extends Brush
 	{
 		int team;
 		
 		public BaseBrush( int team )
 		{
 			this.team = team;
+			this.mirrorable = false;
 		}
 
 		public void draw( int x, int y, Map m )
@@ -35,7 +36,7 @@ public class Brushes
 		}
 	}
 	
-	public static class PointBrush implements Brush
+	public static class PointBrush extends Brush
 	{
 		public void draw( int x, int y, Map m )
 		{

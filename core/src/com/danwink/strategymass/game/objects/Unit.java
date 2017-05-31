@@ -59,7 +59,8 @@ public class Unit extends SyncObject<Unit>
 			if( u.team == this.team ) continue;
 			
 			float heading = MathUtils.atan2( u.pos.y-pos.y, u.pos.x-pos.x );
-			logic.shootBullet( this, heading );
+			if( !Bullet.hitwall( pos.x, pos.x, u.pos.x - pos.x, u.pos.y - pos.y, state.map ) )
+				logic.shootBullet( this, heading );
 		}
 	}
 }

@@ -31,17 +31,20 @@ public class Bullet extends SyncObject<Bullet>
 
 	public void update( float dt, GameState state )
 	{
-		pos.x += MathUtils.cos( heading ) * dt * SPEED;
-		pos.y += MathUtils.sin( heading ) * dt * SPEED;
+		float dx = MathUtils.cos( heading ) * dt * SPEED;
+		float dy = MathUtils.sin( heading ) * dt * SPEED;  
 		
-		if( hitwall( state.map ) ) 
+		if( hitwall( this.pos.x, this.pos.y, dx, dy, state.map ) ) 
 		{
 			remove = true;
 			alive = false;
 		}
+		
+		pos.x += dx;
+		pos.y += dy;
 	}
 	
-	public boolean hitwall( Map map )
+	public static boolean hitwall( float x, float y, float dx, float dy, Map map )
 	{
 		int cx, cy; // current x, y, in tiles
 		float cbx, cby; // starting tile cell bounds, in pixels
@@ -55,11 +58,11 @@ public class Bullet extends SyncObject<Bullet>
 		boolean hitTile = false;
 		float tResult = 0;
 		
-		Vector2 direction = new Vector2( MathUtils.cos( heading ), MathUtils.sin( heading ) );
+		Vector2 direction = new Vector2( dx, dy );
 		
 		// find the tile at the start position of the ray
-		cx = (int)(this.pos.x / map.tileWidth);
-		cy = (int)(this.pos.y / map.tileHeight);
+		cx = (int)(x / map.tileWidth);
+		cy = (int)(y / map.tileHeight);
 		
 		if( cx < 0 || cx >= map.width || cy < 0 || cy >= map.height )
 		{
@@ -108,13 +111,13 @@ public class Bullet extends SyncObject<Bullet>
 		// determine tMaxes and deltas
 		if( direction.x != 0 )
 		{
-			tMaxX = (cbx - this.pos.x) / direction.x;
+			tMaxX = (cbx - x) / direction.x;
 			tDeltaX = map.tileWidth * stepX / direction.x;
 		}
 		else tMaxX = 1000000;
 		if( direction.y != 0 )
 		{
-			tMaxY = (cby - this.pos.y) / direction.y;
+			tMaxY = (cby - y) / direction.y;
 			tDeltaY = map.tileWidth * stepY / direction.y;
 		}
 		else tMaxY = 1000000;
