@@ -25,8 +25,8 @@ public class GameRenderer
 	
 	Texture spear;
 	
-	float millSpeed = 60;
-	float r = 0;
+	public float millSpeed = 60;
+	public float r = 0;
 	
 	Texture[] textureMap;
 	

@@ -25,7 +25,7 @@ public class GameServer implements Updateable
 	
 	SyncServer sync;
 	
-	GameState state;
+	public GameState state;
 	GameLogic logic;
 	
 	ArrayList<Bot> bots;

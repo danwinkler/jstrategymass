@@ -176,6 +176,8 @@ public class Play implements Screen, InputProcessor
 
 	public boolean touchDown( int screenX, int screenY, int pointer, int button )
 	{
+		System.out.println( "touch down" );
+		
 		Vector3 projected = camera.unproject( new Vector3( screenX, screenY, 0 ) );
 		
 		if( button == Buttons.LEFT )
@@ -193,12 +195,14 @@ public class Play implements Screen, InputProcessor
 
 	public boolean touchUp( int screenX, int screenY, int pointer, int button )
 	{
-		Vector3 projected = camera.unproject( new Vector3( screenX, screenY, 0 ) );
-		selectEnd.set( projected.x, projected.y );
-		
-		selected = client.logic.getUnitIds( selectStart, selectEnd );
-		
-		selecting = false;
+		if( button == Buttons.LEFT ) {
+			Vector3 projected = camera.unproject( new Vector3( screenX, screenY, 0 ) );
+			selectEnd.set( projected.x, projected.y );
+			
+			selected = client.logic.getUnitIds( selectStart, selectEnd );
+			
+			selecting = false;
+		}
 		return true;
 	}
 

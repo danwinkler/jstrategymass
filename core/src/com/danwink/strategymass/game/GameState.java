@@ -20,6 +20,8 @@ public class GameState
 	public ArrayList<Team> teams;
 	public ArrayList<Bullet> bullets;
 	
+	public String mapName = "test";
+	
 	public GameState()
 	{
 		units = new ArrayList<>();

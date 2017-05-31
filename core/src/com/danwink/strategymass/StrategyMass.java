@@ -8,7 +8,7 @@ import com.kotcrab.vis.ui.VisUI;
 
 public class StrategyMass extends Game
 {
-	static StrategyMass game;
+	public static StrategyMass game;
 	
 	public GameServer server;
 	
@@ -19,9 +19,7 @@ public class StrategyMass extends Game
 		game = this;
 		
 		server = new GameServer();
-		server.start();
 		
-		//setScreen( new Play() );
 		setScreen( new MainMenu() );
 	}
 	

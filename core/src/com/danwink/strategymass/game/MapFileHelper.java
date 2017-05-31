@@ -1,5 +1,8 @@
 package com.danwink.strategymass.game;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.danwink.strategymass.game.objects.Map;
@@ -34,7 +37,7 @@ public class MapFileHelper
 	
 	public static Map loadMap( String name )
 	{
-		return gson.fromJson( Gdx.files.local( "maps/test.json" ).readString(), Map.class );
+		return gson.fromJson( Gdx.files.local( "maps/" + name + ".json" ).readString(), Map.class );
 	}
 	
 	public static void saveMap( Map m, String name )
@@ -43,5 +46,17 @@ public class MapFileHelper
 		
 		
 		f.writeString( gson.toJson( m ), false );
+	}
+	
+	public static ArrayList<String> getMaps()
+	{
+		ArrayList<String> maps = new ArrayList<String>();
+		Arrays.asList( Gdx.files.local("maps/").list() ).forEach( f -> {
+			System.out.println( f.extension() );
+			if( f.extension().equals( "json" ) ) {
+				maps.add( f.nameWithoutExtension() );
+			}
+		});
+		return maps;
 	}
 }

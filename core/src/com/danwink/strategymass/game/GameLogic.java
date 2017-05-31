@@ -31,7 +31,7 @@ public class GameLogic
 	{
 		state.clear();
 		makeTeams( 2 );
-		setMap( MapFileHelper.loadMap( "test" ) );
+		setMap( MapFileHelper.loadMap( state.mapName ) );
 	}
 	
 	public void makeTeams( int n )

@@ -2,6 +2,7 @@ package com.danwink.strategymass;
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.danwink.strategymass.screens.editor.Editor;
 import com.danwink.strategymass.screens.play.Play;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
@@ -18,7 +19,7 @@ public class MainMenu extends MenuScreen
 		
 		start.addListener( new ClickListener(){
 			public void clicked( InputEvent e, float x, float y ) {
-				StrategyMass.game.setScreen( new Play() );
+				StrategyMass.game.setScreen( new MapSelectScreen() );
 			}
 		});
 		

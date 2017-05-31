@@ -31,8 +31,14 @@ public class Map extends SyncObject<Map>
 	
 	public void addPoint( int x, int y, boolean isBase, int team )
 	{
-		Point p = new Point( x * tileWidth + (tileWidth/2), y * tileHeight + (tileHeight/2), isBase, team );
-		tiles[x][y] = isBase ? TILE_BASE : TILE_POINT;
+		float px = x * tileWidth + (tileWidth/2);
+		float py = y * tileHeight + (tileHeight/2);
+		
+		deleteBase( team );
+		deletePoint( x, y );
+		
+		Point p = new Point( px, py, isBase, team );
+		tiles[y][x] = isBase ? TILE_BASE : TILE_POINT;
 		points.add( p );
 	}
 	
@@ -56,5 +62,33 @@ public class Map extends SyncObject<Map>
 	{
 		if( x < 0 || y < 0 || x >= width || y >= height ) return false;
 		return tiles[y][x] == 0;
+	}
+	
+	public void deleteBase( int team )
+	{
+		for( int i = 0; i < points.size(); i++ )
+		{
+			Point p = points.get( i );
+			if( p.isBase && p.team == team )
+			{
+				deletePoint( (int)(p.pos.x / tileWidth), (int)(p.pos.y / tileHeight) );
+				i--;
+			}
+		}
+	}
+	
+	public void deletePoint( int x, int y )
+	{
+		float px = x * tileWidth + (tileWidth/2);
+		float py = y * tileHeight + (tileHeight/2);
+		
+		points.removeIf( p -> {
+			if( p.pos.x == px && p.pos.y == py )
+			{
+				tiles[y][x] = Map.TILE_GRASS;
+				return true;
+			}
+			return false;
+		});
 	}
 }

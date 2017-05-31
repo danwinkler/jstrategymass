@@ -7,6 +7,7 @@ public class PlaceholderAI extends Bot
 {
 	public void update( Player me, GameState state )
 	{
-		buildUnit();
+		if( Math.random() < .1 )
+			buildUnit();
 	}
 }
