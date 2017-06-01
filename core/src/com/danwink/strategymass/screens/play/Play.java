@@ -50,7 +50,7 @@ public class Play implements Screen, InputProcessor
 	PlayUI ui;
 	
 	//Select box
-	ShapeRenderer selectBoxRenderer;
+	ShapeRenderer shapeRenderer;
 	boolean selecting = false;
 	Vector2 selectStart = new Vector2();
 	Vector2 selectEnd = new Vector2();
@@ -86,7 +86,7 @@ public class Play implements Screen, InputProcessor
 		client.start();
 		renderer = new GameRenderer( client.state );
 		
-		selectBoxRenderer = new ShapeRenderer();
+		shapeRenderer = new ShapeRenderer();
 		
 		//UI
 		ui.create();
@@ -130,15 +130,24 @@ public class Play implements Screen, InputProcessor
 		//Render game
 		renderer.render( camera );
 		
-		//Render select box
+		//Render select box and selected units
+		shapeRenderer.setProjectionMatrix( camera.combined );
+		shapeRenderer.begin( ShapeType.Line );
+		shapeRenderer.setColor( 1, 0, 0, 1 );
+		
 		if( selecting )
 		{
-			selectBoxRenderer.setProjectionMatrix( camera.combined );
-			selectBoxRenderer.begin( ShapeType.Line );
-			selectBoxRenderer.setColor( 1, 0, 0, 1 );
-			selectBoxRenderer.rect( selectStart.x, selectStart.y, selectEnd.x - selectStart.x, selectEnd.y - selectStart.y );
-			selectBoxRenderer.end();
+			shapeRenderer.rect( selectStart.x, selectStart.y, selectEnd.x - selectStart.x, selectEnd.y - selectStart.y );
 		}
+	
+		for( Integer i : selected )
+		{
+			Unit u = client.state.unitMap.get( i );
+			if( u == null ) continue;
+			shapeRenderer.rect( u.pos.x - 16, u.pos.y - 16, 32, 32 );
+		}
+		
+		shapeRenderer.end();
 		
 		//Render UI
 		if( client.me != null ) 
