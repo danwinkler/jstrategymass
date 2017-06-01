@@ -14,6 +14,7 @@ public class Unit extends SyncObject<Unit>
 	public static final float radius = 16;
 	public static final float speed = 4;
 	public static final float shootInterval = 1;
+	public static final int unitCost = 10;
 	
 	public int owner;
 	public int team;
@@ -106,5 +107,10 @@ public class Unit extends SyncObject<Unit>
 		{
 			coolDown -= dt;
 		}
+	}
+
+	public boolean isMoving()
+	{
+		return onPath >= 0;
 	}
 }

@@ -44,7 +44,6 @@ public class MapFileHelper
 	{
 		FileHandle f = Gdx.files.local( "maps/" + name + ".json" );
 		
-		
 		f.writeString( gson.toJson( m ), false );
 	}
 	
@@ -52,7 +51,6 @@ public class MapFileHelper
 	{
 		ArrayList<String> maps = new ArrayList<String>();
 		Arrays.asList( Gdx.files.local("maps/").list() ).forEach( f -> {
-			System.out.println( f.extension() );
 			if( f.extension().equals( "json" ) ) {
 				maps.add( f.nameWithoutExtension() );
 			}

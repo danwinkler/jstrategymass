@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.danwink.strategymass.ai.Bot;
 import com.danwink.strategymass.ai.PlaceholderAI;
+import com.danwink.strategymass.ai.SectorAI;
 import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Player;
@@ -72,7 +73,7 @@ public class GameServer implements Updateable
 		server.startThread( this, 30 );
 		
 		bots = new ArrayList<Bot>();
-		Bot a = new PlaceholderAI();
+		Bot a = new SectorAI();
 		a.connect( server );
 		bots.add( a );
 	}
