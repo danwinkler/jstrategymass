@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -26,6 +27,7 @@ import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Player;
+import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.net.DClient;
 import com.danwink.strategymass.net.SyncClient;
@@ -201,7 +203,17 @@ public class Play implements Screen, InputProcessor
 			selectEnd.set( projected.x, projected.y );
 		} else if( button == Buttons.RIGHT )
 		{
+			int tile = client.state.map.getTileFromWorld( projected.x, projected.y );
+			if( tile == Map.TILE_BASE || tile == Map.TILE_POINT )
+			{
+				Point p = client.state.map.getPoint( (int)(projected.x / client.state.map.tileWidth), (int)(projected.y / client.state.map.tileWidth) );
+				GridPoint2 adj = p.findAjacent( client.state );
+				projected.x = (adj.x + .5f) * client.state.map.tileWidth;
+				projected.y = (adj.y + .5f) * client.state.map.tileHeight;
+			}
+			
 			client.client.sendTCP( ClientMessages.MOVEUNITS, new Packets.MoveUnitPacket( new Vector2( projected.x, projected.y ), selected ) );
+			
 		}
 		
 		return true;

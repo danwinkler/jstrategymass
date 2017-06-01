@@ -2,6 +2,7 @@ package com.danwink.strategymass.game.objects;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.net.PartialUpdatable;
 import com.danwink.strategymass.net.SyncObject;
@@ -66,6 +67,15 @@ public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<P
 		return tiles[y][x] == Map.TILE_GRASS;
 	}
 	
+	public int getTileFromWorld( float x, float y )
+	{
+		int tx = (int)(x / tileWidth);
+		int ty = (int)(y / tileHeight);
+		
+		if( tx < 0 || ty < 0 || tx >= width || ty >= height ) return TILE_TREE;
+		return tiles[ty][tx];
+	}
+	
 	public void deleteBase( int team )
 	{
 		for( int i = 0; i < points.size(); i++ )
@@ -92,6 +102,23 @@ public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<P
 			}
 			return false;
 		});
+	}
+	
+	public Point getPoint( int x, int y )
+	{
+		float px = x * tileWidth + (tileWidth/2);
+		float py = y * tileHeight + (tileHeight/2);
+		
+		for( int i = 0; i < points.size(); i++ )
+		{
+			Point p = points.get( i );
+			if( MathUtils.isEqual( px, p.pos.x ) && MathUtils.isEqual( py, p.pos.y ) )
+			{
+				return p;
+			}
+		}
+		
+		return null;
 	}
 	
 	public void update( float dt, GameState state )

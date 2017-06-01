@@ -2,6 +2,7 @@ package com.danwink.strategymass.game.objects;
 
 import java.util.Arrays;
 
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.game.GameState;
@@ -95,6 +96,28 @@ public class Point
 		int uy = (int)(u.y / state.map.tileHeight);
 		
 		return Math.abs( px-ux ) <= 1 && Math.abs( py-uy ) <= 1;
+	}
+	
+	public static GridPoint2[] adjacentList = new GridPoint2[] {
+		new GridPoint2( 0, -1 ),
+		new GridPoint2( 1, 0 ),
+		new GridPoint2( -1, 0 ),
+		new GridPoint2( 0, 1 ),
+	};
+	
+	public GridPoint2 findAjacent( GameState state )
+	{
+		int px = (int)(pos.x / state.map.tileWidth);
+		int py = (int)(pos.y / state.map.tileHeight);
+		
+		for( GridPoint2 l : adjacentList )
+		{
+			if( state.map.isPassable( px + l.x, py + l.y ) ) 
+			{
+				return new GridPoint2( px + l.x, py + l.y );
+			}
+		}
+		return null;
 	}
 
 	public boolean isCapturable( GameState state )
