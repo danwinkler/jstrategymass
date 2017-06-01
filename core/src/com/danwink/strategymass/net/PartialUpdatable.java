@@ -1,7 +1,7 @@
 package com.danwink.strategymass.net;
 
-public interface PartialUpdatable
+public interface PartialUpdatable<E>
 {
-	public void partialReadPacket( Object o );
-	public Object partialMakePacket();
+	public void partialReadPacket( E e );
+	public E partialMakePacket();
 }

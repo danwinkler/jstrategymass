@@ -1,4 +1,4 @@
-package com.danwink.strategymass.server;
+package com.danwink.strategymass.game;
 
 import java.util.ArrayList;
 

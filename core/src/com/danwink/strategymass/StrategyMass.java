@@ -2,6 +2,7 @@ package com.danwink.strategymass;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.Map;
 import com.danwink.strategymass.screens.play.Play;
 import com.danwink.strategymass.server.GameServer;
 import com.kotcrab.vis.ui.VisUI;

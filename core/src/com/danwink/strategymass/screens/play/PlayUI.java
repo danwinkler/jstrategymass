@@ -18,6 +18,7 @@ public class PlayUI
 	Table table;
 	
 	Label fps;
+	Label money;
 	TextButton addUnit;
 	
 	public PlayUI( InputMultiplexer input )
@@ -36,7 +37,9 @@ public class PlayUI
 		
 		addUnit = new VisTextButton( "Add Unit" );
 		fps = new VisLabel( "FPS: 0" );
+		money = new VisLabel( "Money: 0" );
 		
+		table.add( money ).top().left(); 
 		table.add( fps ).top().right().expand();
 		
 		table.row();
@@ -57,6 +60,11 @@ public class PlayUI
 		
 		stage.act( Gdx.graphics.getDeltaTime() );
 		stage.draw();
+	}
+	
+	public void setMoney( int amt )
+	{
+		money.setText( "Money: " + amt );
 	}
 
 	public void dispose() 

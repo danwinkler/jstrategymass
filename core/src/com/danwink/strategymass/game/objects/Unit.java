@@ -11,10 +11,16 @@ import com.danwink.strategymass.net.SyncObject;
 
 public class Unit extends SyncObject<Unit>
 {
+	public static final float radius = 16;
+	public static final float speed = 4;
+	public static final float shootInterval = 1;
+	
 	public int owner;
 	public int team;
 	public Vector2 pos;
 	public float heading;
+	public int health = 100;
+	public float coolDown = 0;
 	
 	public int onPath = -1;
 	public ArrayList<GridPoint2> path;
@@ -27,18 +33,22 @@ public class Unit extends SyncObject<Unit>
 		this.heading = u.heading;
 		this.onPath = u.onPath;
 		this.path = u.path;
+		this.health = u.health;
+		this.coolDown = u.coolDown;
 	}
 
 	public void update( float dt, GameLogic logic, GameState state )
 	{
+		float dx = 0;
+		float dy = 0;
 		if( onPath != -1 )
 		{
 			GridPoint2 gp = path.get( onPath );
 			float tx = (gp.x+.5f) * state.map.tileWidth;
 			float ty = (gp.y+.5f) * state.map.tileHeight;
 			
-			pos.x += MathUtils.clamp( (tx - pos.x) * .5f, -3, 3 );
-			pos.y += MathUtils.clamp( (ty - pos.y) * .5f, -3, 3 );
+			dx += MathUtils.clamp( (tx - pos.x) * .5f, -speed, speed );
+			dy += MathUtils.clamp( (ty - pos.y) * .5f, -speed, speed );
 			
 			int tileX = (int)(pos.x/state.map.tileWidth);
 			int tileY = (int)(pos.y/state.map.tileHeight);
@@ -50,17 +60,51 @@ public class Unit extends SyncObject<Unit>
 					onPath = -1;
 				}
 			}
-			
-			update = true;
 		}
 		
 		for( Unit u : state.units ) 
 		{
-			if( u.team == this.team ) continue;
+			if( u.syncId == syncId ) continue;
 			
-			float heading = MathUtils.atan2( u.pos.y-pos.y, u.pos.x-pos.x );
-			if( !Bullet.hitwall( pos.x, pos.x, u.pos.x - pos.x, u.pos.y - pos.y, state.map ) )
+			float udx = u.pos.x - pos.x;
+			float udy = u.pos.y - pos.y;
+			
+			float d2 = udx*udx + udy*udy;
+			if( Math.abs( d2 ) < Unit.radius*Unit.radius*1.5f*1.5f )
+			{
+				dx += MathUtils.clamp( -(1.f / d2) * udx, -1, 1 );
+				dy += MathUtils.clamp( -(1.f / d2) * udy, -1, 1 );
+			}
+			
+			if( u.team == this.team ) continue;
+			if( coolDown > 0 ) continue;
+			
+			if( !Bullet.hitwall( pos.x, pos.y, udx, udy, state.map ) ) 
+			{
+				float heading = MathUtils.atan2( u.pos.y-pos.y, u.pos.x-pos.x );
 				logic.shootBullet( this, heading );
+				coolDown = shootInterval;
+			}
+		}
+		
+		if( dx != 0 || dy != 0 )
+		{
+			if( !state.map.isPassable( (int)((pos.x + dx) / state.map.tileWidth), (int)(pos.y/state.map.tileHeight) ) ) dx = 0;
+			if( !state.map.isPassable( (int)(pos.x/state.map.tileWidth), (int)((pos.y+dy)/state.map.tileHeight) ) ) dy = 0;
+			
+			pos.x += dx;
+			pos.y += dy;
+			update = true;
+		}
+		
+		if( health <= 0 )
+		{
+			remove = true;
+		}
+		
+		if( coolDown > 0 ) 
+		{
+			coolDown -= dt;
 		}
 	}
 }

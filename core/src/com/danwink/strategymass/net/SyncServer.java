@@ -32,7 +32,7 @@ public class SyncServer
 			for( int i = 0; i < syncies.size(); i++ )
 			{
 				SyncObject so = syncies.get( i );
-				server.sendTCP( id, initial, new AddPacket( so.getClass().hashCode(), so ) );
+				server.sendTCP( id, initial, new AddPacket( so.getClass().getSimpleName().hashCode(), so ) );
 			}
 		});
 	}
@@ -41,7 +41,7 @@ public class SyncServer
 	{
 		so.syncId = nextId++;
 		syncies.add( so );
-		server.broadcastTCP( add, new AddPacket( so.getClass().hashCode(), so ) );
+		server.broadcastTCP( add, new AddPacket( so.getClass().getSimpleName().hashCode(), so ) );
 	}
 	
 	public void update()
@@ -57,28 +57,25 @@ public class SyncServer
 			} 
 			else if( so.update ) 
 			{
-				if( so.partial ) 
-				{
-					server.broadcastTCP( partial, new PartialPacket( so.syncId, ((PartialUpdatable)so).partialMakePacket() ) );
-					so.partial = false;
-				} 
-				else 
-				{
-					server.broadcastTCP( update, so );
-				}
+				server.broadcastTCP( update, so );
 				so.update = false;
 			}
+			else if( so.partial ) 
+			{
+				server.broadcastTCP( partial, new PartialPacket( so.syncId, ((PartialUpdatable)so).partialMakePacket() ) );
+				so.partial = false;
+			} 
 		}
 	}
 	
-	public static class PartialPacket
+	public static class PartialPacket<E>
 	{
 		int id;
-		Object partial;
+		E partial;
 		
 		public PartialPacket() {}
 		
-		public PartialPacket( int id, Object partial )
+		public PartialPacket( int id, E partial )
 		{
 			this.id = id;
 			this.partial = partial;

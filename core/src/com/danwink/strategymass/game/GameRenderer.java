@@ -1,14 +1,15 @@
 package com.danwink.strategymass.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Point;
+import com.danwink.strategymass.game.objects.Team;
 import com.danwink.strategymass.game.objects.Unit;
 
 public class GameRenderer
@@ -19,7 +20,10 @@ public class GameRenderer
 	Texture grass, tree;
 	
 	Texture p0, p1, mill;
+	Texture millcolor;
+	
 	Texture b0, b1;
+	Texture b0color;
 	
 	Texture m0, m1;
 	
@@ -42,8 +46,10 @@ public class GameRenderer
 		p0 = new Texture( Gdx.files.internal( "medievalStructure_11.png" ) );
 		p1 = new Texture( Gdx.files.internal( "medievalStructure_10.png" ) );
 		mill = new Texture( Gdx.files.internal( "medievalStructure_13.png" ) );
+		millcolor = new Texture( Gdx.files.internal( "medievalStructure_13.color.png" ) );
 		
 		b0 = new Texture( Gdx.files.internal( "medievalStructure_06.png" ) );
+		b0color = new Texture( Gdx.files.internal( "medievalStructure_06.color.png" ) );
 		b1 = new Texture( Gdx.files.internal( "medievalStructure_02.png" ) );
 		
 		m0 = new Texture( Gdx.files.internal( "medievalUnit_02.png" ) );
@@ -63,7 +69,6 @@ public class GameRenderer
 		batch.begin();
 		if( state.map != null )
 		{	
-			
 			renderMapBottom( batch );
 			
 			//Render Units
@@ -105,6 +110,13 @@ public class GameRenderer
 			{
 				batch.draw( p0, p.pos.x - 32, p.pos.y - 48 );
 			}
+			
+			if( p.team >= 0 && p.isBase )
+			{
+				batch.setColor( Team.colors[p.team] );
+				batch.draw( b0color, p.pos.x - 32, p.pos.y - 48 );
+				batch.setColor( Color.WHITE );
+			}
 		}
 	}
 	
@@ -120,7 +132,15 @@ public class GameRenderer
 			else 
 			{
 				batch.draw( p1, p.pos.x - 32, p.pos.y + 16 );
-				batch.draw( mill, p.pos.x - 32, p.pos.y - 16, 32, 32, 64, 64, 1, 1, r, 0, 0, 64, 64, false, false );
+				float rot = r;
+				batch.draw( mill, p.pos.x - 32, p.pos.y - 16, 32, 32, 64, 64, 1, 1, rot, 0, 0, 64, 64, false, false );
+				if( p.team >= 0 )
+				{
+					Color c = Team.colors[p.team];
+					batch.setColor( c.r, c.g, c.b, p.taken*.01f );
+					batch.draw( millcolor, p.pos.x - 32, p.pos.y - 16, 32, 32, 64, 64, 1, 1, rot, 0, 0, 64, 64, false, false );
+					batch.setColor( Color.WHITE );
+				}
 			}
 		}
 	}

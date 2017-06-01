@@ -1,5 +1,6 @@
 package com.danwink.strategymass.game.objects;
 
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.game.GameState;
@@ -13,6 +14,7 @@ public class Bullet extends SyncObject<Bullet>
 	public float heading;
 	public int team;
 	public boolean alive = true; //This is necessary so on client we can remove ourselves
+	public int damage = 30;
 	
 	public Bullet() {}
 	
@@ -27,9 +29,31 @@ public class Bullet extends SyncObject<Bullet>
 		this.pos = so.pos;
 		this.heading = so.heading;
 		this.team = so.team;
+		this.damage = so.damage;
 	}
 
 	public void update( float dt, GameState state )
+	{
+		float sx = pos.x;
+		float sy = pos.y;
+		
+		move( dt, state );
+		
+		for( Unit u : state.units )
+		{
+			if( u.team == this.team ) continue;
+			
+			if( Intersector.distanceSegmentPoint( sx, sy, pos.x, pos.y, u.pos.x, u.pos.y ) < Unit.radius )
+			{
+				u.health -= this.damage;
+				this.alive = false;
+				this.remove = true;
+				return;
+			}
+		}
+	}
+
+	public void move( float dt, GameState state )
 	{
 		float dx = MathUtils.cos( heading ) * dt * SPEED;
 		float dy = MathUtils.sin( heading ) * dt * SPEED;  
@@ -118,7 +142,7 @@ public class Bullet extends SyncObject<Bullet>
 		if( direction.y != 0 )
 		{
 			tMaxY = (cby - y) / direction.y;
-			tDeltaY = map.tileWidth * stepY / direction.y;
+			tDeltaY = map.tileHeight * stepY / direction.y;
 		}
 		else tMaxY = 1000000;
 		
@@ -143,7 +167,7 @@ public class Bullet extends SyncObject<Bullet>
 			else
 			{
 				cy = cy + stepY;
-				if( !map.isPassable( cy, cy ) )
+				if( !map.isPassable( cx, cy ) )
 				{
 					hitTile = true;
 					break;
@@ -171,7 +195,7 @@ public class Bullet extends SyncObject<Bullet>
 			resultInTiles.y = cy; 
 		}
 		*/
-
+	
 		return hitTile && tResult < 1;
 	}
 }

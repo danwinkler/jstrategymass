@@ -2,9 +2,11 @@ package com.danwink.strategymass.game.objects;
 
 import java.util.ArrayList;
 
+import com.danwink.strategymass.game.GameState;
+import com.danwink.strategymass.net.PartialUpdatable;
 import com.danwink.strategymass.net.SyncObject;
 
-public class Map extends SyncObject<Map>
+public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<Point>>
 {
 	public static final int TILE_GRASS = 0;
 	public static final int TILE_TREE = 1;
@@ -61,7 +63,7 @@ public class Map extends SyncObject<Map>
 	public boolean isPassable( int x, int y )
 	{
 		if( x < 0 || y < 0 || x >= width || y >= height ) return false;
-		return tiles[y][x] == 0;
+		return tiles[y][x] == Map.TILE_GRASS;
 	}
 	
 	public void deleteBase( int team )
@@ -90,5 +92,23 @@ public class Map extends SyncObject<Map>
 			}
 			return false;
 		});
+	}
+	
+	public void update( float dt, GameState state )
+	{
+		for( Point p : points )
+		{
+			p.update( dt, state );
+		}
+	}
+
+	public void partialReadPacket( ArrayList<Point> e )
+	{
+		this.points = e;
+	}
+
+	public ArrayList<Point> partialMakePacket()
+	{
+		return points;
 	}
 }

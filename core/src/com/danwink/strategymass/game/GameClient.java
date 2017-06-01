@@ -24,9 +24,17 @@ public class GameClient
 	public ClientLogic logic;
 	public Player me;
 	
+	String addr;
+	
 	public GameClient()
 	{
+		this( "localhost" );
+	}
+	
+	public GameClient( String addr )
+	{
 		client = new DClient();
+		this.addr = addr;
 	}
 	
 	public GameClient( DClient client )
@@ -47,8 +55,8 @@ public class GameClient
 			client.sendTCP( ClientMessages.JOIN );
 		});
 		
-		client.on( ServerMessages.JOINSUCCESS, (Player p) -> {
-			me = p;
+		client.on( ServerMessages.JOINSUCCESS, (Integer id) -> {
+			me = (Player)sync.get( id );
 		});
 		
 		//Sync handlers
@@ -58,11 +66,15 @@ public class GameClient
 		});
 		
 		sync.onAddAndJoin( Player.class, p -> {
-			state.players.add( p );
+			state.addPlayer( p );
 		});
 		
 		sync.onAddAndJoin( Unit.class, u -> {
-			state.units.add( u );
+			state.addUnit( u );
+		});
+		
+		sync.onRemove( Unit.class, id -> {
+			state.removeUnit( id );
 		});
 		
 		sync.onAddAndJoin( Bullet.class, b -> {
@@ -71,7 +83,7 @@ public class GameClient
 		
 		try
 		{
-			client.connect( "localhost", GameServer.TCP_PORT, GameServer.UDP_PORT );
+			client.connect( addr, GameServer.TCP_PORT, GameServer.UDP_PORT );
 		}
 		catch( IOException e )
 		{

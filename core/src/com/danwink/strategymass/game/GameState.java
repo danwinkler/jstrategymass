@@ -59,4 +59,14 @@ public class GameState
 	{
 		bullets.removeIf( b -> b.syncId == id );
 	}
+
+	public void removeUnit( int id )
+	{
+		units.remove( unitMap.remove( id ) );
+	}
+	
+	public void removeUnitAtIndex( int index )
+	{
+		unitMap.remove( units.remove( index ).syncId );
+	}
 }

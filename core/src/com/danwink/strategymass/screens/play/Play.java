@@ -56,7 +56,19 @@ public class Play implements Screen, InputProcessor
 	
 	float scrollSpeed = 300;
 	float zoomSpeed = .1f;
-
+	
+	String addr;
+	
+	public Play()
+	{
+		this( "localhost" );
+	}
+	
+	public Play( String addr )
+	{
+		this.addr = addr;
+	}
+	
 	public void show()
 	{
 		camera = new OrthographicCamera();
@@ -68,7 +80,7 @@ public class Play implements Screen, InputProcessor
 		ui = new PlayUI( input );
 		input.addProcessor( this );
 		
-		client = new GameClient();
+		client = new GameClient( addr );
 		client.start();
 		renderer = new GameRenderer( client.state );
 		
@@ -127,6 +139,10 @@ public class Play implements Screen, InputProcessor
 		}
 		
 		//Render UI
+		if( client.me != null ) 
+		{
+			ui.setMoney( client.me.money );
+		}
 		ui.render();
 	}
 
@@ -176,8 +192,6 @@ public class Play implements Screen, InputProcessor
 
 	public boolean touchDown( int screenX, int screenY, int pointer, int button )
 	{
-		System.out.println( "touch down" );
-		
 		Vector3 projected = camera.unproject( new Vector3( screenX, screenY, 0 ) );
 		
 		if( button == Buttons.LEFT )

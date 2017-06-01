@@ -3,7 +3,9 @@ package com.danwink.strategymass.game;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.danwink.strategymass.game.MapPathFinding.MapGraph;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Player;
@@ -11,15 +13,17 @@ import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Team;
 import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.net.SyncServer;
-import com.danwink.strategymass.server.MapPathFinding;
-import com.danwink.strategymass.server.MapPathFinding.MapGraph;
 
 public class GameLogic
 {
+	public static final float tickInterval = 1; 
+	
 	GameState state;
 	SyncServer sync;
 
 	MapGraph graph;
+	
+	float timeUntilNextTick = tickInterval;
 	
 	public GameLogic( GameState state, SyncServer server )
 	{
@@ -83,11 +87,19 @@ public class GameLogic
 
 	public void buildUnit( int id )
 	{
+		Player p = state.playerMap.get( id );
+		if( p.money < 10 ) return;
+		
+		p.money -= 10;
+		p.update = true;
+		
 		Unit u = new Unit();
 		u.owner = id;
 		u.team = state.playerMap.get( id ).team;
 		u.pos = getTeamBase( u.team ).pos.cpy();
 		u.pos.y -= 33;
+		u.pos.x += MathUtils.random( -.01f, .01f );
+		u.pos.y += MathUtils.random( -.01f, .01f );
 		sync.add( u );
 		state.addUnit( u );
 	}
@@ -107,7 +119,13 @@ public class GameLogic
 	{
 		for( int i = 0; i < state.units.size(); i++ ) 
 		{
-			state.units.get( i ).update( dt, this, state );
+			Unit u = state.units.get( i ); 
+			u.update( dt, this, state );
+			if( u.remove )
+			{
+				state.removeUnitAtIndex( i );
+				i--;
+			}
 		}
 		
 		for( int i = 0; i < state.bullets.size(); i++ )
@@ -119,6 +137,33 @@ public class GameLogic
 				state.removeBullet( b.syncId );
 			}
 		}
+		
+		state.map.update( dt, state );
+		
+		timeUntilNextTick -= dt;
+		if( timeUntilNextTick <= 0 ) 
+		{
+			timeUntilNextTick += tickInterval;
+			tick();
+		}
+	}
+	
+	public void tick()
+	{
+		int[] pointCount = new int[4];
+		for( Point p : state.map.points )
+		{
+			if( p.team >= 0 )
+			{
+				pointCount[p.team]++;
+			}
+		}
+		
+		for( Player p : state.players )
+		{
+			p.money += pointCount[p.team];
+			p.update = true;
+		}
 	}
 
 	public void moveUnits( int id, Vector2 pos, ArrayList<Integer> units )
@@ -126,6 +171,7 @@ public class GameLogic
 		for( Integer u : units )
 		{
 			Unit unit = state.unitMap.get( u );
+			if( unit == null ) continue;
 			if( unit.owner == id )
 			{
 				int x = (int)(unit.pos.x / state.map.tileWidth);
@@ -148,6 +194,7 @@ public class GameLogic
 	public void shootBullet( Unit unit, float heading )
 	{
 		Bullet b = new Bullet( unit.pos.cpy(), heading );
+		b.team = unit.team;
 		sync.add( b );
 		state.bullets.add( b );
 	}

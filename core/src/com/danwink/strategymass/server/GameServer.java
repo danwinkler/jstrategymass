@@ -43,8 +43,8 @@ public class GameServer implements Updateable
 		
 		server.on( ClientMessages.JOIN, (id, o) -> {
 			Player p = logic.addPlayer( id );
-			p.team = (state.players.size()-1) % 2; //TODO: have a real team select
-			server.sendTCP( id, ServerMessages.JOINSUCCESS, p );
+			p.team = (state.players.size()) % 2; //TODO: have a real team select
+			server.sendTCP( id, ServerMessages.JOINSUCCESS, p.syncId );
 		});
 		
 		server.on( ClientMessages.BUILDUNIT, (id, o) -> {
@@ -67,9 +67,9 @@ public class GameServer implements Updateable
 			e.printStackTrace();
 		}
 		
-		server.startThread( this, 30 );
-		
 		logic.newGame();
+		
+		server.startThread( this, 30 );
 		
 		bots = new ArrayList<Bot>();
 		Bot a = new PlaceholderAI();
