@@ -45,6 +45,6 @@ public class StrategyMass extends Game
 	
 	public void dispose()
 	{
-		System.out.println( "hello" );
+		
 	}
 }

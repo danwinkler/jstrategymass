@@ -16,7 +16,7 @@ public class ClientLogic
 		this.state = state;
 	}
 
-	public ArrayList<Integer> getUnitIds( Vector2 a, Vector2 b )
+	public ArrayList<Integer> getUnitIds( Vector2 a, Vector2 b, int owner )
 	{
 		ArrayList<Integer> units = new ArrayList<>();
 		
@@ -35,6 +35,8 @@ public class ClientLogic
 		
 		for( Unit u : state.units )
 		{
+			if( u.owner != owner ) continue;
+			
 			if( u.pos.x > a.x && u.pos.x < b.x && u.pos.y > a.y && u.pos.y < b.y )
 			{
 				units.add( u.syncId );

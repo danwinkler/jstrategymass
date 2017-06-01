@@ -198,4 +198,24 @@ public class GameLogic
 		sync.add( b );
 		state.bullets.add( b );
 	}
+
+	public boolean isGameOver()
+	{
+		int firstTeam = -1;
+		for( Point p : state.map.points )
+		{
+			if( p.team != -1 )
+			{
+				if( firstTeam == -1 )
+				{
+					firstTeam = p.team;
+				}
+				else if( firstTeam != p.team )
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 }

@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.danwink.strategymass.MainMenu;
 import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.game.GameClient;
 import com.danwink.strategymass.game.GameRenderer;
@@ -60,22 +61,21 @@ public class Play implements Screen, InputProcessor
 	float zoomSpeed = .1f;
 	
 	String addr;
+	int team;
 	
 	public Play()
 	{
-		this( "localhost" );
+		this( "localhost", 0 );
 	}
 	
-	public Play( String addr )
+	public Play( String addr, int team )
 	{
 		this.addr = addr;
+		this.team = team;
 	}
 	
 	public void show()
-	{
-		if( true )
-			throw new NullPointerException();
-		
+	{		
 		camera = new OrthographicCamera();
 		camera.setToOrtho( false );
 		camera.zoom = 2;
@@ -86,6 +86,7 @@ public class Play implements Screen, InputProcessor
 		input.addProcessor( this );
 		
 		client = new GameClient( addr );
+		client.team = team;
 		client.start();
 		renderer = new GameRenderer( client.state );
 		
@@ -158,6 +159,11 @@ public class Play implements Screen, InputProcessor
 			ui.setMoney( client.me.money );
 		}
 		ui.render();
+		
+		if( client.gameOver )
+		{
+			StrategyMass.game.setScreen( new MainMenu() );
+		}
 	}
 
 	public void resize( int width, int height )
@@ -181,7 +187,9 @@ public class Play implements Screen, InputProcessor
 
 	public void hide()
 	{
-		
+		dispose();
+		renderer.dispose();
+		shapeRenderer.dispose();
 	}
 
 	public void dispose()
@@ -237,7 +245,7 @@ public class Play implements Screen, InputProcessor
 			Vector3 projected = camera.unproject( new Vector3( screenX, screenY, 0 ) );
 			selectEnd.set( projected.x, projected.y );
 			
-			selected = client.logic.getUnitIds( selectStart, selectEnd );
+			selected = client.logic.getUnitIds( selectStart, selectEnd, client.me.playerId );
 			
 			selecting = false;
 		}

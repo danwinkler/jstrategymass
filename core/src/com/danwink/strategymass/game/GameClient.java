@@ -25,6 +25,8 @@ public class GameClient
 	public Player me;
 	
 	String addr;
+	public int team = 0;
+	public boolean gameOver = false;
 	
 	public GameClient()
 	{
@@ -52,11 +54,19 @@ public class GameClient
 		
 		//Direct messages
 		client.on( DClient.CONNECTED, o -> {
-			client.sendTCP( ClientMessages.JOIN );
+			client.sendTCP( ClientMessages.JOIN, team );
 		});
 		
 		client.on( ServerMessages.JOINSUCCESS, (Integer id) -> {
 			me = (Player)sync.get( id );
+		});
+		
+		client.on( ServerMessages.GAMEOVER, o -> {
+			gameOver = true;
+		});
+		
+		client.on( DClient.DISCONNECTED, o -> {
+			gameOver = true;
 		});
 		
 		//Sync handlers

@@ -22,7 +22,7 @@ public class GameServer implements Updateable
 	public static final int TCP_PORT = 34124;
 	public static final int UDP_PORT = 34125;
 	
-	DServer server;
+	public DServer server;
 	
 	SyncServer sync;
 	
@@ -42,9 +42,17 @@ public class GameServer implements Updateable
 		state = new GameState();
 		logic = new GameLogic( state, sync );
 		
-		server.on( ClientMessages.JOIN, (id, o) -> {
+		server.on( ClientMessages.JOIN, (int id, Integer team) -> {
 			Player p = logic.addPlayer( id );
-			p.team = (state.players.size()) % 2; //TODO: have a real team select
+			if( team == null )
+			{
+				p.team = state.players.size() % 2;
+			}
+			else 
+			{
+				p.team = team;	
+			}
+			
 			server.sendTCP( id, ServerMessages.JOINSUCCESS, p.syncId );
 		});
 		
@@ -73,19 +81,36 @@ public class GameServer implements Updateable
 		server.startThread( this, 30 );
 		
 		bots = new ArrayList<Bot>();
-		Bot a = new SectorAI();
-		a.connect( server );
-		bots.add( a );
+	}
+	
+	public void addBot( Bot b )
+	{
+		bots.add( b );
 	}
 
 	public void update( float dt )
 	{
 		logic.update( dt );
 		sync.update();
+		
+		if( logic.isGameOver() )
+		{
+			server.broadcastTCP( ServerMessages.GAMEOVER, null );
+			try
+			{
+				Thread.sleep( 1000 );
+			}
+			catch( InterruptedException e )
+			{
+				e.printStackTrace();
+			}
+			stop();
+		}
 	}
 
 	public void stop()
 	{
+		bots.forEach( bot -> bot.stop() );
 		server.stop();
 	}
 }

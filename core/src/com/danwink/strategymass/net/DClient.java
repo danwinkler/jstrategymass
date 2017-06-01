@@ -27,7 +27,7 @@ import com.esotericsoftware.kryonet.Listener;
 public class DClient extends Listener
 {
 	public static final String CONNECTED = "net.CONNECTED";
-	public static final String DISCONNECTED = "net.CONNECTED";
+	public static final String DISCONNECTED = "net.DISCONNECTED";
 	
 	boolean handleMessages = true;
 	

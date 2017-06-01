@@ -22,10 +22,12 @@ public abstract class Bot implements Runnable
 	boolean running;
 	long lastFrame;
 	long targetNanosPerTick = 1000000000 / 3;
+	public int team = 0;
 	
 	public void connect( DServer server )
 	{
 		c = new GameClient( new FakeClient( server ) );
+		c.team = team;
 		c.start();
 		
 		t = new Thread( this );
@@ -117,6 +119,11 @@ public abstract class Bot implements Runnable
 			}
 		}
 		return count;
+	}
+	
+	public void stop()
+	{
+		running = false;
 	}
 	
 	public interface Filter<E>
