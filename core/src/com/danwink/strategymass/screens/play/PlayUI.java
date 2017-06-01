@@ -53,6 +53,11 @@ public class PlayUI
 	{
 		stage.getViewport().update( width, height, true );
 	}
+	
+	public void showExitDialog()
+	{
+		
+	}
 
 	public void render()
 	{

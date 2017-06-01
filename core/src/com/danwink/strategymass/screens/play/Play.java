@@ -73,6 +73,9 @@ public class Play implements Screen, InputProcessor
 	
 	public void show()
 	{
+		if( true )
+			throw new NullPointerException();
+		
 		camera = new OrthographicCamera();
 		camera.setToOrtho( false );
 		camera.zoom = 2;

@@ -1,9 +1,11 @@
 package com.danwink.strategymass;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.Map;
-import com.danwink.strategymass.screens.play.Play;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.danwink.strategymass.server.GameServer;
 import com.kotcrab.vis.ui.VisUI;
 
@@ -15,6 +17,18 @@ public class StrategyMass extends Game
 	
 	public void create()
 	{
+		Thread.setDefaultUncaughtExceptionHandler( (t, e) -> {
+			e.printStackTrace();
+			FileHandle f = Gdx.files.local( "error.log" );
+			String stackTrace = Arrays.asList( e.getStackTrace() )
+				.stream()
+				.map( ste -> ste.toString() )
+				.reduce( "", (a,b) -> a + "\n" + b );
+			f.writeString( LocalDateTime.now().toString() + "\n" + e.getMessage() + "\n" + stackTrace + "\n\n", true );
+			server.stop();
+			System.exit( 1 );
+		});
+		
 		VisUI.load();
 		
 		game = this;
@@ -31,6 +45,6 @@ public class StrategyMass extends Game
 	
 	public void dispose()
 	{
-		
+		System.out.println( "hello" );
 	}
 }

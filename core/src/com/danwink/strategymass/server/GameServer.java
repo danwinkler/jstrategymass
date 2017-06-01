@@ -83,4 +83,9 @@ public class GameServer implements Updateable
 		logic.update( dt );
 		sync.update();
 	}
+
+	public void stop()
+	{
+		server.stop();
+	}
 }

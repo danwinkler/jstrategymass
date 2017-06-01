@@ -292,4 +292,10 @@ public class DServer extends Listener
 			}
 		}
 	}
+
+	public void stop()
+	{
+		server.stop();
+		running = false;
+	}
 }
