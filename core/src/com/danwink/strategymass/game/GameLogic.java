@@ -186,6 +186,8 @@ public class GameLogic
 				{
 					unit.path = path;
 					unit.onPath = 0;	
+					unit.targetX = pos.x;
+					unit.targetY = pos.y;
 				}
 			}
 		}

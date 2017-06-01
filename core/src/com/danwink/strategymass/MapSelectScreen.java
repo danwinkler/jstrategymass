@@ -8,6 +8,7 @@ import com.danwink.strategymass.ai.Bot;
 import com.danwink.strategymass.ai.SectorAI;
 import com.danwink.strategymass.game.MapFileHelper;
 import com.danwink.strategymass.screens.play.Play;
+import com.danwink.strategymass.server.GameServer;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
@@ -24,6 +25,7 @@ public class MapSelectScreen extends MenuScreen
 		start.addListener( new ClickListener() {
 			public void clicked( InputEvent e, float x, float y )
 			{
+				StrategyMass.game.server = new GameServer();
 				StrategyMass.game.server.state.mapName = select.getSelected();
 				StrategyMass.game.server.start();
 				

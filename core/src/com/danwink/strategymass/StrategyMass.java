@@ -33,8 +33,6 @@ public class StrategyMass extends Game
 		
 		game = this;
 		
-		server = new GameServer();
-		
 		setScreen( new MainMenu() );
 	}
 	

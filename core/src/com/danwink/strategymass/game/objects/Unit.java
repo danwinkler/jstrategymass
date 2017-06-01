@@ -25,6 +25,8 @@ public class Unit extends SyncObject<Unit>
 	
 	public int onPath = -1;
 	public ArrayList<GridPoint2> path;
+	public float targetX;
+	public float targetY;
 	
 	public void set( Unit u )
 	{
@@ -44,19 +46,28 @@ public class Unit extends SyncObject<Unit>
 		float dy = 0;
 		if( onPath != -1 )
 		{
-			GridPoint2 gp = path.get( onPath );
-			float tx = (gp.x+.5f) * state.map.tileWidth;
-			float ty = (gp.y+.5f) * state.map.tileHeight;
-			
-			dx += MathUtils.clamp( (tx - pos.x) * .5f, -speed, speed );
-			dy += MathUtils.clamp( (ty - pos.y) * .5f, -speed, speed );
-			
-			int tileX = (int)(pos.x/state.map.tileWidth);
-			int tileY = (int)(pos.y/state.map.tileHeight);
-			if( tileX == gp.x && tileY == gp.y )
+			if( onPath < path.size() )
 			{
-				onPath++;
-				if( onPath >= path.size() ) 
+				GridPoint2 gp = path.get( onPath );
+				float tx = (gp.x+.5f) * state.map.tileWidth;
+				float ty = (gp.y+.5f) * state.map.tileHeight;
+				
+				dx += MathUtils.clamp( (tx - pos.x) * .5f, -speed, speed );
+				dy += MathUtils.clamp( (ty - pos.y) * .5f, -speed, speed );
+				
+				int tileX = (int)(pos.x/state.map.tileWidth);
+				int tileY = (int)(pos.y/state.map.tileHeight);
+				if( tileX == gp.x && tileY == gp.y )
+				{
+					onPath++;
+				}
+			}
+			else
+			{
+				dx += MathUtils.clamp( (targetX - pos.x) * .5f, -speed, speed );
+				dy += MathUtils.clamp( (targetY - pos.y) * .5f, -speed, speed );
+				
+				if( MathUtils.isEqual( targetX, pos.x, 5 ) && MathUtils.isEqual( targetY, pos.y, 1 ) )
 				{
 					onPath = -1;
 				}
