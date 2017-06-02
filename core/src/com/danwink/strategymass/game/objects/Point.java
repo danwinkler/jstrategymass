@@ -105,14 +105,14 @@ public class Point
 		new GridPoint2( 0, 1 ),
 	};
 	
-	public GridPoint2 findAjacent( GameState state )
+	public GridPoint2 findAjacent( Map m )
 	{
-		int px = (int)(pos.x / state.map.tileWidth);
-		int py = (int)(pos.y / state.map.tileHeight);
+		int px = (int)(pos.x / m.tileWidth);
+		int py = (int)(pos.y / m.tileHeight);
 		
 		for( GridPoint2 l : adjacentList )
 		{
-			if( state.map.isPassable( px + l.x, py + l.y ) ) 
+			if( m.isPassable( px + l.x, py + l.y ) ) 
 			{
 				return new GridPoint2( px + l.x, py + l.y );
 			}

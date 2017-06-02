@@ -3,6 +3,7 @@ package com.danwink.strategymass.ai;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.ai.MapAnalysis.Neighbor;
 import com.danwink.strategymass.ai.MapAnalysis.Zone;
@@ -71,7 +72,8 @@ public class SectorAI extends Bot
 					return;
 				}
 				
-				moveUnit( u, b.pos.x/state.map.tileWidth, b.pos.y/state.map.tileHeight + state.map.tileHeight );
+				GridPoint2 adj = b.findAjacent( state.map );
+				moveUnit( u, (adj.x+.5f)*state.map.tileWidth, (adj.y+.5f)*state.map.tileHeight );
 			}
 		}
 	}
@@ -148,7 +150,7 @@ public class SectorAI extends Bot
 					//Send army to the weakest point
 					if( bestBorderZone != null )
 					{
-						army.move( bestBorderZone.p.pos.x, bestBorderZone.p.pos.y + state.map.tileHeight );
+						army.moveGrid( bestBorderZone.adjacent );
 						break armyBreak;
 					}
 				}
@@ -201,7 +203,7 @@ public class SectorAI extends Bot
 					//Send army to the weakest point
 					if( best != null )
 					{
-						army.move( best.p.pos.x, best.p.pos.y + state.map.tileHeight );
+						army.moveGrid( best.adjacent );
 						break armyBreak;
 					}
 				}
@@ -218,7 +220,7 @@ public class SectorAI extends Bot
 					
 					if( nZoneStrength < army.units.size() * .75f )
 					{
-						army.move(  n.z.p.pos.x, n.z.p.pos.y + state.map.tileHeight );
+						army.moveGrid( n.z.adjacent );
 						break armyBreak;
 					}
 				}
@@ -248,7 +250,8 @@ public class SectorAI extends Bot
 					{
 						if( b.team != me.team && b.isCapturable( state ) )
 						{
-							army.move( b.pos.x, b.pos.y + state.map.tileHeight );
+							GridPoint2 adj = b.findAjacent( state.map );
+							army.moveGrid( adj );
 						}
 					}
 				}
@@ -330,6 +333,16 @@ public class SectorAI extends Bot
 					moving = false;
 				}
 			}
+		}
+		
+		public void moveGrid( GridPoint2 p )
+		{
+			moveGrid( p.x, p.y );
+		}
+
+		public void moveGrid( int x, int y )
+		{
+			move( (x+.5f)*c.state.map.tileWidth, (y+.5f)*c.state.map.tileHeight );
 		}
 		
 		public void move( float x, float y )

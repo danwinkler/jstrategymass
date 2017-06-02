@@ -227,7 +227,7 @@ public class Play implements Screen, InputProcessor
 			if( tile == Map.TILE_BASE || tile == Map.TILE_POINT )
 			{
 				Point p = client.state.map.getPoint( (int)(projected.x / client.state.map.tileWidth), (int)(projected.y / client.state.map.tileWidth) );
-				GridPoint2 adj = p.findAjacent( client.state );
+				GridPoint2 adj = p.findAjacent( client.state.map );
 				projected.x = (adj.x + .5f) * client.state.map.tileWidth;
 				projected.y = (adj.y + .5f) * client.state.map.tileHeight;
 			}

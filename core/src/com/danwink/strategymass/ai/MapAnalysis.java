@@ -92,6 +92,7 @@ public class MapAnalysis
 				Zone z = new Zone();
 				z.c = new Color( MathUtils.random(), MathUtils.random(), MathUtils.random(), .3f );
 				z.p = b;
+				z.adjacent = z.p.findAjacent( m );
 				tiles[x][y].zone = z;
 				zones.add( z );
 				tiles[x][y].side = b.team;
@@ -103,6 +104,7 @@ public class MapAnalysis
 				Zone z = new Zone();
 				z.c = new Color( MathUtils.random(), MathUtils.random(), MathUtils.random(), .3f );
 				z.p = b;
+				z.adjacent = z.p.findAjacent( m );
 				tiles[x][y].zone = z;
 				zones.add( z );
 			}
@@ -116,7 +118,8 @@ public class MapAnalysis
 			for( int i = 0; i < z.neighbors.size(); i++ )
 			{
 				Neighbor n = z.neighbors.get( i );
-				ArrayList<GridPoint2> path = graph.search( (int)(z.p.pos.x/m.tileWidth), (int)(z.p.pos.y/m.tileHeight) + 1, (int)(n.z.p.pos.x/m.tileWidth), (int)(n.z.p.pos.y/m.tileHeight) + 1 );
+				
+				ArrayList<GridPoint2> path = graph.search( z.adjacent.x, z.adjacent.y, n.z.adjacent.x, n.z.adjacent.y );
 				n.distance = path.size();
 				
 				for( int j = 0; j < path.size(); j++ )
@@ -212,6 +215,7 @@ public class MapAnalysis
 		Color c;
 		ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>();
 		Point p;
+		GridPoint2 adjacent;
 		
 		public void addNeightbor( Zone z )
 		{

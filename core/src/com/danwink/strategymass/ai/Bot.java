@@ -89,9 +89,10 @@ public abstract class Bot implements Runnable
 		{
 			if( f.valid( b ) )
 			{
+				GridPoint2 adj = b.findAjacent( c.state.map );
 				ArrayList<GridPoint2> path = graph.search( 
-					(int)(b.pos.x/c.state.map.tileWidth), 
-					(int)(b.pos.y/c.state.map.tileHeight), 
+					adj.x, 
+					adj.y, 
 					(int)(x/c.state.map.tileWidth), 
 					(int)(y/c.state.map.tileHeight) 
 				);
