@@ -10,7 +10,9 @@ import com.danwink.strategymass.game.GameState;
 public class Point
 {
 	public static float takeSpeed = 8;
+	public static int nextId = 0;
 	
+	public int id = nextId++;
 	public int team = -1;
 	public Vector2 pos;
 	public boolean isBase;
@@ -39,8 +41,9 @@ public class Point
 		int[] counts = new int[4];
 		
 		
-		for( Unit u : state.units )
+		for( UnitWrapper uw : state.units )
 		{
+			Unit u = uw.getUnit();
 			if( isHere( u.pos, state ) )
 			{
 				counts[u.team]++;

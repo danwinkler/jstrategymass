@@ -3,6 +3,7 @@ package com.danwink.strategymass.game;
 import java.io.IOException;
 
 import com.danwink.strategymass.game.objects.Bullet;
+import com.danwink.strategymass.game.objects.ClientUnit;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Unit;
@@ -80,7 +81,7 @@ public class GameClient
 		});
 		
 		sync.onAddAndJoin( Unit.class, u -> {
-			state.addUnit( u );
+			state.addUnit( new ClientUnit( u ) );
 		});
 		
 		sync.onRemove( Unit.class, id -> {

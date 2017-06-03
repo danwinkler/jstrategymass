@@ -10,6 +10,7 @@ import com.danwink.strategymass.game.MapPathFinding.MapGraph;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Unit;
+import com.danwink.strategymass.game.objects.UnitWrapper;
 import com.danwink.strategymass.net.DServer;
 import com.danwink.strategymass.net.FakeClient;
 import com.danwink.strategymass.nethelpers.ClientMessages;
@@ -112,8 +113,9 @@ public abstract class Bot implements Runnable
 	public int numUnitsAtPoint( Point p )
 	{
 		int count = 0;
-		for( Unit u : c.state.units )
+		for( UnitWrapper uw : c.state.units )
 		{
+			Unit u = uw.getUnit();
 			if( p.isHere( u.pos, c.state ) )
 			{
 				count++;

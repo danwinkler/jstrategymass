@@ -7,14 +7,17 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;
+import com.danwink.strategymass.net.PartialUpdatable;
 import com.danwink.strategymass.net.SyncObject;
 
-public class Unit extends SyncObject<Unit>
+public class Unit extends SyncObject<Unit> implements PartialUpdatable<UnitPartial>
 {
 	public static final float radius = 16;
-	public static final float speed = 4;
+	public static final float speed = 120;
+	public static final float pushConstant = 30;
 	public static final float shootInterval = 1;
 	public static final int unitCost = 10;
+	public static final float partialTime = .3f;
 	
 	public int owner;
 	public int team;
@@ -27,6 +30,7 @@ public class Unit extends SyncObject<Unit>
 	public ArrayList<GridPoint2> path;
 	public float targetX;
 	public float targetY;
+	public float lastUpdate = 0;
 	
 	public void set( Unit u )
 	{
@@ -38,44 +42,52 @@ public class Unit extends SyncObject<Unit>
 		this.path = u.path;
 		this.health = u.health;
 		this.coolDown = u.coolDown;
+		this.targetX = u.targetX;
+		this.targetY = u.targetY;
 	}
-
-	public void update( float dt, GameLogic logic, GameState state )
+	
+	public void move( float dt, GameState state )
 	{
-		float dx = 0;
-		float dy = 0;
+		Vector2 d = new Vector2();
+		//Move along path
 		if( onPath != -1 )
 		{
+			float speedDt = speed * dt;
 			if( onPath < path.size() )
 			{
 				GridPoint2 gp = path.get( onPath );
 				float tx = (gp.x+.5f) * state.map.tileWidth;
 				float ty = (gp.y+.5f) * state.map.tileHeight;
 				
-				dx += MathUtils.clamp( (tx - pos.x) * .5f, -speed, speed );
-				dy += MathUtils.clamp( (ty - pos.y) * .5f, -speed, speed );
+				d.x += MathUtils.clamp( (tx - pos.x) * .5f, -speedDt, speedDt );
+				d.y += MathUtils.clamp( (ty - pos.y) * .5f, -speedDt, speedDt );
 				
 				int tileX = (int)(pos.x/state.map.tileWidth);
 				int tileY = (int)(pos.y/state.map.tileHeight);
 				if( tileX == gp.x && tileY == gp.y )
 				{
+					update = true;
 					onPath++;
 				}
 			}
 			else
 			{
-				dx += MathUtils.clamp( (targetX - pos.x) * .5f, -speed, speed );
-				dy += MathUtils.clamp( (targetY - pos.y) * .5f, -speed, speed );
+				d.x += MathUtils.clamp( (targetX - pos.x) * .5f, -speedDt, speedDt );
+				d.y += MathUtils.clamp( (targetY - pos.y) * .5f, -speedDt, speedDt );
 				
 				if( MathUtils.isEqual( targetX, pos.x, 5 ) && MathUtils.isEqual( targetY, pos.y, 1 ) )
 				{
 					onPath = -1;
+					update = true;
 				}
 			}
 		}
 		
-		for( Unit u : state.units ) 
+		//Repel other units
+		float pushDt = pushConstant * dt;
+		for( UnitWrapper uw : state.units ) 
 		{
+			Unit u = uw.getUnit();
 			if( u.syncId == syncId ) continue;
 			
 			float udx = u.pos.x - pos.x;
@@ -84,9 +96,40 @@ public class Unit extends SyncObject<Unit>
 			float d2 = udx*udx + udy*udy;
 			if( Math.abs( d2 ) < Unit.radius*Unit.radius*1.5f*1.5f )
 			{
-				dx += MathUtils.clamp( -(1.f / d2) * udx, -1, 1 );
-				dy += MathUtils.clamp( -(1.f / d2) * udy, -1, 1 );
+				d.x += MathUtils.clamp( -(1.f / d2) * udx, -pushDt, pushDt );
+				d.y += MathUtils.clamp( -(1.f / d2) * udy, -pushDt, pushDt );
 			}
+		}
+		
+		//Move if we need to
+		if( d.x != 0 || d.y != 0 )
+		{
+			if( !state.map.isPassable( (int)((pos.x + d.x) / state.map.tileWidth), (int)(pos.y/state.map.tileHeight) ) ) d.x = 0;
+			if( !state.map.isPassable( (int)(pos.x/state.map.tileWidth), (int)((pos.y+d.y)/state.map.tileHeight) ) ) d.y = 0;
+			
+			d.limit( speed );
+			
+			pos.x += d.x;
+			pos.y += d.y;
+			if( lastUpdate <= 0 )
+			{
+				partial = true;
+				lastUpdate = .5f;// partialTime;
+			} 
+			else 
+			{
+				lastUpdate -= dt;
+			}
+		}
+	}
+
+	public void shoot( float dt, GameLogic logic, GameState state )
+	{
+		for( UnitWrapper uw : state.units ) 
+		{
+			Unit u = uw.getUnit();
+			float udx = u.pos.x - pos.x;
+			float udy = u.pos.y - pos.y;
 			
 			if( u.team == this.team ) continue;
 			if( coolDown > 0 ) continue;
@@ -99,29 +142,29 @@ public class Unit extends SyncObject<Unit>
 			}
 		}
 		
-		if( dx != 0 || dy != 0 )
-		{
-			if( !state.map.isPassable( (int)((pos.x + dx) / state.map.tileWidth), (int)(pos.y/state.map.tileHeight) ) ) dx = 0;
-			if( !state.map.isPassable( (int)(pos.x/state.map.tileWidth), (int)((pos.y+dy)/state.map.tileHeight) ) ) dy = 0;
-			
-			pos.x += dx;
-			pos.y += dy;
-			update = true;
-		}
-		
-		if( health <= 0 )
-		{
-			remove = true;
-		}
-		
 		if( coolDown > 0 ) 
 		{
 			coolDown -= dt;
 		}
 	}
-
+	
 	public boolean isMoving()
 	{
 		return onPath >= 0;
+	}
+	
+	public void partialReadPacket( UnitPartial e )
+	{
+		pos.set( e.x, e.y );
+		onPath = e.onPath;
+	}
+
+	public UnitPartial partialMakePacket()
+	{
+		UnitPartial up = new UnitPartial();
+		up.x = pos.x;
+		up.y = pos.y;
+		up.onPath = onPath;
+		return up;
 	}
 }

@@ -132,7 +132,7 @@ public class MapAnalysis
 						float dy = ta.zone.p.pos.y - (s.x*m.tileHeight);
 						float distance = (float)Math.sqrt( (dx*dx) + (dy*dy) );
 						
-						if( distance < (5*m.tileWidth) )
+						if( distance < (5*m.tileWidth) && z.neighbors.size() >= 2 )
 						{
 							z.neighbors.remove( i );
 							i--;

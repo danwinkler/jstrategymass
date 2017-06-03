@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.danwink.strategymass.ai.Bot;
-import com.danwink.strategymass.ai.PlaceholderAI;
 import com.danwink.strategymass.ai.SectorAI;
 import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;

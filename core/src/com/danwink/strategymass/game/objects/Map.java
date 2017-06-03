@@ -131,7 +131,12 @@ public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<P
 
 	public void partialReadPacket( ArrayList<Point> e )
 	{
-		this.points = e;
+		e.forEach( p -> points.forEach( tp -> {
+			if( tp.id == p.id ) {
+				tp.taken = p.taken;
+				tp.team = p.team;
+			}
+		}));
 	}
 
 	public ArrayList<Point> partialMakePacket()

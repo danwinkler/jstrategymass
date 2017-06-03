@@ -7,10 +7,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.danwink.strategymass.game.objects.Bullet;
+import com.danwink.strategymass.game.objects.ClientUnit;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Team;
 import com.danwink.strategymass.game.objects.Unit;
+import com.danwink.strategymass.game.objects.UnitWrapper;
 
 public class GameRenderer
 {
@@ -72,9 +74,12 @@ public class GameRenderer
 			renderMapBottom( batch );
 			
 			//Render Units
-			for( Unit u : state.units ) 
+			for( UnitWrapper uw : state.units ) 
 			{
-				batch.draw( u.team == 0 ? m0 : m1, u.pos.x - 32, u.pos.y - 32 );
+				ClientUnit cu = (ClientUnit)uw;
+				Unit u = cu.getUnit();
+				batch.draw( cu.u.team == 0 ? m0 : m1, cu.x - 32, cu.y - 32 );
+				//batch.draw( cu.u.team == 0 ? m0 : m1, u.pos.x - 32, u.pos.y - 32 );
 			}
 			
 			for( Bullet b : state.bullets ) 

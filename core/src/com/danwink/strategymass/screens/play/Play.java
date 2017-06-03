@@ -26,10 +26,12 @@ import com.danwink.strategymass.game.GameClient;
 import com.danwink.strategymass.game.GameRenderer;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Bullet;
+import com.danwink.strategymass.game.objects.ClientUnit;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Unit;
+import com.danwink.strategymass.game.objects.UnitWrapper;
 import com.danwink.strategymass.net.DClient;
 import com.danwink.strategymass.net.SyncClient;
 import com.danwink.strategymass.net.SyncServer;
@@ -146,10 +148,20 @@ public class Play implements Screen, InputProcessor
 	
 		for( Integer i : selected )
 		{
-			Unit u = client.state.unitMap.get( i );
-			if( u == null ) continue;
-			shapeRenderer.rect( u.pos.x - 16, u.pos.y - 16, 32, 32 );
+			ClientUnit uw = (ClientUnit)client.state.unitMap.get( i );
+			if( uw == null ) continue;
+			shapeRenderer.rect( uw.x - 16, uw.y - 16, 32, 32 );
 		}
+		
+		/*
+		//Directly render unit positions of server
+		for( int i = 0; i < StrategyMass.game.server.state.units.size(); i++ )
+		{
+			UnitWrapper uw = StrategyMass.game.server.state.units.get( i );
+			Unit u = uw.getUnit();
+			shapeRenderer.circle( u.pos.x, u.pos.y, 20 );
+		}
+		*/
 		
 		shapeRenderer.end();
 		

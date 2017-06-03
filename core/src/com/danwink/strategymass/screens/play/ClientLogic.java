@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Bullet;
+import com.danwink.strategymass.game.objects.ClientUnit;
 import com.danwink.strategymass.game.objects.Unit;
+import com.danwink.strategymass.game.objects.UnitWrapper;
 
 public class ClientLogic
 {
@@ -33,8 +35,9 @@ public class ClientLogic
 			b.y = c;
 		}
 		
-		for( Unit u : state.units )
+		for( UnitWrapper uw : state.units )
 		{
+			Unit u = uw.getUnit();
 			if( u.owner != owner ) continue;
 			
 			if( u.pos.x > a.x && u.pos.x < b.x && u.pos.y > a.y && u.pos.y < b.y )
@@ -57,6 +60,12 @@ public class ClientLogic
 				state.bullets.remove( i );
 				i--;
 			}
+		}
+		
+		for( int i = 0; i < state.units.size(); i++ )
+		{
+			ClientUnit u = (ClientUnit)state.units.get( i );
+			u.update( dt, state );
 		}
 	}
 }

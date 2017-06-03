@@ -11,6 +11,7 @@ import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Unit;
+import com.danwink.strategymass.game.objects.UnitWrapper;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.Packets;
 
@@ -57,8 +58,9 @@ public class SectorAI extends Bot
 		}
 		
 		//If any unit is not moving, send it to the closest untaken point
-		for( Unit u : state.units )
+		for( UnitWrapper uw : state.units )
 		{
+			Unit u = uw.getUnit();
 			if( u.owner != me.playerId ) continue;
 			
 			if( !u.isMoving() ) 
@@ -99,8 +101,9 @@ public class SectorAI extends Bot
 		}
 		
 		//If unit isn't a part of an army, either add it to a nearby army, or create a new one
-		for( Unit u : state.units )
+		for( UnitWrapper uw : state.units )
 		{
+			Unit u = uw.getUnit();
 			if( u.owner != me.playerId ) continue;
 			
 			if( !unitArmyMap.containsKey( u ) )
@@ -231,8 +234,9 @@ public class SectorAI extends Bot
 				//is the enemy base, which we can't take. normally if this happens we are overpowering them anyway
 				//so this check helps us not gridlock
 				int ourSize = 0, theirSize = 0;
-				for( Unit u: state.units )
+				for( UnitWrapper uw : state.units )
 				{
+					Unit u = uw.getUnit();
 					if( state.playerMap.get( u.owner ).team == me.team )
 					{
 						ourSize++;

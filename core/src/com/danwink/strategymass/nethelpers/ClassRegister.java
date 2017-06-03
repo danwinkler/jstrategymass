@@ -10,6 +10,7 @@ import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Team;
 import com.danwink.strategymass.game.objects.Unit;
+import com.danwink.strategymass.game.objects.UnitPartial;
 import com.danwink.strategymass.net.SyncObject;
 import com.danwink.strategymass.nethelpers.Packets.MoveUnitPacket;
 
@@ -27,7 +28,7 @@ public class ClassRegister
 		
 		ClientMessages.class,
 		MoveUnitPacket.class,
-		
+		UnitPartial.class,
 		
 		ServerMessages.class,
 		

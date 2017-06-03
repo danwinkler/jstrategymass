@@ -9,11 +9,12 @@ import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Team;
 import com.danwink.strategymass.game.objects.Unit;
+import com.danwink.strategymass.game.objects.UnitWrapper;
 
 public class GameState
 {
-	public ArrayList<Unit> units;
-	public HashMap<Integer, Unit> unitMap;
+	public ArrayList<UnitWrapper> units;
+	public HashMap<Integer, UnitWrapper> unitMap;
 	public Map map;
 	public ArrayList<Player> players;
 	public HashMap<Integer, Player> playerMap;
@@ -49,10 +50,10 @@ public class GameState
 		playerMap.put( p.playerId, p );
 	}
 
-	public void addUnit( Unit u )
+	public void addUnit( UnitWrapper u )
 	{
 		units.add( u );
-		unitMap.put( u.syncId, u );
+		unitMap.put( u.getUnit().syncId, u );
 	}
 
 	public void removeBullet( int id )
@@ -67,6 +68,6 @@ public class GameState
 	
 	public void removeUnitAtIndex( int index )
 	{
-		unitMap.remove( units.remove( index ).syncId );
+		unitMap.remove( units.remove( index ).getUnit().syncId );
 	}
 }

@@ -39,8 +39,9 @@ public class Bullet extends SyncObject<Bullet>
 		
 		move( dt, state );
 		
-		for( Unit u : state.units )
+		for( UnitWrapper uw : state.units )
 		{
+			Unit u = uw.getUnit();
 			if( u.team == this.team ) continue;
 			
 			if( Intersector.distanceSegmentPoint( sx, sy, pos.x, pos.y, u.pos.x, u.pos.y ) < Unit.radius )

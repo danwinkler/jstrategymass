@@ -10,8 +10,10 @@ import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
+import com.danwink.strategymass.game.objects.ServerUnit;
 import com.danwink.strategymass.game.objects.Team;
 import com.danwink.strategymass.game.objects.Unit;
+import com.danwink.strategymass.game.objects.UnitWrapper;
 import com.danwink.strategymass.net.SyncServer;
 
 public class GameLogic
@@ -101,7 +103,7 @@ public class GameLogic
 		u.pos.x += MathUtils.random( -.01f, .01f );
 		u.pos.y += MathUtils.random( -.01f, .01f );
 		sync.add( u );
-		state.addUnit( u );
+		state.addUnit( new ServerUnit( u ) );
 	}
 	
 	public Point getTeamBase( int team )
@@ -119,9 +121,9 @@ public class GameLogic
 	{
 		for( int i = 0; i < state.units.size(); i++ ) 
 		{
-			Unit u = state.units.get( i ); 
+			ServerUnit u = (ServerUnit)state.units.get( i ); 
 			u.update( dt, this, state );
-			if( u.remove )
+			if( u.getUnit().remove )
 			{
 				state.removeUnitAtIndex( i );
 				i--;
@@ -170,8 +172,9 @@ public class GameLogic
 	{
 		for( Integer u : units )
 		{
-			Unit unit = state.unitMap.get( u );
-			if( unit == null ) continue;
+			UnitWrapper uw = state.unitMap.get( u );
+			if( uw == null ) continue;
+			Unit unit = uw.getUnit();
 			if( unit.owner == id )
 			{
 				int x = (int)(unit.pos.x / state.map.tileWidth);
@@ -184,10 +187,12 @@ public class GameLogic
 				ArrayList<GridPoint2> path = graph.search( x, y, tx, ty );
 				if( path != null ) 
 				{
+					//TODO: move this into a move function on unit
 					unit.path = path;
 					unit.onPath = 0;	
 					unit.targetX = pos.x;
 					unit.targetY = pos.y;
+					unit.update = true;
 				}
 			}
 		}
