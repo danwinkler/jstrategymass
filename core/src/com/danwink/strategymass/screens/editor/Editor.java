@@ -63,6 +63,7 @@ public class Editor implements Screen, InputProcessor
 	TextButton loadButton;
 	
 	TextButton newButton;
+	TextButton generateButton;
 	
 	Brush b = new TileBrush( Map.TILE_GRASS );
 	
@@ -207,6 +208,13 @@ public class Editor implements Screen, InputProcessor
 			}
 		});
 		
+		generateButton = new VisTextButton( "Generate" );
+		generateButton.addListener( new ClickListener() {
+			public void clicked( InputEvent e, float x, float y ) {
+				MapGenerator.generate( state.map, mirrorSelect.getSelected() );
+			}
+		});
+		
 		
 		table.add( grass ).fillX();
 		table.row();
@@ -228,6 +236,8 @@ public class Editor implements Screen, InputProcessor
 		table.add( loadButton ).fillX();
 		table.row();
 		table.add( newButton ).fillX();
+		table.row();
+		table.add( generateButton ).fillX();
 		table.row();
 		
 		table.add( exit ).fillX().expandY().bottom();

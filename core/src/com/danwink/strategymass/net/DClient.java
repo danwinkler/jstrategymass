@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
 
 
@@ -97,6 +98,10 @@ public class DClient extends Listener
 		while( hasClientMessages() )
 		{
 			Message m = messages.removeFirst();
+			if( m.value instanceof FrameworkMessage.KeepAlive ) {
+				System.out.println( "KEEP ALIVE INTERCEPTED ON BOT" );
+				continue;
+			}
 			listenerManager.call( m.key, l -> {
 				l.receive( m.value );
 			});

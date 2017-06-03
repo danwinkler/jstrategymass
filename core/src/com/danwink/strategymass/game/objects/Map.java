@@ -72,8 +72,20 @@ public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<P
 		int tx = (int)(x / tileWidth);
 		int ty = (int)(y / tileHeight);
 		
-		if( tx < 0 || ty < 0 || tx >= width || ty >= height ) return TILE_TREE;
-		return tiles[ty][tx];
+		return getTile( tx, ty );
+	}
+	
+	public int getTile( int x, int y )
+	{
+		if( x < 0 || y < 0 || x >= width || y >= height ) return TILE_TREE;
+		return tiles[y][x];
+	}
+	
+	public void setTile( int x, int y, int tile )
+	{
+		if( x < 0 || y < 0 || x >= width || y >= height ) return;
+		
+		tiles[y][x] = tile;
 	}
 	
 	public void deleteBase( int team )
@@ -97,7 +109,7 @@ public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<P
 		points.removeIf( p -> {
 			if( p.pos.x == px && p.pos.y == py )
 			{
-				tiles[y][x] = Map.TILE_GRASS;
+				setTile( x, y, Map.TILE_GRASS );
 				return true;
 			}
 			return false;

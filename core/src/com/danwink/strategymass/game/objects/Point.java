@@ -1,6 +1,6 @@
 package com.danwink.strategymass.game.objects;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
@@ -35,6 +35,8 @@ public class Point
 	
 	public void update( float dt, GameState state )
 	{
+		if( !isCapturable( state ) ) return;
+		
 		float oldTaken = taken;
 		
 		int total = 0;
@@ -121,6 +123,28 @@ public class Point
 			}
 		}
 		return null;
+	}
+	
+	public GridPoint2 randomAdjacent( Map m )
+	{
+		ArrayList<GridPoint2> adjs = adjacents( m );
+		return adjs.get( MathUtils.random( adjs.size()-1 ) );
+	}
+	
+	public ArrayList<GridPoint2> adjacents( Map m )
+	{
+		int px = (int)(pos.x / m.tileWidth);
+		int py = (int)(pos.y / m.tileHeight);
+		ArrayList<GridPoint2> adjs = new ArrayList<>();
+
+		for( GridPoint2 l : adjacentList )
+		{
+			if( m.isPassable( px + l.x, py + l.y ) ) 
+			{
+				adjs.add( new GridPoint2( px + l.x, py + l.y ) );
+			}
+		}
+		return adjs;
 	}
 
 	public boolean isCapturable( GameState state )

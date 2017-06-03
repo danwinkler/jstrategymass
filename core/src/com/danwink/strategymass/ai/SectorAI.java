@@ -74,7 +74,7 @@ public class SectorAI extends Bot
 					return;
 				}
 				
-				GridPoint2 adj = b.findAjacent( state.map );
+				GridPoint2 adj = b.randomAdjacent( state.map );
 				moveUnit( u, (adj.x+.5f)*state.map.tileWidth, (adj.y+.5f)*state.map.tileHeight );
 			}
 		}
@@ -153,7 +153,7 @@ public class SectorAI extends Bot
 					//Send army to the weakest point
 					if( bestBorderZone != null )
 					{
-						army.moveGrid( bestBorderZone.adjacent );
+						army.moveGrid( bestBorderZone.p.randomAdjacent( state.map ) );
 						break armyBreak;
 					}
 				}
@@ -206,7 +206,7 @@ public class SectorAI extends Bot
 					//Send army to the weakest point
 					if( best != null )
 					{
-						army.moveGrid( best.adjacent );
+						army.moveGrid( best.p.randomAdjacent( state.map ) );
 						break armyBreak;
 					}
 				}
@@ -223,7 +223,7 @@ public class SectorAI extends Bot
 					
 					if( nZoneStrength < army.units.size() * .75f )
 					{
-						army.moveGrid( n.z.adjacent );
+						army.moveGrid( n.z.p.randomAdjacent( state.map ) );
 						break armyBreak;
 					}
 				}
@@ -254,7 +254,7 @@ public class SectorAI extends Bot
 					{
 						if( b.team != me.team && b.isCapturable( state ) )
 						{
-							GridPoint2 adj = b.findAjacent( state.map );
+							GridPoint2 adj = b.randomAdjacent( state.map );
 							army.moveGrid( adj );
 						}
 					}

@@ -15,8 +15,8 @@ public class Brushes
 
 		public void draw( int x, int y, Map m )
 		{
-			m.tiles[y][x] = tile;
 			m.deletePoint( x, y );
+			m.setTile( x, y, tile );
 		}
 	}
 	
