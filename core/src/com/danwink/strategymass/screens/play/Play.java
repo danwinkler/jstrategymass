@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.danwink.strategymass.MainMenu;
 import com.danwink.strategymass.StrategyMass;
+import com.danwink.strategymass.ai.MapAnalysis;
 import com.danwink.strategymass.game.GameClient;
 import com.danwink.strategymass.game.GameRenderer;
 import com.danwink.strategymass.game.GameState;
@@ -216,11 +217,16 @@ public class Play implements Screen, InputProcessor
 
 	public boolean keyUp( int keycode )
 	{
-		if( keycode == Input.Keys.ESCAPE ) 
+		switch( keycode )
 		{
+		case Input.Keys.ESCAPE:
 			ui.showExitDialog();
 			return true;
+		case Input.Keys.F2:
+			renderer.toggleDebug();
+			return true;
 		}
+		
 		return false;
 	}
 

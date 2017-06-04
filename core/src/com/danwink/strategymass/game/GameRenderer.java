@@ -2,10 +2,14 @@ package com.danwink.strategymass.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
+import com.danwink.strategymass.ai.MapAnalysis;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.ClientUnit;
 import com.danwink.strategymass.game.objects.Map;
@@ -18,6 +22,7 @@ public class GameRenderer
 {
 	GameState state;
 	SpriteBatch batch;
+	ShapeRenderer shape;
 	
 	Texture grass, tree;
 	
@@ -36,11 +41,15 @@ public class GameRenderer
 	
 	Texture[] textureMap;
 	
+	MapAnalysis ma;
+	boolean debug;
+	
 	public GameRenderer( GameState state )
 	{
 		this.state = state;
 		
 		this.batch = new SpriteBatch();
+		shape = new ShapeRenderer();
 		
 		grass = new Texture( Gdx.files.internal( "medievalTile_57.png" ) );
 		tree = new Texture( Gdx.files.internal( "medievalTile_48.png" ) );
@@ -67,10 +76,17 @@ public class GameRenderer
 		r += Gdx.graphics.getDeltaTime() * millSpeed;
 		
 		//Textures
-		batch.setProjectionMatrix( camera.combined );
-		batch.begin();
 		if( state.map != null )
 		{	
+			if( ma == null )
+			{
+				ma = new MapAnalysis();
+				ma.build( state.map );
+			}
+			
+			batch.setProjectionMatrix( camera.combined );
+			batch.begin();
+			
 			renderMapBottom( batch );
 			
 			//Render Units
@@ -88,8 +104,14 @@ public class GameRenderer
 			}
 			
 			renderMapTop( batch );
+			batch.end();
+			
+			if( debug )
+			{
+				shape.setProjectionMatrix( camera.combined );
+				ma.render( shape, batch );
+			}
 		}
-		batch.end();
 	}
 	
 	public void renderMapBottom( SpriteBatch batch )
@@ -153,5 +175,10 @@ public class GameRenderer
 	public void dispose()
 	{
 		batch.dispose();
+	}
+	
+	public void toggleDebug()
+	{
+		debug = !debug;
 	}
 }

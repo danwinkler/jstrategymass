@@ -133,6 +133,18 @@ public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<P
 		return null;
 	}
 	
+	public Point getBase( int team )
+	{
+		for( Point p : points )
+		{
+			if( p.isBase && p.team == team )
+			{
+				return p;
+			}
+		}
+		return null;
+	}
+	
 	public void update( float dt, GameState state )
 	{
 		for( Point p : points )

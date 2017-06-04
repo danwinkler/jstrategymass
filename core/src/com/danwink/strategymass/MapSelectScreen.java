@@ -65,10 +65,6 @@ public class MapSelectScreen extends MenuScreen
 		{
 			BotField b = new BotField( prefs.getBoolean( "botFieldEnabled-" + i, false ), prefs.getInteger( "botFieldTeam-" + i, 1 ) );
 			
-			if( i == 0 ) {
-				b.initEnabled = true;
-			}
-			
 			bots.add( b );
 			b.build();
 		}

@@ -3,7 +3,13 @@ package com.danwink.strategymass.ai;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.danwink.strategymass.game.MapPathFinding;
@@ -144,6 +150,23 @@ public class MapAnalysis
 		}
 	}
 	
+	public void calculateBaseDistances()
+	{
+		for( Zone z : zones )
+		{
+			GridPoint2 zp = z.p.findAjacent( m );
+			for( int team = 0; team < 4; team++ )
+			{
+				Point base = m.getBase( team );
+				if( base != null )
+				{
+					GridPoint2 bp = base.findAjacent( m );
+					z.baseDistances[team] = graph.search( bp.x, bp.y, zp.x, zp.y ).size();
+				}
+			}
+		}
+	}
+	
 	public void build( Map m )
 	{
 		this.m = m;
@@ -191,6 +214,9 @@ public class MapAnalysis
 		//Calculate zone distances
 		//Prune neighbors whose paths force us to go through another zone's building (so we dont feed)
 		pruneNeighbors( graph );
+		
+		//Calculate distances from bases
+		calculateBaseDistances();
 	}
 	
 	class TileAnalysis
@@ -216,6 +242,7 @@ public class MapAnalysis
 		ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>();
 		Point p;
 		GridPoint2 adjacent;
+		int[] baseDistances = new int[4];
 		
 		public void addNeightbor( Zone z )
 		{
@@ -238,9 +265,11 @@ public class MapAnalysis
 		}
 	}
 	
-	/*
-	public void render( Graphics g )
+	public void render( ShapeRenderer g, SpriteBatch batch )
 	{
+		Gdx.gl.glEnable( GL30.GL_BLEND );
+		Gdx.gl.glBlendFunc( GL30.GL_SRC_ALPHA, GL30.GL_ONE_MINUS_SRC_ALPHA );
+		g.begin( ShapeType.Filled );
 		for( int x = 0; x < width; x++ )
 		{
 			for( int y = 0; y < height; y++ )
@@ -249,9 +278,9 @@ public class MapAnalysis
 				if( ta.zone != null ) 
 				{
 					g.setColor( ta.zone.c );
-					g.fillRect( x * Level.tileSize, y * Level.tileSize, Level.tileSize, Level.tileSize );
+					g.rect( x * m.tileWidth, y * m.tileHeight, m.tileWidth, m.tileHeight );
 				}
-				if( ta.side != null )
+				if( ta.side >= 0 )
 				{
 					//g.setColor( new Color( ta.side.getColor().r, ta.side.getColor().g, ta.side.getColor().b, .1f ) );
 					//g.fillRect( x * Level.tileSize, y * Level.tileSize, Level.tileSize, Level.tileSize );
@@ -260,9 +289,28 @@ public class MapAnalysis
 				}
 			}
 		}
+		g.end();
+		Gdx.gl.glDisable( GL30.GL_BLEND );
+		
+		g.begin( ShapeType.Line );
+		for( Zone z : zones )
+		{
+			for( Neighbor n : z.neighbors )
+			{
+				g.line( z.p.pos, n.z.p.pos );
+			}
+		}
+		g.end();
+		
+		BitmapFont f = new BitmapFont();
+		batch.begin();
+		for( Zone z : zones )
+		{
+			f.draw( batch, z.baseDistances[0] + ", " + z.baseDistances[1], z.p.pos.x + 32, z.p.pos.y );
+		}
+		batch.end();
 	}
-	*/
-
+	
 	public Zone getZone( float x, float y )
 	{
 		return tiles[(int)(x/m.tileWidth)][(int)(y/m.tileHeight)].zone;

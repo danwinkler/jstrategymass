@@ -2,8 +2,11 @@ package com.danwink.strategymass.ai;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.ai.MapAnalysis.Neighbor;
 import com.danwink.strategymass.ai.MapAnalysis.Zone;
@@ -65,7 +68,12 @@ public class SectorAI extends Bot
 			
 			if( !u.isMoving() ) 
 			{
-				Point b = findPointShortestPath( u.pos.x, u.pos.y, la.graph, tb -> { return tb.team == -1; });
+				Point b = getBestUntakenAdjacentPoint( u.pos.x, u.pos.y, me.team ); 
+						
+				if( b == null )
+				{
+					b = findPointShortestPath( u.pos.x, u.pos.y, la.graph, tb -> { return tb.team == -1; });
+				}
 
 				//If all points are taken, head to battlePhase
 				if( b == null )
@@ -80,12 +88,40 @@ public class SectorAI extends Bot
 		}
 	}
 	
+	public Point getBestUntakenAdjacentPoint( float x, float y, int team )
+	{
+		Zone z = la.getZone( x, y );
+		Point best = null;
+		int distance = 100000;
+		for( Neighbor n : z.neighbors )
+		{
+			if( n.z.p.team != -1 ) continue;
+			
+			int total = 0;
+			for( int i = 0; i < n.z.baseDistances.length; i++ ) { if( team != i ) total += n.z.baseDistances[i]; }
+			if( total < distance )
+			{
+				distance = total;
+				best = n.z.p;
+			}
+		}
+		return best;
+	}
+	
+	public Point getRandomUntakenAdjacentPoint( float x, float y )
+	{
+		Zone z = la.getZone( x, y );
+		List<Neighbor> ns = z.neighbors.stream().filter( n -> n.z.p.team == -1 ).collect( Collectors.toList() );
+		return ns.get( MathUtils.random( ns.size()-1 ) ).z.p;
+	}
+	
 	//This is the main game phase
 	public void battlePhase( Player me, GameState state )
 	{
-		if( me.money >= Unit.unitCost )
+		while( me.money >= Unit.unitCost )
 		{
 			send( ClientMessages.BUILDUNIT, null );
+			me.money -= Unit.unitCost;
 		}
 		
 		//Update Armies
