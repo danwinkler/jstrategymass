@@ -73,9 +73,10 @@ public class MapSelectScreen extends MenuScreen
 			b.build();
 		}
 		
-		table.add( select ).padTop( 20 ).colspan( 2 ).fillX();
+		table.add( select ).padTop( 20 ).colspan( 3 ).fillX().padBottom( 10 );
 		table.row();
-		table.add( start ).colspan( 2 ).fillX().padTop( 10 );
+		table.add( cancel ).fillX();
+		table.add( start ).fillX().colspan( 2 ).width( 100 );
 	}
 	
 	public class BotField
@@ -106,8 +107,8 @@ public class MapSelectScreen extends MenuScreen
 			team.setItems( 0, 1, 2, 3 );
 			team.setSelected( initTeam );
 			
-			table.add( enabled );
-			table.add( team );
+			table.add( enabled ).fillX().colspan( 2 ).padBottom( 5 );
+			table.add( team ).padBottom( 5 ).fillX().left();
 			table.row();
 		}
 		

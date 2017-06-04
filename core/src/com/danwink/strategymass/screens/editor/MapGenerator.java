@@ -114,9 +114,9 @@ public class MapGenerator
 		{
 			//Copy tile array
 			int[][] tiles = Arrays.stream( m.tiles ).map( a -> a.clone() ).toArray( int[][]::new );
-			for( int y = 1; y < m.height-2; y++ )
+			for( int y = 1; y < m.height-1; y++ )
 			{
-				for( int x = 1; x < m.width-2; x++ )
+				for( int x = 1; x < m.width-1; x++ )
 				{
 					if( m.getTile( x, y ) != Map.TILE_TREE ) continue;
 					

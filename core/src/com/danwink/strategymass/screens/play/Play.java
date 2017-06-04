@@ -216,6 +216,11 @@ public class Play implements Screen, InputProcessor
 
 	public boolean keyUp( int keycode )
 	{
+		if( keycode == Input.Keys.ESCAPE ) 
+		{
+			ui.showExitDialog();
+			return true;
+		}
 		return false;
 	}
 

@@ -2,6 +2,8 @@ package com.danwink.strategymass.net;
 
 import java.io.IOException;
 
+import com.esotericsoftware.kryonet.FrameworkMessage.KeepAlive;
+
 public class FakeClient extends DClient
 {
 	DServer server;
@@ -32,6 +34,7 @@ public class FakeClient extends DClient
 	@Override
 	public void sendTCP( Object key ) 
 	{
+		if( key instanceof KeepAlive ) return;
 		sendTCP( key, null );
 	} 
 }
