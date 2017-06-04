@@ -15,6 +15,7 @@ public class Bullet extends SyncObject<Bullet>
 	public int team;
 	public boolean alive = true; //This is necessary so on client we can remove ourselves
 	public int damage = 30;
+	public float life = -100;
 	
 	public Bullet() {}
 	
@@ -30,6 +31,7 @@ public class Bullet extends SyncObject<Bullet>
 		this.heading = so.heading;
 		this.team = so.team;
 		this.damage = so.damage;
+		this.life = so.life;
 	}
 
 	public void update( float dt, GameState state )
@@ -59,17 +61,31 @@ public class Bullet extends SyncObject<Bullet>
 		float dx = MathUtils.cos( heading ) * dt * SPEED;
 		float dy = MathUtils.sin( heading ) * dt * SPEED;  
 		
-		if( hitwall( this.pos.x, this.pos.y, dx, dy, state.map ) ) 
+		if( life == -100 )
 		{
-			remove = true;
-			alive = false;
+			Vector2 result = new Vector2();
+			hitwall( this.pos.x, this.pos.y, dx * 1000, dy * 1000, state.map, result );
+			result.sub( this.pos );
+			life = result.len() / SPEED;
 		}
 		
 		pos.x += dx;
 		pos.y += dy;
+		life -= dt;
+		
+		if( life <= 0 ) 
+		{
+			remove = true;
+			alive = false;
+		}
 	}
 	
 	public static boolean hitwall( float x, float y, float dx, float dy, Map map )
+	{
+		return hitwall( x, y, dx, dy, map, null );
+	}
+	
+	public static boolean hitwall( float x, float y, float dx, float dy, Map map, Vector2 result )
 	{
 		int cx, cy; // current x, y, in tiles
 		float cbx, cby; // starting tile cell bounds, in pixels
@@ -186,9 +202,12 @@ public class Bullet extends SyncObject<Bullet>
 		tResult = (tMaxX < tMaxY) ? tMaxX : tMaxY;
 		
 		
-		// store the result 
-		//result.x = start.x + (direction.x * tResult);
-		//result.y = start.y + (direction.y * tResult);
+		// store the result
+		if( result != null )
+		{
+			result.x = x + (direction.x * tResult);
+			result.y = y + (direction.y * tResult);
+		}
 		
 		/*
 		if( resultInTiles != null ) { 

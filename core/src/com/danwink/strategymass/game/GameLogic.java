@@ -1,6 +1,7 @@
 package com.danwink.strategymass.game;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
@@ -129,6 +130,7 @@ public class GameLogic
 				i--;
 			}
 		}
+		Collections.shuffle( state.units );
 		
 		for( int i = 0; i < state.bullets.size(); i++ )
 		{
