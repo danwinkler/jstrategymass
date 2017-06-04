@@ -2,6 +2,8 @@ package com.danwink.strategymass;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.danwink.strategymass.ai.Bot;
@@ -16,10 +18,18 @@ public class MapSelectScreen extends MenuScreen
 {
 	public void build()
 	{
+		Preferences prefs = Gdx.app.getPreferences( "com.danwink.strategymass.mapselect" );
 		ArrayList<BotField> bots = new ArrayList<BotField>();
 		
 		VisSelectBox<String> select = new VisSelectBox<String>();
-		select.setItems( MapFileHelper.getMaps().toArray( new String[0] ) );
+		ArrayList<String> maps = MapFileHelper.getMaps();
+		select.setItems( maps.toArray( new String[0] ) );
+		
+		String selectedMap = prefs.getString( "map", "" );
+		if( maps.contains( selectedMap ) )
+		{
+			select.setSelected( selectedMap );
+		}
 		
 		VisTextButton start = new VisTextButton( "Start" );
 		start.addListener( new ClickListener() {
@@ -29,10 +39,16 @@ public class MapSelectScreen extends MenuScreen
 				StrategyMass.game.server.state.mapName = select.getSelected();
 				StrategyMass.game.server.start();
 				
-				for( BotField b : bots )
+				for( int i = 0; i < bots.size(); i++ )
 				{
+					BotField b = bots.get( i );
 					b.setBot();
+					prefs.putBoolean( "botFieldEnabled-" + i, b.enabled.getSelected() == Enabled.BOT );
+					prefs.putInteger( "botFieldTeam-" + i, b.team.getSelected() );
 				}
+				
+				prefs.putString( "map", select.getSelected() );
+				prefs.flush();
 				
 				StrategyMass.game.setScreen( new Play() );
 			}
@@ -47,7 +63,7 @@ public class MapSelectScreen extends MenuScreen
 		
 		for( int i = 0; i < 8; i++ )
 		{
-			BotField b = new BotField();
+			BotField b = new BotField( prefs.getBoolean( "botFieldEnabled-" + i, false ), prefs.getInteger( "botFieldTeam-" + i, 1 ) );
 			
 			if( i == 0 ) {
 				b.initEnabled = true;
@@ -69,6 +85,17 @@ public class MapSelectScreen extends MenuScreen
 		
 		VisSelectBox<Enabled> enabled;
 		VisSelectBox<Integer> team;
+		
+		public BotField()
+		{
+			
+		}
+		
+		public BotField( boolean enabled, int team )
+		{
+			initEnabled = enabled;
+			initTeam = team;
+		}
 		
 		public void build()
 		{
