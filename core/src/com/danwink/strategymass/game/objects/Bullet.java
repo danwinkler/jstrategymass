@@ -16,6 +16,7 @@ public class Bullet extends SyncObject<Bullet>
 	public boolean alive = true; //This is necessary so on client we can remove ourselves
 	public int damage = 30;
 	public float life = -100;
+	public int owner;
 	
 	public Bullet() {}
 	
@@ -32,6 +33,7 @@ public class Bullet extends SyncObject<Bullet>
 		this.team = so.team;
 		this.damage = so.damage;
 		this.life = so.life;
+		this.owner = so.owner;
 	}
 
 	public void update( float dt, GameState state )
@@ -49,6 +51,14 @@ public class Bullet extends SyncObject<Bullet>
 			if( Intersector.distanceSegmentPoint( sx, sy, pos.x, pos.y, u.pos.x, u.pos.y ) < Unit.radius )
 			{
 				u.health -= this.damage;
+				
+				if( u.health < 0 ) 
+				{
+					Player p = state.playerMap.get( this.owner );
+					p.unitsKilled++;
+					p.update = true;
+				}
+				
 				this.alive = false;
 				this.remove = true;
 				return;

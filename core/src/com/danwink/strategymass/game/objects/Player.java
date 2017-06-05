@@ -8,6 +8,9 @@ public class Player extends SyncObject<Player>
 	public String name;
 	public int team;
 	public int money = 10;
+	public int unitsBuilt = 0;
+	public int unitsKilled = 0;
+	public int unitsLost = 0;
 	
 	public Player() {}
 	
@@ -22,5 +25,8 @@ public class Player extends SyncObject<Player>
 		this.money = so.money;
 		this.team = so.team;
 		this.name = so.name;
+		this.unitsBuilt = so.unitsBuilt;
+		this.unitsKilled = so.unitsKilled;
+		this.unitsLost = so.unitsLost;
 	}
 }

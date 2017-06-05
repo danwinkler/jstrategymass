@@ -96,22 +96,22 @@ public class Play implements Screen, InputProcessor
 		client.update( dt );
 		
 		//Scrolling Logic
-		if( Gdx.input.isKeyPressed( Input.Keys.LEFT ) )
+		if( Gdx.input.isKeyPressed( Input.Keys.LEFT ) || Gdx.input.isKeyPressed( Input.Keys.A ) )
 		{
 			camera.translate( -scrollSpeed * dt * camera.zoom, 0 );
 			camera.update();
 		}
-		if( Gdx.input.isKeyPressed( Input.Keys.RIGHT ) )
+		if( Gdx.input.isKeyPressed( Input.Keys.RIGHT ) || Gdx.input.isKeyPressed( Input.Keys.D ) )
 		{
 			camera.translate( scrollSpeed * dt * camera.zoom, 0 );
 			camera.update();
 		}
-		if( Gdx.input.isKeyPressed( Input.Keys.DOWN ) )
+		if( Gdx.input.isKeyPressed( Input.Keys.DOWN ) || Gdx.input.isKeyPressed( Input.Keys.S ) )
 		{
 			camera.translate( 0, -scrollSpeed * dt * camera.zoom );
 			camera.update();
 		}
-		if( Gdx.input.isKeyPressed( Input.Keys.UP ) )
+		if( Gdx.input.isKeyPressed( Input.Keys.UP ) || Gdx.input.isKeyPressed( Input.Keys.W ) )
 		{
 			camera.translate( 0, scrollSpeed * dt * camera.zoom );
 			camera.update();

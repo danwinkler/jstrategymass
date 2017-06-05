@@ -100,11 +100,12 @@ public class GameLogic
 		if( p.money < 10 ) return;
 		
 		p.money -= 10;
+		p.unitsBuilt++;
 		p.update = true;
 		
 		Unit u = new Unit();
 		u.owner = id;
-		u.team = state.playerMap.get( id ).team;
+		u.team = p.team;
 		u.pos = getTeamBase( u.team ).pos.cpy();
 		u.pos.y -= 33;
 		u.pos.x += MathUtils.random( -.01f, .01f );
@@ -132,6 +133,9 @@ public class GameLogic
 			u.update( dt, this, state );
 			if( u.getUnit().remove )
 			{
+				Player p = state.playerMap.get( u.getUnit().owner );
+				p.unitsLost++;
+				p.update = true;
 				state.removeUnitAtIndex( i );
 				i--;
 			}
@@ -210,6 +214,7 @@ public class GameLogic
 	{
 		Bullet b = new Bullet( unit.pos.cpy(), heading );
 		b.team = unit.team;
+		b.owner = unit.owner;
 		sync.add( b );
 		state.bullets.add( b );
 	}

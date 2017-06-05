@@ -138,10 +138,20 @@ public class PlayUI
 		Table t = playerInfo.getContentTable();
 		t.clearChildren();
 		
+		t.add( "Name" );
+		t.add( "Team" );
+		t.add( "Units Built" );
+		t.add( "Units Killed" );
+		t.add( "Units Lost" );
+		t.row();
+		
 		for( Player p : players )
 		{
-			t.add( new VisLabel( p.name ) );
-			t.add( new VisLabel( "" + p.team ) );
+			t.add( p.name );
+			t.add( "" + p.team );
+			t.add( "" + p.unitsBuilt );
+			t.add( "" + p.unitsKilled );
+			t.add( "" + p.unitsLost );
 			t.row();
 		}
 		
