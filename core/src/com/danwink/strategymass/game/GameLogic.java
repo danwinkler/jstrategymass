@@ -87,6 +87,12 @@ public class GameLogic
 		sync.add( p );
 		return p;
 	}
+	
+
+	public Player getPlayer( int id )
+	{
+		return state.playerMap.get( id );
+	}
 
 	public void buildUnit( int id )
 	{

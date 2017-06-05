@@ -75,6 +75,7 @@ public class Play implements Screen, InputProcessor
 		
 		client = new GameClient( addr );
 		client.team = team;
+		client.name = StrategyMass.getSettings().getString( "name", "Player" );
 		client.start();
 		renderer = new GameRenderer( client.state );
 		
@@ -197,6 +198,14 @@ public class Play implements Screen, InputProcessor
 
 	public boolean keyDown( int keycode )
 	{
+		switch( keycode )
+		{
+		case Input.Keys.TAB:
+			ui.showPlayers( client.state.players );
+			return true;
+		}
+		
+
 		return false;
 	}
 

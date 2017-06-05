@@ -70,10 +70,10 @@ public class ClientLogic
 		}
 		
 		state.units.sort((a, b) -> {
-			float af = a.getUnit().pos.y;
-			float bf = b.getUnit().pos.y;
+			float af = ((ClientUnit)a).y;
+			float bf = ((ClientUnit)b).y;
 			if( af < bf ) return 1;
-			else if( bf > af ) return -1;
+			else if( bf < af ) return -1;
 			return 0;
 		});
 	}

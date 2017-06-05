@@ -5,6 +5,7 @@ import com.danwink.strategymass.net.SyncObject;
 public class Player extends SyncObject<Player>
 {
 	public int playerId;
+	public String name;
 	public int team;
 	public int money = 10;
 	
@@ -20,5 +21,6 @@ public class Player extends SyncObject<Player>
 		this.playerId = so.playerId;
 		this.money = so.money;
 		this.team = so.team;
+		this.name = so.name;
 	}
 }

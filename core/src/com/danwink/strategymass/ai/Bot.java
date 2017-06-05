@@ -29,6 +29,7 @@ public abstract class Bot implements Runnable
 	{
 		c = new GameClient( new FakeClient( server ) );
 		c.team = team;
+		c.name = "BOT";
 		c.start();
 		
 		t = new Thread( this );

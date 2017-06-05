@@ -6,9 +6,7 @@ import java.util.HashMap;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Player;
-import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Team;
-import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitWrapper;
 
 public class GameState

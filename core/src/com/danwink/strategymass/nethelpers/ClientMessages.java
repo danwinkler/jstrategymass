@@ -4,5 +4,7 @@ public enum ClientMessages
 {
 	JOIN, //Sent on join
 	BUILDUNIT, //Request to build a unit
-	MOVEUNITS //Request to move units
+	MOVEUNITS, //Request to move units
+	
+	JOINTEAM,
 }

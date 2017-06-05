@@ -26,8 +26,9 @@ public class GameClient
 	public Player me;
 	
 	String addr;
-	public int team = 0;
+	public int team = -1;
 	public boolean gameOver = false;
+	public String name = "";
 	
 	public GameClient()
 	{
@@ -55,7 +56,10 @@ public class GameClient
 		
 		//Direct messages
 		client.on( DClient.CONNECTED, o -> {
-			client.sendTCP( ClientMessages.JOIN, team );
+			client.sendTCP( ClientMessages.JOIN, name );
+			if( team >= 0 ) {
+				client.sendTCP( ClientMessages.JOINTEAM, team );
+			}
 		});
 		
 		client.on( ServerMessages.JOINSUCCESS, (Integer id) -> {

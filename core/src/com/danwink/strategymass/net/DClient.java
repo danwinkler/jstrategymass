@@ -35,6 +35,7 @@ public class DClient extends Listener
 	Client c;
 	ConcurrentLinkedDeque<Message> messages = new  ConcurrentLinkedDeque<Message>();
 	
+	@SuppressWarnings( "rawtypes" )
 	ListenerManager<ClientMessageListener> listenerManager;
 	
 	public DClient() 
@@ -58,6 +59,7 @@ public class DClient extends Listener
 		if( handleMessages ) processMessages();
 	}
 	
+	@SuppressWarnings( "rawtypes" )
 	public void register( Class...classes )
 	{
 		for( Class cToR : classes ) 

@@ -2,18 +2,22 @@ package com.danwink.strategymass.net;
 
 import java.util.HashMap;
 
-import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.net.SyncServer.AddPacket;
 import com.danwink.strategymass.net.SyncServer.PartialPacket;
 import com.esotericsoftware.kryonet.FrameworkMessage.KeepAlive;
-import com.esotericsoftware.reflectasm.FieldAccess;
 
 public class SyncClient
 {
 	DClient client;
+	@SuppressWarnings( "rawtypes" )
 	ListenerManager<ObjectListener> addLm;
+	
+	@SuppressWarnings( "rawtypes" )
 	ListenerManager<ObjectListener> initLm;
+	
 	ListenerManager<IdListener> removeLm;
+	
+	@SuppressWarnings( "rawtypes" )
 	HashMap<Integer, SyncObject> syncies;
 	
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
@@ -100,6 +104,7 @@ public class SyncClient
 		syncies.remove( id );
 	}
 	
+	@SuppressWarnings( "rawtypes" )
 	public SyncObject get( int id )
 	{
 		return syncies.get( id );

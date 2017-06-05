@@ -1,6 +1,5 @@
 package com.danwink.strategymass;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -29,6 +28,8 @@ public class SettingsScreen extends MenuScreen
 		save.addListener( new ClickListener(){
 			public void clicked( InputEvent e, float x, float y ) {
 				prefs.putString( "name", name.getText().trim() );
+				
+				prefs.flush();
 				
 				StrategyMass.game.setScreen( new MainMenu() );
 			}

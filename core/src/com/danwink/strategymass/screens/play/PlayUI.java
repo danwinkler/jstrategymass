@@ -1,8 +1,14 @@
 package com.danwink.strategymass.screens.play;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -12,10 +18,13 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.danwink.strategymass.MainMenu;
 import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.game.MapFileHelper;
+import com.danwink.strategymass.game.objects.Player;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
+import com.kotcrab.vis.ui.widget.VisWindow;
 
 public class PlayUI
 {
@@ -25,6 +34,8 @@ public class PlayUI
 	Label fps;
 	Label money;
 	TextButton addUnit;
+	
+	VisDialog playerInfo;
 	
 	public PlayUI( InputMultiplexer input )
 	{
@@ -52,6 +63,19 @@ public class PlayUI
 		table.add( addUnit ).width( 100 ).height( 60 ).left().bottom().expand();
 		
 		table.pad( 2 );
+		
+		playerInfo = new VisDialog( "Players" );
+		playerInfo.addListener( new InputListener() {
+			public boolean keyUp( InputEvent e, int keycode )
+			{
+				if( keycode == Input.Keys.TAB ) 
+				{
+					playerInfo.hide( Actions.hide() );
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 
 	public void resize( int width, int height ) 
@@ -107,5 +131,21 @@ public class PlayUI
 	public void dispose() 
 	{
 		stage.dispose();
+	}
+	
+	public void showPlayers( ArrayList<Player> players )
+	{
+		Table t = playerInfo.getContentTable();
+		t.clearChildren();
+		
+		for( Player p : players )
+		{
+			t.add( new VisLabel( p.name ) );
+			t.add( new VisLabel( "" + p.team ) );
+			t.row();
+		}
+		
+		playerInfo.show( stage, Actions.show() );
+		playerInfo.setPosition(Math.round((stage.getWidth() - playerInfo.getWidth()) / 2), Math.round((stage.getHeight() - playerInfo.getHeight()) / 2));
 	}
 }

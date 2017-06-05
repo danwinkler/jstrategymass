@@ -41,18 +41,17 @@ public class GameServer implements Updateable
 		state = new GameState();
 		logic = new GameLogic( state, sync );
 		
-		server.on( ClientMessages.JOIN, (int id, Integer team) -> {
+		server.on( ClientMessages.JOIN, (int id, String name) -> {
 			Player p = logic.addPlayer( id );
-			if( team == null )
-			{
-				p.team = state.players.size() % 2;
-			}
-			else 
-			{
-				p.team = team;	
-			}
-			
+			p.team = 0;
+			p.name = name;
 			server.sendTCP( id, ServerMessages.JOINSUCCESS, p.syncId );
+		});
+		
+		server.on( ClientMessages.JOINTEAM, (int id, Integer team) -> {
+			Player p = logic.getPlayer( id );
+			p.team = team;
+			p.update = true;
 		});
 		
 		server.on( ClientMessages.BUILDUNIT, (id, o) -> {

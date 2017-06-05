@@ -21,7 +21,7 @@ public class DServer extends Listener
 	public static final String DISCONNECTED = "net.CONNECTED";
 	
 	Thread messageSenderThread;
-	ThreadRunner tr;
+	public ThreadRunner tr;
 	boolean running;
 	
 	boolean handleMessages = true;
@@ -33,6 +33,7 @@ public class DServer extends Listener
 	
 	Pool<MessagePacket> mpPool = Pools.get( MessagePacket.class );
 	
+	@SuppressWarnings( "rawtypes" )
 	ListenerManager<ServerMessageListener> listenerManager;
 	
 	Server server;
@@ -96,7 +97,8 @@ public class DServer extends Listener
 	
 	private class ThreadRunner 
 	{
-		int framesPerSecond;
+		@SuppressWarnings( "unused" )
+		public int framesPerSecond;
 		Thread t;
 		long lastFrame;
 		long targetNanosPerTick;
@@ -200,6 +202,7 @@ public class DServer extends Listener
 		listenerManager.on( key, listener );
 	}
 	
+	@SuppressWarnings( "rawtypes" )
 	public void register( Class...classes )
 	{
 		for( Class cToR : classes ) 
