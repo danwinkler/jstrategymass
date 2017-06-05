@@ -3,6 +3,7 @@ package com.danwink.strategymass.server;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.ai.Bot;
 import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;
@@ -123,5 +124,10 @@ public class GameServer implements Updateable
 	{
 		bots.forEach( bot -> bot.stop() );
 		server.stop();
+	}
+
+	public void setNextMap( String name )
+	{
+		state.mapName = name;
 	}
 }
