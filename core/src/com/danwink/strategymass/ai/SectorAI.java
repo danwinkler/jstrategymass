@@ -51,6 +51,15 @@ public class SectorAI extends Bot
 		
 	}
 	
+	public void reset()
+	{
+		la = null;
+		battlePhase = false;
+		armies.clear();
+		unitArmyMap.clear();
+		homeBase = null;
+	}
+	
 	//In this phase we try to expand and take every untaken point
 	public void expandPhase( Player me, GameState state )
 	{

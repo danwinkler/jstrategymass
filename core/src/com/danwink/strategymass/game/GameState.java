@@ -33,11 +33,16 @@ public class GameState
 	
 	public void clear()
 	{
+		clearExceptPlayers();
+		players.clear();
+		playerMap.clear();
+	}
+	
+	public void clearExceptPlayers()
+	{
 		units.clear();
 		unitMap.clear();
 		map = null;
-		players.clear();
-		playerMap.clear();
 		teams.clear();
 		bullets.clear();
 	}

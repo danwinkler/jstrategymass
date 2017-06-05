@@ -29,6 +29,7 @@ public class GameClient
 	public int team = -1;
 	public boolean gameOver = false;
 	public String name = "";
+	public boolean disconnected = false;
 	
 	public GameClient()
 	{
@@ -68,10 +69,12 @@ public class GameClient
 		
 		client.on( ServerMessages.GAMEOVER, o -> {
 			gameOver = true;
+			state.clear();
 		});
 		
 		client.on( DClient.DISCONNECTED, o -> {
 			gameOver = true;
+			disconnected = true;
 		});
 		
 		//Sync handlers
@@ -110,5 +113,10 @@ public class GameClient
 	{
 		client.update();
 		logic.update( dt );
+	}
+
+	public void switchTeams()
+	{
+		client.sendTCP( ClientMessages.JOINTEAM, me.team == 0 ? 1 : 0 );
 	}
 }

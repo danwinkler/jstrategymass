@@ -1,8 +1,6 @@
 package com.danwink.strategymass.screens.play;
 
 import java.util.ArrayList;
-import java.util.Collections;
-
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Bullet;

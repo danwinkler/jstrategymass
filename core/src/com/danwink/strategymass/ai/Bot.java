@@ -48,6 +48,9 @@ public abstract class Bot implements Runnable
 			float dt = deltaTime / 1000000000.f;
 			
 			c.update( dt );
+			if( c.gameOver ) {
+				reset();
+			}
 			update( c.me, c.state );
 			
 			long remaining = targetNanosPerTick - (System.nanoTime() - now);
@@ -63,6 +66,7 @@ public abstract class Bot implements Runnable
 		}
 	}
 	
+	public abstract void reset();
 	public abstract void update( Player me, GameState state );
 	
 	//BOT API

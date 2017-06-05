@@ -16,6 +16,7 @@ import com.danwink.strategymass.nethelpers.Packets.MoveUnitPacket;
 
 public class ClassRegister
 {
+	@SuppressWarnings( "rawtypes" )
 	public static Class[] classes = {
 		SyncObject.class,
 		

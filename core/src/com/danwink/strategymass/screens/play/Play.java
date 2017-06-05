@@ -15,8 +15,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.danwink.strategymass.MainMenu;
 import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.game.GameClient;
@@ -82,13 +80,7 @@ public class Play implements Screen, InputProcessor
 		shapeRenderer = new ShapeRenderer();
 		
 		//UI
-		ui.create();
-		
-		ui.addUnit.addListener( new ClickListener() {
-			public void clicked( InputEvent e, float x, float y ) {
-				client.client.sendTCP( ClientMessages.BUILDUNIT );
-			}
-		});
+		ui.create( this );
 	}
 
 	public void render( float dt )
@@ -159,7 +151,7 @@ public class Play implements Screen, InputProcessor
 		}
 		ui.render();
 		
-		if( client.gameOver )
+		if( client.disconnected )
 		{
 			StrategyMass.game.setScreen( new MainMenu() );
 		}

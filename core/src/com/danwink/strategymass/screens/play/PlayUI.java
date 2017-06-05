@@ -10,24 +10,22 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.danwink.strategymass.MainMenu;
 import com.danwink.strategymass.StrategyMass;
-import com.danwink.strategymass.game.MapFileHelper;
 import com.danwink.strategymass.game.objects.Player;
-import com.kotcrab.vis.ui.VisUI;
+import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisLabel;
-import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
-import com.kotcrab.vis.ui.widget.VisWindow;
 
 public class PlayUI
 {
+	Play play;
 	Stage stage;
 	Table table;
 	
@@ -43,8 +41,10 @@ public class PlayUI
 		input.addProcessor( stage );
 	}
 	
-	public void create() 
+	public void create( Play play ) 
 	{
+		this.play = play;
+		
 		table = new Table();
 		table.setFillParent( true );
 		stage.addActor( table );
@@ -54,6 +54,12 @@ public class PlayUI
 		addUnit = new VisTextButton( "Add Unit" );
 		fps = new VisLabel( "FPS: 0" );
 		money = new VisLabel( "Money: 0" );
+		
+		addUnit.addListener( new ClickListener() {
+			public void clicked( InputEvent e, float x, float y ) {
+				play.client.client.sendTCP( ClientMessages.BUILDUNIT );
+			}
+		});
 		
 		table.add( money ).top().left(); 
 		table.add( fps ).top().right().expand();
@@ -100,6 +106,9 @@ public class PlayUI
 					return;
 				case "return":
 					return;
+				case "switchteam":
+					play.client.switchTeams();
+					return;
 				}
 			}
 		};
@@ -109,6 +118,8 @@ public class PlayUI
 		Table t = d.getButtonsTable();
 		
 		d.setObject( t.add( new VisTextButton( "Return to Game" ) ).fillX().getActor(), "return" );
+		t.row();
+		d.setObject( t.add( new VisTextButton( "Switch Team" ) ).fillX().getActor(), "switchteam" );
 		t.row();
 		d.setObject( t.add( new VisTextButton( "Exit to Main Menu" ) ).fillX().getActor(), "exit" );
 		

@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.danwink.strategymass.ai.Bot;
-import com.danwink.strategymass.ai.SectorAI;
 import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Player;
+import com.danwink.strategymass.game.objects.Unit;
+import com.danwink.strategymass.game.objects.UnitWrapper;
 import com.danwink.strategymass.net.DServer;
 import com.danwink.strategymass.net.DServer.Updateable;
 import com.danwink.strategymass.net.SyncServer;
@@ -50,7 +51,18 @@ public class GameServer implements Updateable
 		
 		server.on( ClientMessages.JOINTEAM, (int id, Integer team) -> {
 			Player p = logic.getPlayer( id );
+			p.money = 10;
 			p.team = team;
+			
+			for( UnitWrapper uw : state.units )
+			{
+				Unit u = uw.getUnit();
+				if( u.owner == id ) 
+				{
+					u.remove = true;
+				}
+			}
+			
 			p.update = true;
 		});
 		
@@ -103,7 +115,7 @@ public class GameServer implements Updateable
 			{
 				e.printStackTrace();
 			}
-			stop();
+			logic.newGame();
 		}
 	}
 
