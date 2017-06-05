@@ -11,7 +11,8 @@ public class FakeClient extends DClient
 
 	public FakeClient( DServer server )
 	{
-		listenerManager = new ListenerManager<>();
+		super();
+		//listenerManager = new ListenerManager<>();
 		
 		this.server = server;
 		conn = new FakeConnection( this, server.server.getKryo() );
