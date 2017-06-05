@@ -38,4 +38,9 @@ public class ListenerManager<E>
 	{
 		public void call( E e );
 	}
+
+	public void clear()
+	{
+		listeners.clear();
+	}
 }

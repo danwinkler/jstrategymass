@@ -13,12 +13,16 @@ public class MainMenu extends MenuScreen
 		VisTextButton start = new VisTextButton( "Start" );
 		VisTextButton connect = new VisTextButton( "Connect" );
 		VisTextButton editor = new VisTextButton( "Editor" );
+		VisTextButton settings = new VisTextButton( "Settings" );
 		
 		table.add( start ).width( 300 ).height( 40 );
 		table.row();
 		table.add( connect ).width( 300 ).height( 40 );
 		table.row();
 		table.add( editor ).width( 300 ).height( 40 );
+		table.row();
+		table.add( settings ).width( 300 ).height( 40 );
+		
 		
 		start.addListener( new ClickListener(){
 			public void clicked( InputEvent e, float x, float y ) {
@@ -35,6 +39,12 @@ public class MainMenu extends MenuScreen
 		editor.addListener( new ClickListener(){
 			public void clicked( InputEvent e, float x, float y ) {
 				StrategyMass.game.setScreen( new Editor() );
+			}
+		});
+		
+		settings.addListener( new ClickListener(){
+			public void clicked( InputEvent e, float x, float y ) {
+				StrategyMass.game.setScreen( new SettingsScreen() );
 			}
 		});
 	}

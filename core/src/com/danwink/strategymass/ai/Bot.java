@@ -32,6 +32,7 @@ public abstract class Bot implements Runnable
 		c.start();
 		
 		t = new Thread( this );
+		t.setName( "Bot" );
 		t.start();
 	}
 

@@ -1,6 +1,5 @@
 package com.danwink.strategymass.screens.play;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
@@ -16,31 +15,17 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.danwink.strategymass.MainMenu;
 import com.danwink.strategymass.StrategyMass;
-import com.danwink.strategymass.ai.MapAnalysis;
 import com.danwink.strategymass.game.GameClient;
 import com.danwink.strategymass.game.GameRenderer;
-import com.danwink.strategymass.game.GameState;
-import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.ClientUnit;
 import com.danwink.strategymass.game.objects.Map;
-import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
-import com.danwink.strategymass.game.objects.Unit;
-import com.danwink.strategymass.game.objects.UnitWrapper;
-import com.danwink.strategymass.net.DClient;
-import com.danwink.strategymass.net.SyncClient;
-import com.danwink.strategymass.net.SyncServer;
-import com.danwink.strategymass.nethelpers.ClassRegister;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.Packets;
-import com.danwink.strategymass.nethelpers.ServerMessages;
-import com.danwink.strategymass.server.GameServer;
 
 public class Play implements Screen, InputProcessor
 {

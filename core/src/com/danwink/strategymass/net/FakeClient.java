@@ -12,10 +12,9 @@ public class FakeClient extends DClient
 	public FakeClient( DServer server )
 	{
 		super();
-		//listenerManager = new ListenerManager<>();
 		
 		this.server = server;
-		conn = new FakeConnection( this, server.server.getKryo() );
+		conn = new FakeConnection( this, c.getKryo() );
 	}
 	
 	@Override

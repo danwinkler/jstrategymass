@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
 import com.danwink.strategymass.server.GameServer;
 import com.kotcrab.vis.ui.VisUI;
@@ -44,5 +45,15 @@ public class StrategyMass extends Game
 	public void dispose()
 	{
 		
+	}
+	
+	public static Preferences getPrefs( String name )
+	{
+		return Gdx.app.getPreferences( "com.danwink.strategymass." + name );
+	}
+	
+	public static Preferences getSettings()
+	{
+		return Gdx.app.getPreferences( "com.danwink.strategymass.settings" );
 	}
 }

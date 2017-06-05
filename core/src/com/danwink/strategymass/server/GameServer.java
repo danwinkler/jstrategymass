@@ -90,6 +90,7 @@ public class GameServer implements Updateable
 	public void update( float dt )
 	{
 		logic.update( dt );
+		
 		sync.update();
 		
 		if( logic.isGameOver() )

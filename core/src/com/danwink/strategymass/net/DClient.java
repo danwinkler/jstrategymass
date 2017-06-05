@@ -113,15 +113,17 @@ public class DClient extends Listener
 		listenerManager.on( key, listener );
 	}
 	
+	public void clearListeners()
+	{
+		listenerManager.clear();
+	}
+	
 	//Listener
 	public void received( Connection c, Object o ) 
 	{
 		if( o instanceof Message )
 		{
-			synchronized( messages )
-			{
-				messages.addLast( (Message)o );
-			}
+			messages.addLast( (Message)o );
 		}
 	}
 	

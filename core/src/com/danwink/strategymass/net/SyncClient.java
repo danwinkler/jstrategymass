@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.net.SyncServer.AddPacket;
 import com.danwink.strategymass.net.SyncServer.PartialPacket;
+import com.esotericsoftware.kryonet.FrameworkMessage.KeepAlive;
 import com.esotericsoftware.reflectasm.FieldAccess;
 
 public class SyncClient
@@ -43,6 +44,11 @@ public class SyncClient
 		client.on( SyncServer.partial, (PartialPacket p) -> {
 			PartialUpdatable pu = (PartialUpdatable)syncies.get( p.id );
 			if( pu == null ) return;
+			if( p.partial instanceof KeepAlive )
+			{
+				System.out.println( "A KEEP ALIVE WAS FOUND AS A PART OF A MESSAGE PACKET" );
+				return;
+			}
 			pu.partialReadPacket( p.partial );
 		});
 		
@@ -80,6 +86,13 @@ public class SyncClient
 	public <E> void onRemove( Class<E> c, IdListener listener )
 	{
 		removeLm.on( c.getSimpleName().hashCode(), listener );
+	}
+	
+	public void clearListeners()
+	{
+		addLm.clear();
+		initLm.clear();
+		removeLm.clear();
 	}
 	
 	public void remove( int id )

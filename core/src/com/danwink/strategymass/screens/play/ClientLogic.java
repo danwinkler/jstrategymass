@@ -1,6 +1,7 @@
 package com.danwink.strategymass.screens.play;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.game.GameState;
@@ -67,5 +68,13 @@ public class ClientLogic
 			ClientUnit u = (ClientUnit)state.units.get( i );
 			u.update( dt, state );
 		}
+		
+		state.units.sort((a, b) -> {
+			float af = a.getUnit().pos.y;
+			float bf = b.getUnit().pos.y;
+			if( af < bf ) return 1;
+			else if( bf > af ) return -1;
+			return 0;
+		});
 	}
 }

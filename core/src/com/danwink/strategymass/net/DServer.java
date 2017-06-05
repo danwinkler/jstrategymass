@@ -55,6 +55,7 @@ public class DServer extends Listener
 		server.start();
 		
 		messageSenderThread = new Thread( new MessageSender() ) ;
+		messageSenderThread.setName( "DServer MessageSender" );
 		messageSenderThread.start();
 	}
 	
@@ -139,6 +140,7 @@ public class DServer extends Listener
 					}
 				}
 			});
+			t.setName( "DServer" );
 			t.start();
 		}
 	}
