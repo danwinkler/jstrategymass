@@ -37,6 +37,12 @@ public class GameLogic
 	public void newGame()
 	{
 		state.clearExceptPlayers();
+		for( Player p : state.players )
+		{
+			p.reset();
+			p.update = true;
+		}
+		
 		makeTeams( 2 );
 		setMap( MapFileHelper.loadMap( state.mapName ) );
 	}
@@ -127,7 +133,6 @@ public class GameLogic
 
 	public void update( float dt )
 	{
-		System.out.println( state.units.size() );
 		for( int i = 0; i < state.units.size(); i++ ) 
 		{
 			ServerUnit u = (ServerUnit)state.units.get( i ); 

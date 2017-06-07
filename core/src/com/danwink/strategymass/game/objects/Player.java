@@ -29,4 +29,12 @@ public class Player extends SyncObject<Player>
 		this.unitsKilled = so.unitsKilled;
 		this.unitsLost = so.unitsLost;
 	}
+
+	public void reset()
+	{
+		money = 10;
+		unitsBuilt = 0;
+		unitsKilled = 0;
+		unitsLost = 0;
+	}
 }

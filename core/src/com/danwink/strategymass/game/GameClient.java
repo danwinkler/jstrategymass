@@ -69,7 +69,7 @@ public class GameClient
 		
 		client.on( ServerMessages.GAMEOVER, o -> {
 			gameOver = true;
-			state.clear();
+			state.clearExceptPlayers();
 		});
 		
 		client.on( DClient.DISCONNECTED, o -> {

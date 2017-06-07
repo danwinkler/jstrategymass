@@ -223,6 +223,7 @@ public class Play implements Screen, InputProcessor
 
 	public boolean touchDown( int screenX, int screenY, int pointer, int button )
 	{
+		if( client.state.map == null ) return false;
 		Vector3 projected = camera.unproject( new Vector3( screenX, screenY, 0 ) );
 		
 		if( button == Buttons.LEFT )
@@ -250,6 +251,8 @@ public class Play implements Screen, InputProcessor
 
 	public boolean touchUp( int screenX, int screenY, int pointer, int button )
 	{
+		if( client.state.map == null ) return false;
+		
 		if( button == Buttons.LEFT ) {
 			Vector3 projected = camera.unproject( new Vector3( screenX, screenY, 0 ) );
 			selectEnd.set( projected.x, projected.y );
@@ -263,6 +266,8 @@ public class Play implements Screen, InputProcessor
 
 	public boolean touchDragged( int screenX, int screenY, int pointer )
 	{
+		if( client.state.map == null ) return false;
+		
 		Vector3 projected = camera.unproject( new Vector3( screenX, screenY, 0 ) );
 		selectEnd.set( projected.x, projected.y );
 		return true;
@@ -275,6 +280,8 @@ public class Play implements Screen, InputProcessor
 
 	public boolean scrolled( int amount )
 	{
+		if( client.state.map == null ) return false;
+		
 		Vector3 mousePosScreen = new Vector3( Gdx.input.getX(), Gdx.input.getY(), 0 );
 		Vector3 worldA = camera.unproject( mousePosScreen.cpy() );
 		

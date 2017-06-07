@@ -7,6 +7,7 @@ import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.ai.Bot;
 import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;
+import com.danwink.strategymass.game.MapFileHelper;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitWrapper;
@@ -31,6 +32,8 @@ public class GameServer implements Updateable
 	GameLogic logic;
 	
 	ArrayList<Bot> bots;
+	
+	boolean nextMap = false;
 	
 	public GameServer()
 	{
@@ -116,7 +119,21 @@ public class GameServer implements Updateable
 			{
 				e.printStackTrace();
 			}
+			if( !nextMap )
+			{
+				ArrayList<String> maps = MapFileHelper.getMaps();
+				int index = maps.indexOf( state.mapName );
+				if( index == -1 )
+				{
+					state.mapName = maps.get( 0 );
+				} 
+				else 
+				{
+					state.mapName = maps.get( (index+1) % maps.size() );
+				}
+			}
 			logic.newGame();
+			nextMap = false;
 		}
 	}
 
@@ -129,5 +146,6 @@ public class GameServer implements Updateable
 	public void setNextMap( String name )
 	{
 		state.mapName = name;
+		nextMap = true;
 	}
 }
