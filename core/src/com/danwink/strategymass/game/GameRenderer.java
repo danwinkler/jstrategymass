@@ -75,7 +75,7 @@ public class GameRenderer
 		//Textures
 		if( state.map != null )
 		{	
-			if( ma == null )
+			if( ma == null || ma.m != state.map )
 			{
 				ma = new MapAnalysis();
 				ma.build( state.map );

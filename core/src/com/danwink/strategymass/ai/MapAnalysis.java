@@ -21,7 +21,7 @@ public class MapAnalysis
 {
 	int width, height;
 	TileAnalysis[][] tiles; //xy instead of map's yx :/
-	Map m;
+	public Map m;
 	ArrayList<Zone> zones = new ArrayList<Zone>();
 	MapGraph graph;
 	
