@@ -23,6 +23,7 @@ import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
+import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
 public class PlayUI
@@ -36,6 +37,9 @@ public class PlayUI
 	TextButton addUnit;
 	
 	VisDialog playerInfo;
+	
+	VisTable debugPanel;
+	Label unitCount;
 	
 	public PlayUI( InputMultiplexer input )
 	{
@@ -84,11 +88,25 @@ public class PlayUI
 				return false;
 			}
 		});
+		
+		debugPanel = new VisTable();
+		debugPanel.setVisible( false );
+		debugPanel.setFillParent( true );
+		debugPanel.top().left();
+		unitCount = new VisLabel();
+			
+		debugPanel.add( unitCount ).padTop( 30 );
+		stage.addActor( debugPanel );
 	}
 
 	public void resize( int width, int height ) 
 	{
 		stage.getViewport().update( width, height, true );
+	}
+	
+	public void toggleDebug()
+	{
+		debugPanel.setVisible( !debugPanel.isVisible() );
 	}
 	
 	public void showNextMapDialog()
@@ -168,6 +186,11 @@ public class PlayUI
 	public void render()
 	{
 		fps.setText( "FPS: " + Gdx.graphics.getFramesPerSecond() );
+		
+		if( debugPanel.isVisible() )
+		{
+			unitCount.setText( "UNIT COUNT:" + play.client.state.units.size() );
+		}
 		
 		stage.act( Gdx.graphics.getDeltaTime() );
 		stage.draw();

@@ -1,7 +1,7 @@
 package com.danwink.strategymass.game.objects;
 
 import com.badlogic.gdx.graphics.Color;
-import com.danwink.strategymass.net.SyncObject;
+import com.danwink.dsync.SyncObject;
 
 public class Team extends SyncObject<Team>
 {

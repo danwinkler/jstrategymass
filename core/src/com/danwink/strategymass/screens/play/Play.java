@@ -210,6 +210,7 @@ public class Play implements Screen, InputProcessor
 			return true;
 		case Input.Keys.F2:
 			renderer.toggleDebug();
+			ui.toggleDebug();
 			return true;
 		}
 		

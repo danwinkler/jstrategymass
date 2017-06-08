@@ -1,6 +1,6 @@
 package com.danwink.strategymass.game.objects;
 
-import com.danwink.strategymass.net.SyncObject;
+import com.danwink.dsync.SyncObject;
 
 public class Player extends SyncObject<Player>
 {

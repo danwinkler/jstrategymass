@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.danwink.strategymass.game.GameState;
-import com.danwink.strategymass.net.PartialUpdatable;
-import com.danwink.strategymass.net.SyncObject;
+import com.danwink.dsync.PartialUpdatable;
+import com.danwink.dsync.SyncObject;
 
 public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<Point>>
 {

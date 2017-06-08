@@ -11,8 +11,8 @@ import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitWrapper;
-import com.danwink.strategymass.net.DServer;
-import com.danwink.strategymass.net.FakeClient;
+import com.danwink.dsync.DServer;
+import com.danwink.dsync.FakeClient;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.Packets;
 

@@ -6,7 +6,7 @@ import java.util.Arrays;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.danwink.strategymass.game.objects.Map;
-import com.danwink.strategymass.net.SyncObject;
+import com.danwink.dsync.SyncObject;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;

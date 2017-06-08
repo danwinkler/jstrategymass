@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.game.GameState;
-import com.danwink.strategymass.net.SyncObject;
+import com.danwink.dsync.SyncObject;
 
 public class Bullet extends SyncObject<Bullet>
 {

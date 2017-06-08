@@ -7,8 +7,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;
-import com.danwink.strategymass.net.PartialUpdatable;
-import com.danwink.strategymass.net.SyncObject;
+import com.danwink.dsync.PartialUpdatable;
+import com.danwink.dsync.SyncObject;
 
 public class Unit extends SyncObject<Unit> implements PartialUpdatable<UnitPartial>
 {
