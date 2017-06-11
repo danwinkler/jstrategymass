@@ -9,8 +9,8 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public abstract class MenuScreen implements Screen
 {
-	Stage stage;
-	Table table;
+	public Stage stage;
+	public Table table;
 	
 	public void show()
 	{

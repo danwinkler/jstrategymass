@@ -36,7 +36,7 @@ public class MapSelectScreen extends MenuScreen
 			public void clicked( InputEvent e, float x, float y )
 			{
 				StrategyMass.game.server = new GameServer();
-				StrategyMass.game.server.state.mapName = select.getSelected();
+				//StrategyMass.game.server.state.mapName = select.getSelected();
 				StrategyMass.game.server.start();
 				
 				for( int i = 0; i < bots.size(); i++ )

@@ -6,5 +6,4 @@ public enum ClientMessages
 	BUILDUNIT, //Request to build a unit
 	MOVEUNITS, //Request to move units
 	
-	JOINTEAM, 
 }

@@ -109,33 +109,6 @@ public class PlayUI
 		debugPanel.setVisible( !debugPanel.isVisible() );
 	}
 	
-	public void showNextMapDialog()
-	{
-		VisSelectBox<String> select = new VisSelectBox<>();
-		select.setItems( MapFileHelper.getMaps().toArray( new String[0] ) );
-		
-		VisDialog d = new VisDialog( "Set Next map" ) {
-			public void result( Object obj )
-			{
-				if( (Boolean)obj )
-				{
-					StrategyMass.game.server.setNextMap( select.getSelected() );
-				}
-			}
-		};
-		
-		d.getTitleLabel().setAlignment( Align.center );
-		
-		Table t = d.getButtonsTable();
-		
-		t.add( select );
-		
-		d.button( "Cancel", false );
-		d.button( "Set", true );
-		
-		d.show( stage );
-	}
-	
 	public void showExitDialog()
 	{
 		VisDialog d = new VisDialog( "Menu" ) {
@@ -153,12 +126,6 @@ public class PlayUI
 					return;
 				case "return":
 					return;
-				case "switchteam":
-					play.client.switchTeams();
-					return;
-				case "setnextmap":
-					showNextMapDialog();
-					return;
 				}
 			}
 		};
@@ -169,14 +136,6 @@ public class PlayUI
 		
 		d.setObject( t.add( new VisTextButton( "Return to Game" ) ).fillX().getActor(), "return" );
 		t.row();
-		d.setObject( t.add( new VisTextButton( "Switch Team" ) ).fillX().getActor(), "switchteam" );
-		t.row();
-		
-		if( StrategyMass.game.server != null )
-		{
-			d.setObject( t.add( new VisTextButton( "Set Next Map" ) ).fillX().getActor(), "setnextmap" );
-			t.row();
-		}
 		
 		d.setObject( t.add( new VisTextButton( "Exit to Main Menu" ) ).fillX().getActor(), "exit" );
 		

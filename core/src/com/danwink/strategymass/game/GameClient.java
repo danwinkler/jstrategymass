@@ -55,9 +55,6 @@ public class GameClient
 		//Direct messages
 		client.on( DClient.CONNECTED, o -> {
 			client.sendTCP( ClientMessages.JOIN, name );
-			if( team >= 0 ) {
-				client.sendTCP( ClientMessages.JOINTEAM, team );
-			}
 		});
 		
 		client.on( ServerMessages.JOINSUCCESS, (Integer id) -> {
@@ -110,10 +107,5 @@ public class GameClient
 	{
 		client.update();
 		logic.update( dt );
-	}
-
-	public void switchTeams()
-	{
-		client.sendTCP( ClientMessages.JOINTEAM, me.team == 0 ? 1 : 0 );
 	}
 }
