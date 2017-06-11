@@ -13,6 +13,7 @@ import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitPartial;
 import com.danwink.dsync.SyncObject;
 import com.danwink.strategymass.nethelpers.Packets.MoveUnitPacket;
+import com.danwink.strategymass.server.ServerState;
 
 public class ClassRegister
 {
@@ -32,6 +33,7 @@ public class ClassRegister
 		UnitPartial.class,
 		
 		ServerMessages.class,
+		ServerState.class,
 		
 		Vector2.class,
 		GridPoint2.class,

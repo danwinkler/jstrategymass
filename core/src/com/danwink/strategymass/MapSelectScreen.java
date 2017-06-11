@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.danwink.strategymass.ai.Bot;
 import com.danwink.strategymass.ai.SectorAI;
 import com.danwink.strategymass.game.MapFileHelper;
-import com.danwink.strategymass.screens.play.Play;
+import com.danwink.strategymass.screens.play.PlayScreen;
 import com.danwink.strategymass.server.GameServer;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
 import com.kotcrab.vis.ui.widget.VisTextButton;
@@ -50,7 +50,7 @@ public class MapSelectScreen extends MenuScreen
 				prefs.putString( "map", select.getSelected() );
 				prefs.flush();
 				
-				StrategyMass.game.setScreen( new Play() );
+				StrategyMass.game.setScreen( new PlayScreen() );
 			}
 		});
 		

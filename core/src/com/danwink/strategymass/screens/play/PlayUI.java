@@ -28,7 +28,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton;
 
 public class PlayUI
 {
-	Play play;
+	PlayScreen play;
 	Stage stage;
 	Table table;
 	
@@ -47,7 +47,7 @@ public class PlayUI
 		input.addProcessor( stage );
 	}
 	
-	public void create( Play play ) 
+	public void create( PlayScreen play ) 
 	{
 		this.play = play;
 		

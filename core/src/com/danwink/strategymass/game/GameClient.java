@@ -52,9 +52,6 @@ public class GameClient
 		state = new GameState();
 		logic = new ClientLogic( state );
 		
-		client.register( ClassRegister.classes );
-		client.register( SyncServer.registerClasses );
-		
 		//Direct messages
 		client.on( DClient.CONNECTED, o -> {
 			client.sendTCP( ClientMessages.JOIN, name );

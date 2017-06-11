@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.danwink.dsync.DClient;
 import com.danwink.strategymass.MainMenu;
 import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.game.GameClient;
@@ -25,11 +26,13 @@ import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.Packets;
 
-public class Play implements Screen, InputProcessor
+public class PlayScreen implements Screen, InputProcessor
 {
 	OrthographicCamera camera;
 	
 	GameClient client;
+	
+	DClient dclient;
 	
 	GameRenderer renderer;
 	
@@ -46,18 +49,9 @@ public class Play implements Screen, InputProcessor
 	float scrollSpeed = 300;
 	float zoomSpeed = .1f;
 	
-	String addr;
-	int team;
-	
-	public Play()
+	public void register( DClient dclient )
 	{
-		this( "localhost", 0 );
-	}
-	
-	public Play( String addr, int team )
-	{
-		this.addr = addr;
-		this.team = team;
+		this.dclient = dclient;
 	}
 	
 	public void show()
@@ -71,8 +65,7 @@ public class Play implements Screen, InputProcessor
 		ui = new PlayUI( input );
 		input.addProcessor( this );
 		
-		client = new GameClient( addr );
-		client.team = team;
+		client = new GameClient( dclient );
 		client.name = StrategyMass.getSettings().getString( "name", "Player" );
 		client.start();
 		renderer = new GameRenderer( client.state );
