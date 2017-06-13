@@ -15,6 +15,7 @@ import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.ServerMessages;
 import com.danwink.strategymass.screens.play.ClientLogic;
 import com.danwink.strategymass.server.GameServer;
+import com.danwink.strategymass.server.ServerState;
 
 public class GameClient
 {
@@ -31,48 +32,27 @@ public class GameClient
 	public String name = "";
 	public boolean disconnected = false;
 	
-	public GameClient()
-	{
-		this( "localhost" );
-	}
-	
-	public GameClient( String addr )
-	{
-		client = new DClient();
-		this.addr = addr;
-	}
-	
-	public GameClient( DClient client )
+	public void register( DClient client )
 	{
 		this.client = client;
-	}
-	
-	public void start() 
-	{
-		state = new GameState();
-		logic = new ClientLogic( state );
 		
 		//Direct messages
-		client.on( DClient.CONNECTED, o -> {
-			client.sendTCP( ClientMessages.JOIN, name );
-		});
-		
-		client.on( ServerMessages.JOINSUCCESS, (Integer id) -> {
+		client.on( ServerState.PLAY, ServerMessages.JOINSUCCESS, (Integer id) -> {
 			me = (Player)sync.get( id );
 		});
 		
-		client.on( ServerMessages.GAMEOVER, o -> {
+		client.on( ServerState.PLAY, ServerMessages.GAMEOVER, o -> {
 			gameOver = true;
 			state.clearExceptPlayers();
 		});
 		
-		client.on( DClient.DISCONNECTED, o -> {
+		client.on( ServerState.PLAY, DClient.DISCONNECTED, o -> {
 			gameOver = true;
 			disconnected = true;
 		});
 		
 		//Sync handlers
-		sync = new SyncClient( client );
+		sync = new SyncClient( client, ServerState.PLAY );
 		sync.onAddAndJoin( Map.class, map -> {
 			state.map = map;
 		});
@@ -92,15 +72,12 @@ public class GameClient
 		sync.onAddAndJoin( Bullet.class, b -> {
 			state.bullets.add( b );
 		});
-		
-		try
-		{
-			client.connect( addr, GameServer.TCP_PORT, GameServer.UDP_PORT );
-		}
-		catch( IOException e )
-		{
-			e.printStackTrace();
-		}
+	}
+	
+	public void start() 
+	{
+		state = new GameState();
+		logic = new ClientLogic( state );
 	}
 
 	public void update( float dt )

@@ -27,7 +27,8 @@ public abstract class Bot implements Runnable
 	
 	public void connect( DServer server )
 	{
-		c = new GameClient( new FakeClient( server ) );
+		c = new GameClient();
+		c.register( new FakeClient( server ) );
 		c.team = team;
 		c.name = "BOT";
 		c.start();

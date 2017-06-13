@@ -40,6 +40,7 @@ public class ConnectedScreen implements Screen
 		Screens.play.register( client );
 		
 		client.on( DEndPoint.SET_STATE, (ServerState state) -> {
+			System.out.println( "CLIENT CHANGE STATE " + state );
 			switch( state )
 			{
 			case LOBBY:
@@ -59,15 +60,18 @@ public class ConnectedScreen implements Screen
 		} 
 		catch( IOException e )
 		{
+			e.printStackTrace();
 			StrategyMass.game.setScreen( Screens.mainMenu );
 		}
 		
 		setScreen( Screens.connecting );
 	}
 
-	public void render( float delta )
+	public void render( float dt )
 	{
-		active.render( delta );
+		client.update();
+		
+		active.render( dt );
 	}
 
 	public void resize( int width, int height )

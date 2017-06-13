@@ -52,6 +52,9 @@ public class PlayScreen implements Screen, InputProcessor
 	public void register( DClient dclient )
 	{
 		this.dclient = dclient;
+		
+		client = new GameClient();
+		client.register( dclient );
 	}
 	
 	public void show()
@@ -65,8 +68,6 @@ public class PlayScreen implements Screen, InputProcessor
 		ui = new PlayUI( input );
 		input.addProcessor( this );
 		
-		client = new GameClient( dclient );
-		client.name = StrategyMass.getSettings().getString( "name", "Player" );
 		client.start();
 		renderer = new GameRenderer( client.state );
 		

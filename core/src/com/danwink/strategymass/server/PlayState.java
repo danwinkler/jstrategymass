@@ -2,6 +2,9 @@ package com.danwink.strategymass.server;
 
 import com.danwink.dsync.DServer;
 import com.danwink.dsync.SyncServer;
+import com.danwink.strategymass.StrategyMass;
+import com.danwink.strategymass.ai.Bot;
+import com.danwink.strategymass.ai.SectorAI;
 import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Player;
@@ -42,6 +45,31 @@ public class PlayState implements ServerStateInterface
 		server.on( ServerState.PLAY, ClientMessages.MOVEUNITS, (int id, Packets.MoveUnitPacket p) -> {
 			logic.moveUnits( id, p.pos, p.units );
 		});
+	}
+	
+	public void setUpFromLobby( LobbyPlayer[] players )
+	{
+		for( LobbyPlayer lp : players )
+		{
+			if( lp != null )
+			{
+				if( lp.bot )
+				{
+					Bot a = new SectorAI();
+					a.team = lp.team;
+					//TODO: playstate should hold its own reference to the server
+					a.connect( StrategyMass.game.server.server );
+					StrategyMass.game.server.addBot( a );
+				} 
+				else 
+				{
+					Player p = logic.addPlayer( lp.id );
+					p.team = lp.team;
+					p.name = lp.name;
+					server.sendTCP( lp.id, ServerMessages.JOINSUCCESS, p.syncId );
+				}
+			}
+		}
 	}
 	
 	public void show()

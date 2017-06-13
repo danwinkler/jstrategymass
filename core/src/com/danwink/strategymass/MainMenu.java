@@ -29,7 +29,7 @@ public class MainMenu extends MenuScreen
 				StrategyMass.game.server = new GameServer();
 				StrategyMass.game.server.start();
 				
-				StrategyMass.game.setScreen( new MapSelectScreen() );
+				StrategyMass.game.setScreen( Screens.connected );
 			}
 		});
 		

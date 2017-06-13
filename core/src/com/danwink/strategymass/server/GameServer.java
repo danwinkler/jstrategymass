@@ -31,7 +31,7 @@ public class GameServer implements Updateable
 	boolean nextMap = false;
 	
 	PlayState play = new PlayState();
-	LobbyState lobby = new LobbyState();
+	LobbyState lobby = new LobbyState( this );
 	ServerStateInterface stateHandler = lobby;
 	
 	public GameServer()
@@ -40,6 +40,10 @@ public class GameServer implements Updateable
 		server.register( ClassRegister.classes );
 		server.register( SyncServer.registerClasses );
 		
+		play.register( server );
+		lobby.register( server );
+		
+		server.setState( ServerState.LOBBY );
 	}
 	
 	public void start()
@@ -65,7 +69,14 @@ public class GameServer implements Updateable
 
 	public void update( float dt )
 	{
-		
+		if( server.state == ServerState.LOBBY ) 
+		{
+			lobby.update( dt );
+		}
+		else
+		{
+			play.update( dt );
+		}
 	}
 
 	public void stop()
