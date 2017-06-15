@@ -2,13 +2,13 @@ package com.danwink.strategymass.server;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.danwink.dsync.DServer;
-import com.danwink.dsync.SyncServer;
+import com.danwink.dsync.sync.SyncServer;
 import com.danwink.strategymass.ai.BotNamer;
 import com.danwink.strategymass.game.MapFileHelper;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.ServerMessages;
 
-public class LobbyState implements ServerStateInterface
+public class LobbyState implements com.danwink.dsync.ServerState
 {
 	public static final int LOBBY_SIZE = 8;
 	
@@ -117,9 +117,7 @@ public class LobbyState implements ServerStateInterface
 		
 		server.on( ServerState.LOBBY, ClientMessages.LOBBY_STARTGAME, (id, o) -> {
 			game.play.state.mapName = map;
-			game.stateHandler = game.play;
 			server.setState( ServerState.PLAY );
-			game.play.show();
 			game.play.setUpFromLobby( slots );
 		});
 	}
@@ -130,6 +128,11 @@ public class LobbyState implements ServerStateInterface
 	}
 
 	public void update( float dt )
+	{
+		
+	}
+	
+	public void hide()
 	{
 		
 	}

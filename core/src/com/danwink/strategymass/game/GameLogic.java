@@ -15,7 +15,7 @@ import com.danwink.strategymass.game.objects.ServerUnit;
 import com.danwink.strategymass.game.objects.Team;
 import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitWrapper;
-import com.danwink.dsync.SyncServer;
+import com.danwink.dsync.sync.SyncServer;
 
 public class GameLogic
 {

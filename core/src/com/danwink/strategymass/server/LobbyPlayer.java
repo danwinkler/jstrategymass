@@ -1,6 +1,6 @@
 package com.danwink.strategymass.server;
 
-import com.danwink.dsync.SyncObject;
+import com.danwink.dsync.sync.SyncObject;
 
 public class LobbyPlayer extends SyncObject<LobbyPlayer>
 {

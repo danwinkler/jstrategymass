@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.danwink.dsync.DServer;
-import com.danwink.dsync.SyncServer;
+import com.danwink.dsync.sync.SyncServer;
 import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.ai.Bot;
 import com.danwink.strategymass.ai.SectorAI;
@@ -17,7 +17,7 @@ import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.Packets;
 import com.danwink.strategymass.nethelpers.ServerMessages;
 
-public class PlayState implements ServerStateInterface
+public class PlayState implements com.danwink.dsync.ServerState
 {
 	DServer server;
 	SyncServer sync;
@@ -114,5 +114,10 @@ public class PlayState implements ServerStateInterface
 				b.stop();
 			});
 		}
+	}
+	
+	public void hide()
+	{
+		
 	}
 }

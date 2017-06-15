@@ -5,7 +5,8 @@ import java.util.ArrayList;
 
 import com.danwink.dsync.DServer;
 import com.danwink.dsync.DServer.Updateable;
-import com.danwink.dsync.SyncServer;
+import com.danwink.dsync.ServerStateManager;
+import com.danwink.dsync.sync.SyncServer;
 import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.ai.Bot;
 import com.danwink.strategymass.game.GameLogic;
@@ -19,12 +20,13 @@ import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.Packets;
 import com.danwink.strategymass.nethelpers.ServerMessages;
 
-public class GameServer implements Updateable
+public class GameServer
 {
 	public static final int TCP_PORT = 34124;
 	public static final int UDP_PORT = 34125;
 	
 	public DServer server;
+	ServerStateManager stateManager;
 	
 	ArrayList<Bot> bots;
 	
@@ -32,7 +34,6 @@ public class GameServer implements Updateable
 	
 	PlayState play = new PlayState();
 	LobbyState lobby = new LobbyState( this );
-	ServerStateInterface stateHandler = lobby;
 	
 	public GameServer()
 	{
@@ -42,6 +43,11 @@ public class GameServer implements Updateable
 		
 		play.register( server );
 		lobby.register( server );
+		
+		stateManager = new ServerStateManager( server );
+		
+		stateManager.add( ServerState.PLAY, play );
+		stateManager.add( ServerState.LOBBY, lobby );
 		
 		server.setState( ServerState.LOBBY );
 	}
@@ -57,7 +63,7 @@ public class GameServer implements Updateable
 			e.printStackTrace();
 		}
 		
-		server.startThread( this, 30 );
+		server.startThread( stateManager, 30 );
 		
 		bots = new ArrayList<Bot>();
 	}
@@ -65,18 +71,6 @@ public class GameServer implements Updateable
 	public void addBot( Bot b )
 	{
 		bots.add( b );
-	}
-
-	public void update( float dt )
-	{
-		if( server.state == ServerState.LOBBY ) 
-		{
-			lobby.update( dt );
-		}
-		else
-		{
-			play.update( dt );
-		}
 	}
 
 	public void stop()
