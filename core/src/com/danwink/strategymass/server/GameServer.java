@@ -26,14 +26,13 @@ public class GameServer implements Updateable
 	
 	public DServer server;
 	
-	SyncServer sync;
-	
-	public GameState state;
-	GameLogic logic;
-	
 	ArrayList<Bot> bots;
 	
 	boolean nextMap = false;
+	
+	PlayState play = new PlayState();
+	LobbyState lobby = new LobbyState( this );
+	ServerStateInterface stateHandler = lobby;
 	
 	public GameServer()
 	{
@@ -41,42 +40,10 @@ public class GameServer implements Updateable
 		server.register( ClassRegister.classes );
 		server.register( SyncServer.registerClasses );
 		
-		sync = new SyncServer( server );
+		play.register( server );
+		lobby.register( server );
 		
-		state = new GameState();
-		logic = new GameLogic( state, sync );
-		
-		server.on( ClientMessages.JOIN, (int id, String name) -> {
-			Player p = logic.addPlayer( id );
-			p.team = 0;
-			p.name = name;
-			server.sendTCP( id, ServerMessages.JOINSUCCESS, p.syncId );
-		});
-		
-		server.on( ClientMessages.JOINTEAM, (int id, Integer team) -> {
-			Player p = logic.getPlayer( id );
-			p.money = 10;
-			p.team = team;
-			
-			for( UnitWrapper uw : state.units )
-			{
-				Unit u = uw.getUnit();
-				if( u.owner == id ) 
-				{
-					u.remove = true;
-				}
-			}
-			
-			p.update = true;
-		});
-		
-		server.on( ClientMessages.BUILDUNIT, (id, o) -> {
-			logic.buildUnit( id );
-		});
-		
-		server.on( ClientMessages.MOVEUNITS, (int id, Packets.MoveUnitPacket p) -> {
-			logic.moveUnits( id, p.pos, p.units );
-		});
+		server.setState( ServerState.LOBBY );
 	}
 	
 	public void start()
@@ -90,8 +57,6 @@ public class GameServer implements Updateable
 			e.printStackTrace();
 		}
 		
-		logic.newGame();
-		
 		server.startThread( this, 30 );
 		
 		bots = new ArrayList<Bot>();
@@ -104,36 +69,13 @@ public class GameServer implements Updateable
 
 	public void update( float dt )
 	{
-		logic.update( dt );
-		
-		sync.update();
-		
-		if( logic.isGameOver() )
+		if( server.state == ServerState.LOBBY ) 
 		{
-			server.broadcastTCP( ServerMessages.GAMEOVER, null );
-			try
-			{
-				Thread.sleep( 1000 );
-			}
-			catch( InterruptedException e )
-			{
-				e.printStackTrace();
-			}
-			if( !nextMap )
-			{
-				ArrayList<String> maps = MapFileHelper.getMaps();
-				int index = maps.indexOf( state.mapName );
-				if( index == -1 )
-				{
-					state.mapName = maps.get( 0 );
-				} 
-				else 
-				{
-					state.mapName = maps.get( (index+1) % maps.size() );
-				}
-			}
-			logic.newGame();
-			nextMap = false;
+			lobby.update( dt );
+		}
+		else
+		{
+			play.update( dt );
 		}
 	}
 
@@ -141,11 +83,5 @@ public class GameServer implements Updateable
 	{
 		bots.forEach( bot -> bot.stop() );
 		server.stop();
-	}
-
-	public void setNextMap( String name )
-	{
-		state.mapName = name;
-		nextMap = true;
 	}
 }

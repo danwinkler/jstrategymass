@@ -4,7 +4,13 @@ public enum ClientMessages
 {
 	JOIN, //Sent on join
 	BUILDUNIT, //Request to build a unit
-	MOVEUNITS, //Request to move units
+	MOVEUNITS,  //Request to move units
 	
-	JOINTEAM, 
+	LOBBY_MOVEPLAYER, 
+	LOBBY_ADDBOT, 
+	LOBBY_KICK, 
+	LOBBY_STARTGAME, 
+	LOBBY_CHANGETEAM, 
+	LOBBY_SETMAP, 
+	LOBBY_UPDATE,
 }

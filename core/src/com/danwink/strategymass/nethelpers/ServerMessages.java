@@ -3,6 +3,11 @@ package com.danwink.strategymass.nethelpers;
 public enum ServerMessages
 {
 	GAMESTART,
-	JOINSUCCESS, JOINFAIL,
-	GAMEOVER
+	GAMEOVER, 
+	
+	LOBBY_PLAYERS,
+	JOINSUCCESS, 
+	JOINFAIL, 
+	LOBBY_MAP, 
+	LOBBY_MAPLIST,
 }

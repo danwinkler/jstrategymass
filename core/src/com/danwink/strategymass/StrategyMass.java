@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
 import com.danwink.strategymass.server.GameServer;
+import com.danwink.strategymass.server.ServerState;
 import com.kotcrab.vis.ui.VisUI;
 
 public class StrategyMass extends Game
@@ -17,7 +18,7 @@ public class StrategyMass extends Game
 	public GameServer server;
 	
 	public void create()
-	{
+	{	
 		Thread.setDefaultUncaughtExceptionHandler( (t, e) -> {
 			e.printStackTrace();
 			FileHandle f = Gdx.files.local( "error.log" );
@@ -34,7 +35,7 @@ public class StrategyMass extends Game
 		
 		game = this;
 		
-		setScreen( new MainMenu() );
+		setScreen( Screens.mainMenu );
 	}
 	
 	public void render()
