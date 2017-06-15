@@ -1,5 +1,8 @@
 package com.danwink.strategymass.server;
 
+import java.util.HashMap;
+
+import com.badlogic.gdx.math.MathUtils;
 import com.danwink.dsync.DServer;
 import com.danwink.dsync.SyncServer;
 import com.danwink.strategymass.StrategyMass;
@@ -22,6 +25,8 @@ public class PlayState implements ServerStateInterface
 	GameState state;
 	GameLogic logic;
 	
+	HashMap<Integer, LobbyPlayer> playerKeyMap;
+	
 	public void register( DServer server )
 	{
 		this.server = server;
@@ -31,10 +36,12 @@ public class PlayState implements ServerStateInterface
 		state = new GameState();
 		logic = new GameLogic( state, sync );
 		
-		server.on( ServerState.PLAY, ClientMessages.JOIN, (int id, String name) -> {
+		server.on( ServerState.PLAY, ClientMessages.JOIN, (int id, Integer key) -> {
 			Player p = logic.addPlayer( id );
-			p.team = 0;
-			p.name = name;
+			LobbyPlayer lp = playerKeyMap.get( key );
+			p.team = lp.team;
+			p.name = lp.name;
+			
 			server.sendTCP( id, ServerMessages.JOINSUCCESS, p.syncId );
 		});
 		
@@ -49,6 +56,8 @@ public class PlayState implements ServerStateInterface
 	
 	public void setUpFromLobby( LobbyPlayer[] players )
 	{
+		playerKeyMap = new HashMap<>();
+		int key = 0;
 		for( LobbyPlayer lp : players )
 		{
 			if( lp != null )
@@ -57,6 +66,11 @@ public class PlayState implements ServerStateInterface
 				{
 					Bot a = new SectorAI();
 					a.team = lp.team;
+					a.name = lp.name;
+					a.key = key++;
+					
+					playerKeyMap.put( a.key, lp );
+					
 					//TODO: playstate should hold its own reference to the server
 					a.connect( StrategyMass.game.server.server );
 					StrategyMass.game.server.addBot( a );
@@ -96,6 +110,9 @@ public class PlayState implements ServerStateInterface
 				e.printStackTrace();
 			}
 			server.setState( ServerState.LOBBY );
+			StrategyMass.game.server.bots.forEach( b -> {
+				b.stop();
+			});
 		}
 	}
 }

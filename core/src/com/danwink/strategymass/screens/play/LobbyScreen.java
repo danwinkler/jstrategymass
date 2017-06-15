@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.danwink.dsync.DClient;
 import com.danwink.strategymass.MenuScreen;
+import com.danwink.strategymass.Screens;
 import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.ServerMessages;
@@ -22,14 +23,25 @@ public class LobbyScreen extends MenuScreen
 	Slot[] slots = new Slot[LobbyState.LOBBY_SIZE];
 	LobbyPlayer[] players;
 	
+	VisSelectBox<String> mapSelect;
+	
 	public void register( DClient client )
 	{
 		this.client = client;
 		
 		client.on( ServerState.LOBBY, ServerMessages.LOBBY_PLAYERS, (LobbyPlayer[] players) -> {
-			System.out.println( "client lobby players" );
 			this.players = players;
 			updateSlots();
+		});
+		
+		client.on( ServerState.LOBBY, ServerMessages.LOBBY_MAP, (String map) -> {
+			mapSelect.setDisabled( true );
+			mapSelect.setSelected( map );
+			mapSelect.setDisabled( false );
+		});
+		
+		client.on( ServerState.LOBBY, ServerMessages.LOBBY_MAPLIST, (String[] maps) -> {
+			mapSelect.setItems( maps );
 		});
 	}
 	
@@ -37,7 +49,7 @@ public class LobbyScreen extends MenuScreen
 	{
 		super.show();
 		
-		client.sendTCP( ClientMessages.JOIN, StrategyMass.getSettings().getString( "name", "Player" ) );
+		client.sendTCP( ClientMessages.LOBBY_UPDATE );
 	}
 	
 	public void build()
@@ -47,6 +59,29 @@ public class LobbyScreen extends MenuScreen
 			slots[i] = new Slot();
 			slots[i].build();
 		}
+		
+		mapSelect = new VisSelectBox<>();
+		mapSelect.addListener( new ChangeListener() {
+			public void changed( ChangeEvent event, Actor actor )
+			{
+				if( mapSelect.isDisabled() ) return;
+				client.sendTCP( ClientMessages.LOBBY_SETMAP, mapSelect.getSelected() );
+			}
+		});
+		
+		VisTextButton disc = new VisTextButton( "Disconnect" );
+		disc.addListener( new ChangeListener() {
+			public void changed( ChangeEvent event, Actor actor )
+			{
+				client.stop();
+				if( StrategyMass.game.server != null )
+				{
+					StrategyMass.game.server.stop();
+					StrategyMass.game.server = null;
+				}
+				StrategyMass.game.setScreen( Screens.mainMenu );
+			}			
+		});
 		
 		VisTextButton addBot = new VisTextButton( "Add Bot" );
 		addBot.addListener( new ChangeListener() {
@@ -64,6 +99,10 @@ public class LobbyScreen extends MenuScreen
 			}
 		});
 		
+		table.add( mapSelect ).padTop( 30 ).colspan( 3 ).fillX();
+		table.row();
+		
+		table.add( disc ).padTop( 30 );
 		table.add( addBot ).padTop( 30 );
 		table.add( startGame ).padTop( 30 );
 	}
@@ -95,6 +134,14 @@ public class LobbyScreen extends MenuScreen
 				{
 					if( p == null ) return;
 					client.sendTCP( ClientMessages.LOBBY_MOVEPLAYER, p.id );
+				}
+			});
+			
+			team.addListener( new ChangeListener() {
+				public void changed( ChangeEvent e, Actor a )
+				{
+					if( p == null ) return;
+					client.sendTCP( ClientMessages.LOBBY_CHANGETEAM, p.id );
 				}
 			});
 			

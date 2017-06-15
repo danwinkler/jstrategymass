@@ -162,7 +162,7 @@ public class PlayUI
 
 	public void dispose() 
 	{
-		stage.dispose();
+		//stage.dispose();
 	}
 	
 	public void showPlayers( ArrayList<Player> players )

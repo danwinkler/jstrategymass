@@ -8,6 +8,7 @@ import com.danwink.dsync.DEndPoint;
 import com.danwink.strategymass.Screens;
 import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.nethelpers.ClassRegister;
+import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.server.GameServer;
 import com.danwink.strategymass.server.ServerState;
 
@@ -65,6 +66,8 @@ public class ConnectedScreen implements Screen
 		}
 		
 		setScreen( Screens.connecting );
+		
+		client.sendTCP( ClientMessages.JOIN, StrategyMass.getSettings().getString( "name", "Player" ) );
 	}
 
 	public void render( float dt )

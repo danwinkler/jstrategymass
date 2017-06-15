@@ -1,5 +1,6 @@
 package com.danwink.strategymass.ai;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.math.GridPoint2;
@@ -13,6 +14,8 @@ import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitWrapper;
 import com.danwink.dsync.DServer;
 import com.danwink.dsync.FakeClient;
+import com.danwink.dsync.SyncServer;
+import com.danwink.strategymass.nethelpers.ClassRegister;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.Packets;
 
@@ -24,18 +27,35 @@ public abstract class Bot implements Runnable
 	long lastFrame;
 	long targetNanosPerTick = 1000000000 / 3;
 	public int team = 0;
+	public String name = "BOT";
+	public int key;
 	
 	public void connect( DServer server )
 	{
+		FakeClient fc = new FakeClient( server );
+		fc.register( ClassRegister.classes );
+		fc.register( SyncServer.registerClasses );
+		
 		c = new GameClient();
-		c.register( new FakeClient( server ) );
+		c.register( fc );
 		c.team = team;
-		c.name = "BOT";
+		c.name = name;
 		c.start();
+		
+		try
+		{
+			fc.connect( null, 0, 0 );
+		} 
+		catch( IOException e )
+		{
+			e.printStackTrace();
+		}
 		
 		t = new Thread( this );
 		t.setName( "Bot" );
 		t.start();
+		
+		fc.sendTCP( ClientMessages.JOIN, key );
 	}
 
 	public void run()

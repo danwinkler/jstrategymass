@@ -43,6 +43,7 @@ public class ClassRegister
 		
 		ArrayList.class,
 		int[].class,
-		int[][].class
+		int[][].class,
+		String[].class,
 	};
 }

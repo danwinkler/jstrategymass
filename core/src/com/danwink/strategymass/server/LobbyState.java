@@ -15,6 +15,7 @@ public class LobbyState implements ServerStateInterface
 	GameServer game;
 	
 	String map;
+	String[] maps;
 	LobbyPlayer[] slots = new LobbyPlayer[LOBBY_SIZE];
 
 	public LobbyState( GameServer game )
@@ -24,10 +25,10 @@ public class LobbyState implements ServerStateInterface
 	
 	public void register( DServer server )
 	{
-		map = MapFileHelper.getMaps().get( 0 );
+		maps = MapFileHelper.getMaps().toArray( new String[0] );
+		map = maps[0];
 		
 		server.on( ServerState.LOBBY, ClientMessages.JOIN, (int id, String name) -> {
-			System.out.println( "server lobby " + name + " joined" );
 			LobbyPlayer p = new LobbyPlayer();
 			p.id = id;
 			p.slot = nextAvailableSlot( 0 );
@@ -39,7 +40,15 @@ public class LobbyState implements ServerStateInterface
 			p.name = name;
 			slots[p.slot] = p;
 			server.sendTCP( id, ServerMessages.JOINSUCCESS, null );
+			server.sendTCP( id, ServerMessages.LOBBY_MAPLIST, maps );
+			server.sendTCP( id, ServerMessages.LOBBY_MAP, map );
 			server.broadcastTCP( ServerMessages.LOBBY_PLAYERS, slots );
+		});
+		
+		server.on( ServerState.LOBBY, ClientMessages.LOBBY_UPDATE, (id, o) -> {
+			server.sendTCP( id, ServerMessages.LOBBY_MAPLIST, maps );
+			server.sendTCP( id, ServerMessages.LOBBY_MAP, map );
+			server.sendTCP( id, ServerMessages.LOBBY_PLAYERS, slots );
 		});
 		
 		server.on( ServerState.LOBBY, ClientMessages.LOBBY_MOVEPLAYER, (int id, Integer playerId) -> {
@@ -88,12 +97,30 @@ public class LobbyState implements ServerStateInterface
 			}
 		});
 		
+		server.on( ServerState.LOBBY, ClientMessages.LOBBY_CHANGETEAM, (int id, Integer playerId) -> {
+			for( int i = 0; i < LOBBY_SIZE; i++ )
+			{
+				LobbyPlayer lp = slots[i];
+				if( lp != null && lp.id == playerId )
+				{
+					lp.team = (lp.team+1) % 2;
+					server.broadcastTCP( ServerMessages.LOBBY_PLAYERS, slots );
+					return;
+				}
+			}
+		});
+		
+		server.on( ServerState.LOBBY, ClientMessages.LOBBY_SETMAP, (int id, String map) -> {
+			this.map = map;
+			server.broadcastTCP( ServerMessages.LOBBY_MAP, map );
+		});
+		
 		server.on( ServerState.LOBBY, ClientMessages.LOBBY_STARTGAME, (id, o) -> {
-			game.play.setUpFromLobby( slots );
 			game.play.state.mapName = map;
 			game.stateHandler = game.play;
 			server.setState( ServerState.PLAY );
 			game.play.show();
+			game.play.setUpFromLobby( slots );
 		});
 	}
 

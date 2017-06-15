@@ -7,5 +7,7 @@ public enum ServerMessages
 	
 	LOBBY_PLAYERS,
 	JOINSUCCESS, 
-	JOINFAIL,
+	JOINFAIL, 
+	LOBBY_MAP, 
+	LOBBY_MAPLIST,
 }

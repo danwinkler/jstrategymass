@@ -126,16 +126,6 @@ public class PlayScreen implements Screen, InputProcessor
 			shapeRenderer.rect( uw.x - 16, uw.y - 16, 32, 32 );
 		}
 		
-		/*
-		//Directly render unit positions of server
-		for( int i = 0; i < StrategyMass.game.server.state.units.size(); i++ )
-		{
-			UnitWrapper uw = StrategyMass.game.server.state.units.get( i );
-			Unit u = uw.getUnit();
-			shapeRenderer.circle( u.pos.x, u.pos.y, 20 );
-		}
-		*/
-		
 		shapeRenderer.end();
 		
 		//Render UI
@@ -179,7 +169,7 @@ public class PlayScreen implements Screen, InputProcessor
 
 	public void dispose()
 	{
-		ui.dispose();
+		//ui.dispose();
 	}
 
 	public boolean keyDown( int keycode )
