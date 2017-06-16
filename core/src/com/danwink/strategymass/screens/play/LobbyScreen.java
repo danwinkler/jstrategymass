@@ -2,6 +2,8 @@ package com.danwink.strategymass.screens.play;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.danwink.dsync.DClient;
@@ -70,9 +72,12 @@ public class LobbyScreen extends MenuScreen
 		table.add( mapSelect ).padTop( 30 ).colspan( 3 ).fillX();
 		table.row();
 		
-		table.add( disc ).padTop( 30 );
-		table.add( addBot ).padTop( 30 );
-		table.add( startGame ).padTop( 30 );
+		Table buttonRow = new Table();
+		buttonRow.add( disc ).width( 100 );
+		buttonRow.add( addBot ).padLeft( 20 ).width( 100 );
+		buttonRow.add( startGame ).padLeft( 20 ).width( 100 );
+		
+		table.add( buttonRow ).padTop( 30 ).colspan( 3 ).fillX();
 	}
 	
 	public void buildSlot( int i )
@@ -85,9 +90,9 @@ public class LobbyScreen extends MenuScreen
 		fc.add( "team" + i, team );
 		fc.add( "kick" + i, kick );
 		
-		table.add( name ).fillX();
-		table.add( team ).fillX();
-		table.add( kick ).fillX();
+		table.add( name ).fillX().width( 400 ).padBottom( 1 );
+		table.add( team ).fillX().width( 30 ).padLeft( 1 );
+		table.add( kick ).fillX().width( 50 ).padLeft( 1 );
 		table.row();
 	}
 }
