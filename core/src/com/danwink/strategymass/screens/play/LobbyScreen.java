@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.danwink.dsync.DClient;
+import com.danwink.libgdx.form.FormClient;
 import com.danwink.strategymass.MenuScreen;
 import com.danwink.strategymass.Screens;
 import com.danwink.strategymass.StrategyMass;
@@ -20,8 +21,7 @@ public class LobbyScreen extends MenuScreen
 {
 	DClient client;
 	
-	Slot[] slots = new Slot[LobbyState.LOBBY_SIZE];
-	LobbyPlayer[] players;
+	FormClient fc;
 	
 	VisSelectBox<String> mapSelect;
 	
@@ -29,45 +29,23 @@ public class LobbyScreen extends MenuScreen
 	{
 		this.client = client;
 		
-		client.on( ServerState.LOBBY, ServerMessages.LOBBY_PLAYERS, (LobbyPlayer[] players) -> {
-			this.players = players;
-			updateSlots();
-		});
-		
-		client.on( ServerState.LOBBY, ServerMessages.LOBBY_MAP, (String map) -> {
-			mapSelect.setDisabled( true );
-			mapSelect.setSelected( map );
-			mapSelect.setDisabled( false );
-		});
-		
-		client.on( ServerState.LOBBY, ServerMessages.LOBBY_MAPLIST, (String[] maps) -> {
-			mapSelect.setItems( maps );
-		});
+		fc = new FormClient( client, ServerState.LOBBY );
 	}
 	
 	public void show()
 	{
 		super.show();
-		
-		client.sendTCP( ClientMessages.LOBBY_UPDATE );
 	}
 	
 	public void build()
 	{
-		for( int i = 0; i < slots.length; i++ )
+		for( int i = 0; i < LobbyState.LOBBY_SIZE; i++ )
 		{
-			slots[i] = new Slot();
-			slots[i].build();
+			buildSlot( i );
 		}
 		
 		mapSelect = new VisSelectBox<>();
-		mapSelect.addListener( new ChangeListener() {
-			public void changed( ChangeEvent event, Actor actor )
-			{
-				if( mapSelect.isDisabled() ) return;
-				client.sendTCP( ClientMessages.LOBBY_SETMAP, mapSelect.getSelected() );
-			}
-		});
+		fc.add( "map", mapSelect );
 		
 		VisTextButton disc = new VisTextButton( "Disconnect" );
 		disc.addListener( new ChangeListener() {
@@ -84,20 +62,10 @@ public class LobbyScreen extends MenuScreen
 		});
 		
 		VisTextButton addBot = new VisTextButton( "Add Bot" );
-		addBot.addListener( new ChangeListener() {
-			public void changed( ChangeEvent event, Actor actor )
-			{
-				client.sendTCP( ClientMessages.LOBBY_ADDBOT );
-			}			
-		});
+		fc.add( "addbot", addBot );
 		
 		VisTextButton startGame = new VisTextButton( "Start" );
-		startGame.addListener( new ChangeListener() {
-			public void changed( ChangeEvent event, Actor actor )
-			{
-				client.sendTCP( ClientMessages.LOBBY_STARTGAME );
-			}
-		});
+		fc.add( "start", startGame );
 		
 		table.add( mapSelect ).padTop( 30 ).colspan( 3 ).fillX();
 		table.row();
@@ -107,73 +75,19 @@ public class LobbyScreen extends MenuScreen
 		table.add( startGame ).padTop( 30 );
 	}
 	
-	public void updateSlots()
+	public void buildSlot( int i )
 	{
-		for( int i = 0; i < players.length; i++ )
-		{
-			LobbyPlayer p = players[i];
-			slots[i].update( p );
-		}
-	}
-	
-	public class Slot
-	{
-		VisTextButton name;
-		VisTextButton team;
-		VisTextButton kick;
-		LobbyPlayer p;
+		VisTextButton name = new VisTextButton("");
+		VisTextButton team = new VisTextButton("");
+		VisTextButton kick = new VisTextButton("");
 		
-		public void build()
-		{
-			name = new VisTextButton("");
-			team = new VisTextButton("");
-			kick = new VisTextButton( "Kick" );
-			
-			name.addListener( new ChangeListener() {
-				public void changed( ChangeEvent e, Actor a )
-				{
-					if( p == null ) return;
-					client.sendTCP( ClientMessages.LOBBY_MOVEPLAYER, p.id );
-				}
-			});
-			
-			team.addListener( new ChangeListener() {
-				public void changed( ChangeEvent e, Actor a )
-				{
-					if( p == null ) return;
-					client.sendTCP( ClientMessages.LOBBY_CHANGETEAM, p.id );
-				}
-			});
-			
-			kick.setVisible( false );
-			kick.addListener( new ChangeListener() {
-				public void changed( ChangeEvent event, Actor actor )
-				{
-					client.sendTCP( ClientMessages.LOBBY_KICK, p.id );
-				}
-			});
-			
-			table.add( name ).fillX();
-			table.add( team ).fillX();
-			table.add( kick ).fillX();	
-			table.row();
-		}
+		fc.add( "name" + i, name );
+		fc.add( "team" + i, team );
+		fc.add( "kick" + i, kick );
 		
-		public void update( LobbyPlayer p )
-		{
-			this.p = p;
-			if( p != null ) 
-			{
-				name.setText( p.name );
-				team.setText( p.team + "" );
-				kick.setVisible( p.bot );
-			}
-			else 
-			{
-				name.setText( "OPEN" );
-				team.setText( "" );
-				kick.setVisible( false );
-			}
-		}
+		table.add( name ).fillX();
+		table.add( team ).fillX();
+		table.add( kick ).fillX();
+		table.row();
 	}
 }

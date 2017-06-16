@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
+import com.danwink.libgdx.form.FormServer;
 import com.danwink.strategymass.game.GameClient;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.MapPathFinding.MapGraph;
@@ -18,6 +19,7 @@ import com.danwink.dsync.sync.SyncServer;
 import com.danwink.strategymass.nethelpers.ClassRegister;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.Packets;
+import com.danwink.strategymass.nethelpers.ServerMessages;
 
 public abstract class Bot implements Runnable
 {
@@ -35,11 +37,17 @@ public abstract class Bot implements Runnable
 		FakeClient fc = new FakeClient( server );
 		fc.register( ClassRegister.classes );
 		fc.register( SyncServer.registerClasses );
+		fc.register( FormServer.registerClasses ); //Just in case the bot gets a lobby message
 		
 		c = new GameClient();
 		c.register( fc );
 		c.team = team;
 		c.name = name;
+		
+		fc.on( ServerMessages.GAMEOVER, o -> {
+			stop();
+		});
+		
 		c.start();
 		
 		try
@@ -154,6 +162,7 @@ public abstract class Bot implements Runnable
 	public void stop()
 	{
 		running = false;
+		c.client.stop();
 	}
 	
 	public interface Filter<E>

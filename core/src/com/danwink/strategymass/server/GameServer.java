@@ -39,7 +39,6 @@ public class GameServer
 	{
 		server = new DServer();
 		server.register( ClassRegister.classes );
-		server.register( SyncServer.registerClasses );
 		
 		play.register( server );
 		lobby.register( server );
