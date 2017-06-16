@@ -64,13 +64,7 @@ public class LobbyScreen extends MenuScreen
 		}
 		
 		mapSelect = new VisSelectBox<>();
-		mapSelect.addListener( new ChangeListener() {
-			public void changed( ChangeEvent event, Actor actor )
-			{
-				if( mapSelect.isDisabled() ) return;
-				client.sendTCP( ClientMessages.LOBBY_SETMAP, mapSelect.getSelected() );
-			}
-		});
+		fc.add( "map", mapSelect );
 		
 		VisTextButton disc = new VisTextButton( "Disconnect" );
 		disc.addListener( new ChangeListener() {
@@ -87,20 +81,10 @@ public class LobbyScreen extends MenuScreen
 		});
 		
 		VisTextButton addBot = new VisTextButton( "Add Bot" );
-		addBot.addListener( new ChangeListener() {
-			public void changed( ChangeEvent event, Actor actor )
-			{
-				client.sendTCP( ClientMessages.LOBBY_ADDBOT );
-			}			
-		});
+		fc.add( "addbot", addBot );
 		
 		VisTextButton startGame = new VisTextButton( "Start" );
-		startGame.addListener( new ChangeListener() {
-			public void changed( ChangeEvent event, Actor actor )
-			{
-				client.sendTCP( ClientMessages.LOBBY_STARTGAME );
-			}
-		});
+		fc.add( "start", startGame );
 		
 		table.add( mapSelect ).padTop( 30 ).colspan( 3 ).fillX();
 		table.row();

@@ -1,8 +1,6 @@
 package com.danwink.libgdx.form;
 
-import com.badlogic.gdx.scenes.scene2d.Actor;
-
-public abstract class SElement<F extends Actor>
+public abstract class SElement
 {
 	Object id;
 	

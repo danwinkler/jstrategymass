@@ -1,29 +1,34 @@
 package com.danwink.libgdx.form;
 
-import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
-
-public class SSelectBox<E> extends SElement<SelectBox<E>>
+public class SSelectBox<E> extends SElement
 {
-	String current;
-	String[] values;
+	E selected;
+	E[] values;
 	
 	public SSelectBox( Object id )
 	{
 		super( id );
 	}
 	
-	public void set( SSelectBox<E> el )
-	{
-		
-	}
-
-	public void update( SelectBox<E> a )
-	{
-		
-	}
-
 	public Object serialize()
 	{
-		return new Object[] { current, values };
+		return new Object[] { selected, values };
 	}
+
+	public void setValues( E... values )
+	{
+		this.values = values;
+	}
+	
+	public void setSelected( E selected )
+	{
+		this.selected = selected;
+	}
+	
+	public E getSelected()
+	{
+		return selected;
+	}
+	
+	public void change( int id ) {};
 }

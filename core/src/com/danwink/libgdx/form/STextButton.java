@@ -1,8 +1,6 @@
 package com.danwink.libgdx.form;
 
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-
-public class STextButton extends SElement<TextButton>
+public class STextButton extends SElement
 {
 	String text;
 	

@@ -28,8 +28,8 @@ public class FormServer
 		
 		server.register( registerClasses );
 		
-		server.on( state, FormClient.CHANGE, (id, o) -> {
-			change( id, children.get( o ) );
+		server.on( state, FormClient.CHANGE, (int id, FormMessage m) -> {
+			change( id, children.get( m.id ), m.m );
 		});
 		
 		children = new HashMap<>();
@@ -40,12 +40,20 @@ public class FormServer
 		children.put( child.id, child );
 	}
 	
-	public void change( int id, SElement e )
+	@SuppressWarnings( { "unchecked", "rawtypes" } )
+	public void change( int id, SElement e, Object m )
 	{
 		if( e instanceof STextButton )
 		{
 			STextButton t = (STextButton)e;
 			t.click( id );
+		}
+		else if( e instanceof SSelectBox )
+		{
+			SSelectBox t = (SSelectBox)e;
+			t.setSelected( m );
+			t.change( id );
+			update( t );
 		}
 	}
 
@@ -58,5 +66,12 @@ public class FormServer
 	public SElement get( String key )
 	{
 		return children.get( key );
+	}
+
+	public void updateClient( int id )
+	{
+		children.forEach( (o, e) -> {
+			server.sendTCP( id, UPDATE, new FormMessage( e.id, e.serialize() ) );
+		});
 	}
 }

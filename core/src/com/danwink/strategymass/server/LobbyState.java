@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.danwink.dsync.DServer;
 import com.danwink.dsync.sync.SyncServer;
 import com.danwink.libgdx.form.FormServer;
+import com.danwink.libgdx.form.SSelectBox;
 import com.danwink.libgdx.form.STextButton;
 import com.danwink.strategymass.ai.BotNamer;
 import com.danwink.strategymass.game.MapFileHelper;
@@ -39,6 +40,42 @@ public class LobbyState implements com.danwink.dsync.ServerState
 			buildRow( i );
 		}
 		
+		fs.add( new STextButton( "addbot" ) {
+			public void click( int id )
+			{
+				LobbyPlayer p = new LobbyPlayer();
+				p.name = BotNamer.getName();
+				p.id = MathUtils.random( 10000000 );
+				p.bot = true;
+				p.slot = nextAvailableSlot( 0 );
+				if( p.slot < 0 ) 
+				{
+					return;
+				}
+				slots[p.slot] = p;
+				updateRow( p.slot );
+			}
+		});
+		
+		fs.add( new STextButton( "start" ) {
+			public void click( int id )
+			{
+				game.play.state.mapName = map;
+				server.setState( ServerState.PLAY );
+				game.play.setUpFromLobby( slots );
+			}
+		});
+		
+		SSelectBox<String> mapSelect = new SSelectBox<String>( "map" ) {
+			public void change( int id )
+			{
+				map = this.getSelected();
+			}
+		};
+		mapSelect.setValues( maps );
+		mapSelect.setSelected( map );
+		fs.add( mapSelect );
+		
 		server.on( ServerState.LOBBY, ClientMessages.JOIN, (int id, String name) -> {
 			LobbyPlayer p = new LobbyPlayer();
 			p.id = id;
@@ -51,7 +88,7 @@ public class LobbyState implements com.danwink.dsync.ServerState
 			p.name = name;
 			slots[p.slot] = p;
 			server.sendTCP( id, ServerMessages.JOINSUCCESS, null );
-			
+			fs.updateClient( id );
 			updateRow( p.slot );
 		});
 		
@@ -60,39 +97,6 @@ public class LobbyState implements com.danwink.dsync.ServerState
 			server.sendTCP( id, ServerMessages.LOBBY_MAPLIST, maps );
 			server.sendTCP( id, ServerMessages.LOBBY_MAP, map );
 			server.sendTCP( id, ServerMessages.LOBBY_PLAYERS, slots );
-		});
-		
-		server.on( ServerState.LOBBY, ClientMessages.LOBBY_MOVEPLAYER, (int id, Integer playerId) -> {
-			for( int i = 0; i < LOBBY_SIZE; i++ )
-			{
-				LobbyPlayer lp = slots[i];
-				if( lp != null && lp.id == playerId )
-				{
-					int next = nextAvailableSlot( i );
-					if( next >= 0 ) 
-					{
-						lp.slot = next;
-						slots[next] = lp;
-						slots[i] = null;
-						server.broadcastTCP( ServerMessages.LOBBY_PLAYERS, slots );
-						return;
-					}
-				}
-			}
-		});
-		
-		server.on( ServerState.LOBBY, ClientMessages.LOBBY_ADDBOT, (id, o) -> {
-			LobbyPlayer p = new LobbyPlayer();
-			p.name = BotNamer.getName();
-			p.id = MathUtils.random( 10000000 );
-			p.bot = true;
-			p.slot = nextAvailableSlot( 0 );
-			if( p.slot < 0 ) 
-			{
-				return;
-			}
-			slots[p.slot] = p;
-			server.broadcastTCP( ServerMessages.LOBBY_PLAYERS, slots );
 		});
 		
 		server.on( ServerState.LOBBY, ClientMessages.LOBBY_KICK, (int id, Integer playerId) -> {
@@ -127,9 +131,7 @@ public class LobbyState implements com.danwink.dsync.ServerState
 		});
 		
 		server.on( ServerState.LOBBY, ClientMessages.LOBBY_STARTGAME, (id, o) -> {
-			game.play.state.mapName = map;
-			server.setState( ServerState.PLAY );
-			game.play.setUpFromLobby( slots );
+			
 		});
 		*/
 	}
