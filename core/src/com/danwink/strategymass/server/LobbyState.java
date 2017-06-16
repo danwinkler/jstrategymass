@@ -91,49 +91,6 @@ public class LobbyState implements com.danwink.dsync.ServerState
 			fs.updateClient( id );
 			updateRow( p.slot );
 		});
-		
-		/*
-		server.on( ServerState.LOBBY, ClientMessages.LOBBY_UPDATE, (id, o) -> {
-			server.sendTCP( id, ServerMessages.LOBBY_MAPLIST, maps );
-			server.sendTCP( id, ServerMessages.LOBBY_MAP, map );
-			server.sendTCP( id, ServerMessages.LOBBY_PLAYERS, slots );
-		});
-		
-		server.on( ServerState.LOBBY, ClientMessages.LOBBY_KICK, (int id, Integer playerId) -> {
-			for( int i = 0; i < LOBBY_SIZE; i++ )
-			{
-				LobbyPlayer lp = slots[i];
-				if( lp != null && lp.id == playerId )
-				{
-					slots[i] = null;
-					server.broadcastTCP( ServerMessages.LOBBY_PLAYERS, slots );
-					return;
-				}
-			}
-		});
-		
-		server.on( ServerState.LOBBY, ClientMessages.LOBBY_CHANGETEAM, (int id, Integer playerId) -> {
-			for( int i = 0; i < LOBBY_SIZE; i++ )
-			{
-				LobbyPlayer lp = slots[i];
-				if( lp != null && lp.id == playerId )
-				{
-					lp.team = (lp.team+1) % 2;
-					server.broadcastTCP( ServerMessages.LOBBY_PLAYERS, slots );
-					return;
-				}
-			}
-		});
-		
-		server.on( ServerState.LOBBY, ClientMessages.LOBBY_SETMAP, (int id, String map) -> {
-			this.map = map;
-			server.broadcastTCP( ServerMessages.LOBBY_MAP, map );
-		});
-		
-		server.on( ServerState.LOBBY, ClientMessages.LOBBY_STARTGAME, (id, o) -> {
-			
-		});
-		*/
 	}
 	
 	public void buildRow( int i )
@@ -212,7 +169,7 @@ public class LobbyState implements com.danwink.dsync.ServerState
 
 	public void show()
 	{
-		
+		fs.updateAllClients();
 	}
 
 	public void update( float dt )

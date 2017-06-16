@@ -30,30 +30,11 @@ public class LobbyScreen extends MenuScreen
 		this.client = client;
 		
 		fc = new FormClient( client, ServerState.LOBBY );
-		
-		/*
-		client.on( ServerState.LOBBY, ServerMessages.LOBBY_PLAYERS, (LobbyPlayer[] players) -> {
-			this.players = players;
-			updateSlots();
-		});
-		
-		client.on( ServerState.LOBBY, ServerMessages.LOBBY_MAP, (String map) -> {
-			mapSelect.setDisabled( true );
-			mapSelect.setSelected( map );
-			mapSelect.setDisabled( false );
-		});
-		
-		client.on( ServerState.LOBBY, ServerMessages.LOBBY_MAPLIST, (String[] maps) -> {
-			mapSelect.setItems( maps );
-		});
-		*/
 	}
 	
 	public void show()
 	{
 		super.show();
-		
-		//client.sendTCP( ClientMessages.LOBBY_UPDATE );
 	}
 	
 	public void build()

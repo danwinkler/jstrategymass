@@ -74,4 +74,11 @@ public class FormServer
 			server.sendTCP( id, UPDATE, new FormMessage( e.id, e.serialize() ) );
 		});
 	}
+
+	public void updateAllClients()
+	{
+		children.forEach( (o, e) -> {
+			server.broadcastTCP( UPDATE, new FormMessage( e.id, e.serialize() ) );
+		});
+	}
 }
