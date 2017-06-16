@@ -37,8 +37,9 @@ public class ConnectedScreen implements Screen
 		client.register( ClassRegister.classes );
 		
 		Screens.connecting.register( client );
-		Screens.lobby.register( client );
 		Screens.play.register( client );
+		Screens.lobby.register( client );
+		
 		
 		client.on( DEndPoint.SET_STATE, (ServerState state) -> {
 			System.out.println( "CLIENT CHANGE STATE " + state );

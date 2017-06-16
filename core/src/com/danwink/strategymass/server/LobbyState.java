@@ -3,6 +3,8 @@ package com.danwink.strategymass.server;
 import com.badlogic.gdx.math.MathUtils;
 import com.danwink.dsync.DServer;
 import com.danwink.dsync.sync.SyncServer;
+import com.danwink.libgdx.form.FormServer;
+import com.danwink.libgdx.form.STextButton;
 import com.danwink.strategymass.ai.BotNamer;
 import com.danwink.strategymass.game.MapFileHelper;
 import com.danwink.strategymass.nethelpers.ClientMessages;
@@ -17,7 +19,9 @@ public class LobbyState implements com.danwink.dsync.ServerState
 	String map;
 	String[] maps;
 	LobbyPlayer[] slots = new LobbyPlayer[LOBBY_SIZE];
-
+	
+	FormServer fs;
+	
 	public LobbyState( GameServer game )
 	{
 		this.game = game;
@@ -27,6 +31,13 @@ public class LobbyState implements com.danwink.dsync.ServerState
 	{
 		maps = MapFileHelper.getMaps().toArray( new String[0] );
 		map = maps[0];
+		
+		fs = new FormServer( server, ServerState.LOBBY );
+		
+		for( int i = 0; i < LOBBY_SIZE; i++ )
+		{
+			buildRow( i );
+		}
 		
 		server.on( ServerState.LOBBY, ClientMessages.JOIN, (int id, String name) -> {
 			LobbyPlayer p = new LobbyPlayer();
@@ -40,11 +51,11 @@ public class LobbyState implements com.danwink.dsync.ServerState
 			p.name = name;
 			slots[p.slot] = p;
 			server.sendTCP( id, ServerMessages.JOINSUCCESS, null );
-			server.sendTCP( id, ServerMessages.LOBBY_MAPLIST, maps );
-			server.sendTCP( id, ServerMessages.LOBBY_MAP, map );
-			server.broadcastTCP( ServerMessages.LOBBY_PLAYERS, slots );
+			
+			updateRow( p.slot );
 		});
 		
+		/*
 		server.on( ServerState.LOBBY, ClientMessages.LOBBY_UPDATE, (id, o) -> {
 			server.sendTCP( id, ServerMessages.LOBBY_MAPLIST, maps );
 			server.sendTCP( id, ServerMessages.LOBBY_MAP, map );
@@ -120,6 +131,81 @@ public class LobbyState implements com.danwink.dsync.ServerState
 			server.setState( ServerState.PLAY );
 			game.play.setUpFromLobby( slots );
 		});
+		*/
+	}
+	
+	public void buildRow( int i )
+	{
+		fs.add( new STextButton( "name" + i ) {
+			public void click( int id ) 
+			{
+				LobbyPlayer lp = slots[i];
+				if( lp == null ) return;
+				int next = nextAvailableSlot( i );
+				if( next >= 0 ) 
+				{
+					lp.slot = next;
+					slots[next] = lp;
+					slots[i] = null;
+					updateRow( i );
+					updateRow( next );
+				}
+			}
+		});
+		fs.add( new STextButton( "team" + i ) {
+			public void click( int id )
+			{
+				LobbyPlayer lp = slots[i];
+				if( lp == null ) return;
+				lp.team = (lp.team+1) % 2;
+				updateRow( i );
+			}
+		});
+		fs.add( new STextButton( "kick" + i ) {
+			public void click( int id )
+			{
+				LobbyPlayer lp = slots[i];
+				if( lp == null ) return;
+				if( !lp.bot ) return;
+				
+				slots[i] = null;
+				updateRow( i );
+			}
+		});
+	}
+	
+	public void updateRows()
+	{
+		for( int i = 0; i < LOBBY_SIZE; i++ )
+		{
+			updateRow( i );
+		}
+	}
+	
+	public void updateRow( int i )
+	{
+		LobbyPlayer lp = slots[i];
+		
+		STextButton name = (STextButton)fs.get( "name" + i );
+		STextButton team = (STextButton)fs.get( "team" + i );
+		STextButton kick = (STextButton)fs.get( "kick" + i );
+		
+		if( lp == null )
+		{
+			name.setText( "" );
+			team.setText( "" );
+			kick.setText( "" );
+		}
+		else
+		{
+			name.setText( lp.name );
+			team.setText( lp.team + "" );
+			kick.setText( lp.bot ? "Kick" : "" );
+		}
+		
+		fs.update( name );
+		fs.update( team );
+		fs.update( kick );
 	}
 
 	public void show()
