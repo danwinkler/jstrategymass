@@ -2,6 +2,8 @@ package com.danwink.strategymass.screens.play;
 
 import java.util.ArrayList;
 
+import net.dermetfan.utils.math.MathUtils;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Buttons;
@@ -25,6 +27,8 @@ import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.Packets;
+import com.danwink.strategymass.nethelpers.ServerMessages;
+import com.danwink.strategymass.server.ServerState;
 
 public class PlayScreen implements Screen, InputProcessor
 {
@@ -55,6 +59,14 @@ public class PlayScreen implements Screen, InputProcessor
 		
 		client = new GameClient();
 		client.register( dclient );
+		
+		//This is a makeshift "onGameStart"
+		client.client.on( ServerState.PLAY, ServerMessages.JOINSUCCESS, o -> {
+			Point p = client.state.map.getBase( client.me.team );
+			camera.position.x = p.pos.x;
+			camera.position.y = p.pos.y;
+			camera.update();
+		});
 	}
 	
 	public void show()
@@ -82,24 +94,31 @@ public class PlayScreen implements Screen, InputProcessor
 		client.update( dt );
 		
 		//Scrolling Logic
+		boolean camChanged = false;
 		if( Gdx.input.isKeyPressed( Input.Keys.LEFT ) || Gdx.input.isKeyPressed( Input.Keys.A ) )
 		{
 			camera.translate( -scrollSpeed * dt * camera.zoom, 0 );
-			camera.update();
+			camChanged = true;
 		}
 		if( Gdx.input.isKeyPressed( Input.Keys.RIGHT ) || Gdx.input.isKeyPressed( Input.Keys.D ) )
 		{
 			camera.translate( scrollSpeed * dt * camera.zoom, 0 );
-			camera.update();
+			camChanged = true;
 		}
 		if( Gdx.input.isKeyPressed( Input.Keys.DOWN ) || Gdx.input.isKeyPressed( Input.Keys.S ) )
 		{
 			camera.translate( 0, -scrollSpeed * dt * camera.zoom );
-			camera.update();
+			camChanged = true;
 		}
 		if( Gdx.input.isKeyPressed( Input.Keys.UP ) || Gdx.input.isKeyPressed( Input.Keys.W ) )
 		{
 			camera.translate( 0, scrollSpeed * dt * camera.zoom );
+			camChanged = true;
+		}
+		
+		if( camChanged )
+		{
+			clampCamera();
 			camera.update();
 		}
 		
@@ -148,6 +167,12 @@ public class PlayScreen implements Screen, InputProcessor
 		
 		camera.update();
 		ui.resize( width, height );
+	}
+	
+	public void clampCamera()
+	{
+		camera.position.x = MathUtils.clamp( camera.position.x, 0, client.state.map.width * client.state.map.tileWidth );
+		camera.position.y = MathUtils.clamp( camera.position.y, 0, client.state.map.height * client.state.map.tileHeight );
 	}
 
 	public void pause()
@@ -271,14 +296,20 @@ public class PlayScreen implements Screen, InputProcessor
 		Vector3 worldA = camera.unproject( mousePosScreen.cpy() );
 		
 		camera.zoom += camera.zoom * amount * zoomSpeed;
+		
+		if( camera.zoom < .1f ) camera.zoom = .1f;
+		if( camera.zoom > 100f ) camera.zoom = 100f;
+		
 		camera.update();
 		
 		Vector3 worldB = camera.unproject( mousePosScreen );
 		
 		if( amount < 0 )
-		camera.translate( worldA.x - worldB.x, worldA.y - worldB.y );
-		
-		camera.update();
+		{
+			camera.translate( worldA.x - worldB.x, worldA.y - worldB.y );
+			clampCamera();
+			camera.update();
+		}
 		
 		return true;
 	}
