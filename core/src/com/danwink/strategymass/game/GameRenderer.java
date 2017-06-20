@@ -30,7 +30,7 @@ public class GameRenderer
 	Texture b0, b1;
 	Texture b0color;
 	
-	Texture m0, m1;
+	Texture m0, m1, m2, m3;
 	
 	Texture spear;
 	
@@ -38,6 +38,7 @@ public class GameRenderer
 	public float r = 0;
 	
 	Texture[] textureMap;
+	Texture[] unitMap;
 	
 	MapAnalysis ma;
 	boolean debug;
@@ -63,9 +64,12 @@ public class GameRenderer
 		
 		m0 = Assets.getT( "unit_0" );
 		m1 = Assets.getT( "unit_1" );
+		m2 = Assets.getT( "unit_2" );
+		m3 = Assets.getT( "unit_3" );
 		
 		spear = Assets.getT( "spear" );
 		
+		unitMap = new Texture[] { m0, m1, m2, m3 };
 		textureMap = new Texture[] { grass, tree, b0, p0 };
 	}
 	
@@ -91,7 +95,7 @@ public class GameRenderer
 			for( UnitWrapper uw : state.units ) 
 			{
 				ClientUnit cu = (ClientUnit)uw;
-				batch.draw( cu.u.team == 0 ? m0 : m1, cu.x - 32, cu.y - 32 );
+				batch.draw( unitMap[cu.u.team], cu.x - 32, cu.y - 32 );
 			}
 			
 			for( Bullet b : state.bullets ) 

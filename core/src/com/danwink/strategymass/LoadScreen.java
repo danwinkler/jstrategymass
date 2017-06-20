@@ -19,6 +19,8 @@ public class LoadScreen implements Screen
 		"tree_b",
 		"unit_0",
 		"unit_1",
+		"unit_2",
+		"unit_3",
 		"base_bottom",
 		"base_top",
 		"base_bottom_color",

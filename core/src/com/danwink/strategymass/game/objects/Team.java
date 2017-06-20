@@ -8,6 +8,8 @@ public class Team extends SyncObject<Team>
 	public static Color[] colors = {
 		new Color( 30/255.f, 167/255.f, 225/255.f, 1 ),
 		new Color( 226/255.f, 121/255.f, 82/255.f, 1 ),
+		Color.valueOf( "1B914DFF" ),
+		Color.valueOf( "ACB8B8FF" ),
 	};
 	
 	public int id;

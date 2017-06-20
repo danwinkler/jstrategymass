@@ -21,9 +21,11 @@ import com.danwink.strategymass.game.GameRenderer;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.MapFileHelper;
 import com.danwink.strategymass.game.objects.Map;
+import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.screens.editor.Brushes.TileBrush;
 import com.danwink.strategymass.screens.editor.Brushes.BaseBrush;
 import com.danwink.strategymass.screens.editor.Brushes.PointBrush;
+import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
 import com.kotcrab.vis.ui.widget.VisTextButton;
@@ -49,8 +51,7 @@ public class Editor implements Screen, InputProcessor
 	TextButton exit;
 	TextButton grass;
 	TextButton tree;
-	TextButton base0;
-	TextButton base1;
+	TextButton base0, base1, base2, base3;
 	TextButton point;
 	
 	VisSelectBox<Mirror> mirrorSelect;
@@ -97,6 +98,8 @@ public class Editor implements Screen, InputProcessor
 		tree = buildBrushButton( "Tree", new TileBrush( Map.TILE_TREE ) );
 		base0 = buildBrushButton( "Base 0", new BaseBrush( 0 ) );
 		base1 = buildBrushButton( "Base 1", new BaseBrush( 1 ) );
+		base2 = buildBrushButton( "Base 2", new BaseBrush( 2 ) );
+		base3 = buildBrushButton( "Base 3", new BaseBrush( 3 ) );
 		point = buildBrushButton( "Point", new PointBrush() );
 		
 		mirrorSelect = new VisSelectBox<Mirror>();
@@ -104,12 +107,20 @@ public class Editor implements Screen, InputProcessor
 			new Mirrors.None(), 
 			new Mirrors.X(), 
 			new Mirrors.Y(),
-			new Mirrors.XY()
+			new Mirrors.XY(),
+			new Mirrors.FourWay()
 		);
 		
 		saveButton = new VisTextButton( "Save" );
 		saveButton.addListener( new ClickListener() {
 			public void clicked( InputEvent e, float x, float y ) {
+				String error = verifyMap();
+				if( error != null ) 
+				{
+					Dialogs.showErrorDialog( stage, error );
+					return;
+				}
+				
 				VisTextField name = new VisTextField();
 				name.setText( state.mapName );
 				
@@ -117,7 +128,7 @@ public class Editor implements Screen, InputProcessor
 					public void result( Object obj )
 					{
 						if( (boolean)obj ) 
-						{
+						{	
 							String nameText = name.getText();
 							if( nameText.isEmpty() ) return;
 							MapFileHelper.saveMap( state.map, name.getText() );
@@ -220,6 +231,10 @@ public class Editor implements Screen, InputProcessor
 		table.row();
 		table.add( base1 ).fillX();
 		table.row();
+		table.add( base2 ).fillX();
+		table.row();
+		table.add( base3 ).fillX();
+		table.row();
 		table.add( point ).fillX().padBottom( 20 );
 		table.row();
 		
@@ -273,6 +288,37 @@ public class Editor implements Screen, InputProcessor
 		{
 			b.draw( x, y, state.map );
 		}
+	}
+	
+	public String verifyMap()
+	{
+		Map m = state.map;
+		
+		//Check that bases are sequential and that there are enough bases
+		int lastBase = 0;
+		int numBases = 0;
+		for( int i = 0; i < 4; i++ )
+		{
+			Point p = m.getBase( i );
+			if( p != null )
+			{
+				if( i - lastBase >= 2 ) 
+				{
+					return "Bases must be sequential"; //TODO: better error message
+				}
+				lastBase = i;
+				numBases++;
+			}
+		}
+		
+		if( numBases < 2 ) 
+		{
+			return "Must have at least 2 bases";
+		}
+		
+		m.teams = numBases;
+		
+		return null;
 	}
 
 	public void render( float dt )

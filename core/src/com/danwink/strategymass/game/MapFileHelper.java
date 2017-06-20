@@ -37,7 +37,15 @@ public class MapFileHelper
 	
 	public static Map loadMap( String name )
 	{
-		return gson.fromJson( Gdx.files.local( "maps/" + name + ".json" ).readString(), Map.class );
+		Map m = gson.fromJson( Gdx.files.local( "maps/" + name + ".json" ).readString(), Map.class );
+		
+		//Support for legacy maps
+		if( m.teams == 0 )
+		{
+			m.teams = 2;
+		}
+		
+		return m;
 	}
 	
 	public static void saveMap( Map m, String name )

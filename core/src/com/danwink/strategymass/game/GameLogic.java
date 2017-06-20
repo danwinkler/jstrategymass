@@ -105,6 +105,10 @@ public class GameLogic
 		Player p = state.playerMap.get( id );
 		if( p.money < 10 ) return;
 		
+		Point base = getTeamBase( p.team );
+		
+		if( base == null ) return;
+		
 		p.money -= 10;
 		p.unitsBuilt++;
 		p.update = true;
@@ -112,7 +116,7 @@ public class GameLogic
 		Unit u = new Unit();
 		u.owner = id;
 		u.team = p.team;
-		u.pos = getTeamBase( u.team ).pos.cpy();
+		u.pos = base.pos.cpy();
 		u.pos.y -= 33;
 		u.pos.x += MathUtils.random( -.01f, .01f );
 		u.pos.y += MathUtils.random( -.01f, .01f );

@@ -47,4 +47,17 @@ public class Mirrors
 			};
 		}	
 	}
+	
+	public static class FourWay extends Mirror
+	{
+		public GridPoint2[] getPoints( int x, int y, Map m )
+		{
+			return new GridPoint2[] {
+				new GridPoint2( x, y ),
+				new GridPoint2( (m.width-1)-x, y ),
+				new GridPoint2( x, (m.height-1)-y ),
+				new GridPoint2( (m.width-1)-x, (m.height-1)-y ),
+			};
+		}	
+	}
 }

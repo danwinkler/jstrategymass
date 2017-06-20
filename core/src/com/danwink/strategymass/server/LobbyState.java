@@ -8,6 +8,7 @@ import com.danwink.libgdx.form.SSelectBox;
 import com.danwink.libgdx.form.STextButton;
 import com.danwink.strategymass.ai.BotNamer;
 import com.danwink.strategymass.game.MapFileHelper;
+import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.ServerMessages;
 
@@ -17,8 +18,9 @@ public class LobbyState implements com.danwink.dsync.ServerState
 	
 	GameServer game;
 	
-	String map;
+	String mapName;
 	String[] maps;
+	Map map;
 	LobbyPlayer[] slots = new LobbyPlayer[LOBBY_SIZE];
 	
 	FormServer fs;
@@ -31,7 +33,8 @@ public class LobbyState implements com.danwink.dsync.ServerState
 	public void register( DServer server )
 	{
 		maps = MapFileHelper.getMaps().toArray( new String[0] );
-		map = maps[0];
+		mapName = maps[0];
+		map = MapFileHelper.loadMap( mapName );
 		
 		fs = new FormServer( server, ServerState.LOBBY );
 		
@@ -48,7 +51,7 @@ public class LobbyState implements com.danwink.dsync.ServerState
 				p.id = MathUtils.random( 10000000 );
 				p.bot = true;
 				p.slot = nextAvailableSlot( 0 );
-				p.team = p.slot % 2; //TODO: 2 should be # of map teams
+				p.team = p.slot % map.teams;
 				if( p.slot < 0 ) 
 				{
 					return;
@@ -61,7 +64,7 @@ public class LobbyState implements com.danwink.dsync.ServerState
 		fs.add( new STextButton( "start" ) {
 			public void click( int id )
 			{
-				game.play.state.mapName = map;
+				game.play.state.mapName = mapName;
 				server.setState( ServerState.PLAY );
 				game.play.setUpFromLobby( slots );
 			}
@@ -70,11 +73,12 @@ public class LobbyState implements com.danwink.dsync.ServerState
 		SSelectBox<String> mapSelect = new SSelectBox<String>( "map" ) {
 			public void change( int id )
 			{
-				map = this.getSelected();
+				mapName = this.getSelected();
+				map = MapFileHelper.loadMap( mapName );
 			}
 		};
 		mapSelect.setValues( maps );
-		mapSelect.setSelected( map );
+		mapSelect.setSelected( mapName );
 		fs.add( mapSelect );
 		
 		server.on( ServerState.LOBBY, ClientMessages.JOIN, (int id, String name) -> {
@@ -117,7 +121,7 @@ public class LobbyState implements com.danwink.dsync.ServerState
 			{
 				LobbyPlayer lp = slots[i];
 				if( lp == null ) return;
-				lp.team = (lp.team+1) % 2;
+				lp.team = (lp.team+1) % map.teams;
 				updateRow( i );
 			}
 		});
