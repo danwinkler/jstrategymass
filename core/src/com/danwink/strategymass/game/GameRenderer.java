@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.danwink.strategymass.Assets;
 import com.danwink.strategymass.ai.MapAnalysis;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.ClientUnit;
@@ -21,7 +22,7 @@ public class GameRenderer
 	SpriteBatch batch;
 	ShapeRenderer shape;
 	
-	Texture grass, tree;
+	public Texture grass, tree;
 	
 	Texture p0, p1, mill;
 	Texture millcolor;
@@ -48,22 +49,22 @@ public class GameRenderer
 		this.batch = new SpriteBatch();
 		shape = new ShapeRenderer();
 		
-		grass = new Texture( Gdx.files.internal( "medievalTile_57.png" ) );
-		tree = new Texture( Gdx.files.internal( "medievalTile_48.png" ) );
+		grass = Assets.getT( "grass_a" );
+		tree = Assets.getT( "tree_b" );
 		
-		p0 = new Texture( Gdx.files.internal( "medievalStructure_11.png" ) );
-		p1 = new Texture( Gdx.files.internal( "medievalStructure_10.png" ) );
-		mill = new Texture( Gdx.files.internal( "medievalStructure_13.png" ) );
-		millcolor = new Texture( Gdx.files.internal( "medievalStructure_13.color.png" ) );
+		p0 = Assets.getT( "point_bottom" );
+		p1 = Assets.getT( "point_top" );
+		mill = Assets.getT( "point_spinner" );
+		millcolor = Assets.getT( "point_spinner_color" );
 		
-		b0 = new Texture( Gdx.files.internal( "medievalStructure_06.png" ) );
-		b0color = new Texture( Gdx.files.internal( "medievalStructure_06.color.png" ) );
-		b1 = new Texture( Gdx.files.internal( "medievalStructure_02.png" ) );
+		b0 = Assets.getT( "base_bottom" );
+		b0color = Assets.getT( "base_bottom_color" );
+		b1 = Assets.getT( "base_top" );
 		
-		m0 = new Texture( Gdx.files.internal( "medievalUnit_02.png" ) );
-		m1 = new Texture( Gdx.files.internal( "medievalUnit_08.png" ) );
+		m0 = Assets.getT( "unit_0" );
+		m1 = Assets.getT( "unit_1" );
 		
-		spear = new Texture( Gdx.files.internal( "spear.png" ) );
+		spear = Assets.getT( "spear" );
 		
 		textureMap = new Texture[] { grass, tree, b0, p0 };
 	}

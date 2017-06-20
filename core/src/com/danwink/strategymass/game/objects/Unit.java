@@ -75,7 +75,7 @@ public class Unit extends SyncObject<Unit> implements PartialUpdatable<UnitParti
 				d.x += MathUtils.clamp( (targetX - pos.x) * .5f, -speedDt, speedDt );
 				d.y += MathUtils.clamp( (targetY - pos.y) * .5f, -speedDt, speedDt );
 				
-				if( MathUtils.isEqual( targetX, pos.x, 5 ) && MathUtils.isEqual( targetY, pos.y, 1 ) )
+				if( MathUtils.isEqual( targetX, pos.x, 5 ) && MathUtils.isEqual( targetY, pos.y, 5 ) )
 				{
 					onPath = -1;
 					update = true;
@@ -84,7 +84,7 @@ public class Unit extends SyncObject<Unit> implements PartialUpdatable<UnitParti
 		}
 		
 		//Repel other units
-		float pushDt = pushConstant * dt;
+		float pushDt = pushConstant;
 		for( UnitWrapper uw : state.units ) 
 		{
 			Unit u = uw.getUnit();
@@ -96,8 +96,8 @@ public class Unit extends SyncObject<Unit> implements PartialUpdatable<UnitParti
 			float d2 = udx*udx + udy*udy;
 			if( Math.abs( d2 ) < Unit.radius*Unit.radius*1.5f*1.5f )
 			{
-				d.x += MathUtils.clamp( -(1.f / d2) * udx, -pushDt, pushDt );
-				d.y += MathUtils.clamp( -(1.f / d2) * udy, -pushDt, pushDt );
+				d.x += MathUtils.clamp( -(60.f / d2) * udx, -pushDt, pushDt ) * dt;
+				d.y += MathUtils.clamp( -(60.f / d2) * udy, -pushDt, pushDt ) * dt;
 			}
 		}
 		

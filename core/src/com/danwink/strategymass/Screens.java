@@ -7,6 +7,7 @@ import com.danwink.strategymass.screens.play.PlayScreen;
 
 public class Screens
 {
+	public static LoadScreen load = new LoadScreen();
 	public static MainMenu mainMenu = new MainMenu();
 	
 	//Play Screens

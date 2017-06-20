@@ -35,7 +35,7 @@ public class StrategyMass extends Game
 		
 		game = this;
 		
-		setScreen( Screens.mainMenu );
+		setScreen( Screens.load );
 	}
 	
 	public void render()

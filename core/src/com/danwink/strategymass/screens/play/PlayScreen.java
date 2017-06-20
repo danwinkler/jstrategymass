@@ -11,6 +11,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -137,14 +138,14 @@ public class PlayScreen implements Screen, InputProcessor
 		{
 			shapeRenderer.rect( selectStart.x, selectStart.y, selectEnd.x - selectStart.x, selectEnd.y - selectStart.y );
 		}
-	
+		
 		for( Integer i : selected )
 		{
 			ClientUnit uw = (ClientUnit)client.state.unitMap.get( i );
 			if( uw == null ) continue;
-			shapeRenderer.rect( uw.x - 16, uw.y - 16, 32, 32 );
+			shapeRenderer.circle( uw.x, uw.y, 16 );
 		}
-		
+	
 		shapeRenderer.end();
 		
 		//Render UI
@@ -228,6 +229,26 @@ public class PlayScreen implements Screen, InputProcessor
 				buildCount = 10;
 			}
 			client.client.sendTCP( ClientMessages.BUILDUNIT, buildCount );
+			return true;
+		case Input.Keys.M:
+			//Set view to whole map
+			if( client.state.map == null ) return false;
+			Map m = client.state.map;
+			int mx = m.width * m.tileWidth;
+			int my = m.height * m.tileHeight;
+			float rx = mx / (float)Gdx.graphics.getWidth();
+			float ry = my / (float)Gdx.graphics.getHeight();
+			camera.zoom = rx < ry ? ry : rx;
+			camera.position.set( mx * .5f, my * .5f, 0 );
+			camera.update();
+			return true;
+		case Input.Keys.B:
+			//Set view to base
+			if( client.state.map == null || client.me == null ) return false;
+			Point p = client.state.map.getBase( client.me.team );
+			camera.position.set( p.pos.x, p.pos.y, 0 );
+			camera.zoom = 1;
+			camera.update();
 			return true;
 		}
 		
