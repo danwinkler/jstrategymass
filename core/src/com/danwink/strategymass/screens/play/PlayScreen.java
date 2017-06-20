@@ -221,6 +221,14 @@ public class PlayScreen implements Screen, InputProcessor
 			renderer.toggleDebug();
 			ui.toggleDebug();
 			return true;
+		case Input.Keys.Z:
+			int buildCount = 1;
+			if( Gdx.input.isKeyPressed( Input.Keys.CONTROL_LEFT ) ) 
+			{
+				buildCount = 10;
+			}
+			client.client.sendTCP( ClientMessages.BUILDUNIT, buildCount );
+			return true;
 		}
 		
 		return false;

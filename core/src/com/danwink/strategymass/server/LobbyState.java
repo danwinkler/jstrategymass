@@ -48,6 +48,7 @@ public class LobbyState implements com.danwink.dsync.ServerState
 				p.id = MathUtils.random( 10000000 );
 				p.bot = true;
 				p.slot = nextAvailableSlot( 0 );
+				p.team = p.slot % 2; //TODO: 2 should be # of map teams
 				if( p.slot < 0 ) 
 				{
 					return;

@@ -63,7 +63,12 @@ public class PlayUI
 		
 		addUnit.addListener( new ClickListener() {
 			public void clicked( InputEvent e, float x, float y ) {
-				play.client.client.sendTCP( ClientMessages.BUILDUNIT );
+				int buildCount = 1;
+				if( Gdx.input.isKeyPressed( Input.Keys.CONTROL_LEFT ) || Gdx.input.isKeyPressed( Input.Keys.ALT_LEFT ) ) 
+				{
+					buildCount = 10;
+				}
+				play.client.client.sendTCP( ClientMessages.BUILDUNIT, buildCount );
 			}
 		});
 		

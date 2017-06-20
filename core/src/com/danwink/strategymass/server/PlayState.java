@@ -45,8 +45,12 @@ public class PlayState implements com.danwink.dsync.ServerState
 			server.sendTCP( id, ServerMessages.JOINSUCCESS, p.syncId );
 		});
 		
-		server.on( ServerState.PLAY, ClientMessages.BUILDUNIT, (id, o) -> {
-			logic.buildUnit( id );
+		server.on( ServerState.PLAY, ClientMessages.BUILDUNIT, (int id, Integer num) -> {
+			if( num == null ) num = 1;
+			for( int i = 0; i < num; i++ )
+			{
+				logic.buildUnit( id );
+			}
 		});
 		
 		server.on( ServerState.PLAY, ClientMessages.MOVEUNITS, (int id, Packets.MoveUnitPacket p) -> {
