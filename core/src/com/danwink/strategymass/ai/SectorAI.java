@@ -185,17 +185,17 @@ public class SectorAI extends Bot
 			//Don't do army logic while moving
 			if( army.moving ) continue;
 			
+			//For each zone on border, give a score based on the relative strength vs the closest enemy zone
 			Zone bestBorderZone = findBestBorderZone();
+			if( bestBorderZone == null ) continue; //TODO: under what circumstances is this null
 			
 			//If at home base and the home base is not the frontline
 			if( homeBase.isHere( army.location, state ) && bestBorderZone.p != homeBase )
 			{
-				//If more than n units (5?)
+				//If more than n units
 				if( army.units.size() > 2 )
 				{
-					//For each zone on border, give a score based on the relative strength vs the closest enemy zone
-					
-					//Send army to the weakest point
+					//Send army to the "Best Border Zone"
 					if( bestBorderZone != null )
 					{
 						army.moveGrid( bestBorderZone.p.randomAdjacent( state.map ) );
@@ -332,7 +332,7 @@ public class SectorAI extends Bot
 				}
 			}
 			
-			zScore -= numUnitsAtPoint( z.p );
+			zScore -= numUnitsAtPoint( z.p ) * 2;
 			
 			if( !isBorder )
 			{

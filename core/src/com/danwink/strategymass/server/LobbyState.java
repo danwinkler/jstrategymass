@@ -14,7 +14,7 @@ import com.danwink.strategymass.nethelpers.ServerMessages;
 
 public class LobbyState implements com.danwink.dsync.ServerState
 {
-	public static final int LOBBY_SIZE = 8;
+	public static final int LOBBY_SIZE = 16;
 	
 	GameServer game;
 	

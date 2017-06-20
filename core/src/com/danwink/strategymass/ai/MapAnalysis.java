@@ -2,6 +2,8 @@ package com.danwink.strategymass.ai;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -163,7 +165,15 @@ public class MapAnalysis
 					GridPoint2 bp = base.findAjacent( m );
 					z.baseDistances[team] = graph.search( bp.x, bp.y, zp.x, zp.y ).size();
 				}
+				else 
+				{
+					z.baseDistances[team] = -1;
+				}
 			}
+			z.bdString = Arrays.stream( z.baseDistances )
+				.filter( i -> i != -1 )
+				.mapToObj( i -> ((Integer) i).toString() )
+				.collect( Collectors.joining( ", " ) );
 		}
 	}
 	
@@ -243,6 +253,7 @@ public class MapAnalysis
 		Point p;
 		GridPoint2 adjacent;
 		int[] baseDistances = new int[4];
+		String bdString;
 		
 		public void addNeightbor( Zone z )
 		{
@@ -306,7 +317,7 @@ public class MapAnalysis
 		batch.begin();
 		for( Zone z : zones )
 		{
-			f.draw( batch, z.baseDistances[0] + ", " + z.baseDistances[1], z.p.pos.x + 32, z.p.pos.y );
+			f.draw( batch, z.bdString, z.p.pos.x + 32, z.p.pos.y );
 		}
 		batch.end();
 	}
