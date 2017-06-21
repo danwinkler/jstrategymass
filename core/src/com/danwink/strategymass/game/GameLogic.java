@@ -43,8 +43,8 @@ public class GameLogic
 			p.update = true;
 		}
 		
-		makeTeams( 2 );
 		setMap( MapFileHelper.loadMap( state.mapName ) );
+		makeTeams( state.map.teams );
 	}
 	
 	public void makeTeams( int n )

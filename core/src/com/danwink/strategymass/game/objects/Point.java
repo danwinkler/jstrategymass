@@ -151,11 +151,16 @@ public class Point
 	{
 		if( !isBase ) return true;
 		
+		int numBases = 0;
+		boolean friendlyPoint = false;
 		for( Point p : state.map.points )
 		{
-			if( p == this ) continue;
-			if( p.team == team ) return false;
+			if( p.isBase ) numBases++;
+			if( !p.isBase && p.team == team ) friendlyPoint = true;
 		}
+		
+		if( numBases >= 2 ) return true;
+		if( friendlyPoint ) return false;
 		
 		return true;
 	}

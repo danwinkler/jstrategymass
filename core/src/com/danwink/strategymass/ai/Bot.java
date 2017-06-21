@@ -93,6 +93,7 @@ public abstract class Bot implements Runnable
 				e.printStackTrace();
 			}
 		}
+		c.client.stop();
 	}
 	
 	public abstract void reset();
@@ -162,7 +163,6 @@ public abstract class Bot implements Runnable
 	public void stop()
 	{
 		running = false;
-		c.client.stop();
 	}
 	
 	public interface Filter<E>
