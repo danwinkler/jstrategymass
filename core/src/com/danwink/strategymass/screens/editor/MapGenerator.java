@@ -1,6 +1,7 @@
 package com.danwink.strategymass.screens.editor;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
@@ -16,9 +17,6 @@ public class MapGenerator
 		final float minPointTiles = 7;
 		final float minPointDist = minPointTiles * m.tileWidth;
 		
-		
-		Brush base0 = new Brushes.BaseBrush( 0 );
-		Brush base1 = new Brushes.BaseBrush( 1 );
 		Brush point = new Brushes.PointBrush();
 		Brush grass = new Brushes.TileBrush( Map.TILE_GRASS );
 		Brush tree = new Brushes.TileBrush( Map.TILE_TREE );
@@ -56,14 +54,29 @@ public class MapGenerator
 		*/
 		
 		//Add bases
-		//For this we have to special case the mirror
-		int baseX = MathUtils.random( 2, m.width / 3 );
-		int baseY = MathUtils.random( 2, m.height - 3 );
+		int baseX = 1;
+		int baseY = 1;
 		
+		//This is a hacky way to figure out how many bases we need to make
 		GridPoint2[] bases = mirror.getPoints( baseX, baseY, m );
 		
-		base0.draw( bases[0].x, bases[0].y, m );
-		base1.draw( bases[1].x, bases[1].y, m );
+		if( bases.length > 2 )
+		{
+			baseX = MathUtils.random( 2, m.width / 3 );
+			baseY = MathUtils.random( 2, m.height / 3 );
+		}
+		else
+		{
+			baseX = MathUtils.random( 2, m.width / 3 );
+			baseY = MathUtils.random( 2, m.height - 3 );
+		}
+		
+		bases = mirror.getPoints( baseX, baseY, m );
+		
+		for( int i = 0; i < bases.length; i++ )
+		{
+			(new Brushes.BaseBrush( i )).draw( bases[i].x, bases[i].y, m );
+		}
 		
 		int baseBoxWidth = MathUtils.random( 1, 3 );
 		int baseBoxHeight = MathUtils.random( 1, 3 );
@@ -83,19 +96,21 @@ public class MapGenerator
 			for( int i = 0; i < 100; i++ )
 			{
 				GridPoint2[] points = mirror.getPoints( MathUtils.random( 2, m.width-3 ), MathUtils.random( 2, m.height-3 ), m );
-				Vector2 a = new Vector2( (points[0].x+.5f) * m.tileWidth, (points[0].y+.5f) * m.tileHeight );
-				Vector2 b = new Vector2( (points[1].x+.5f) * m.tileWidth, (points[1].y+.5f) * m.tileHeight );
+				Vector2[] positions = Arrays.asList( points )
+					.stream()
+					.map( p -> new Vector2( (p.x+.5f) * m.tileWidth, (p.y+.5f) * m.tileHeight ) )
+					.collect( Collectors.toList() )
+					.toArray( new Vector2[0] );
 				
 				for( Point p : m.points )
 				{
-					if( a.dst( p.pos ) < minPointDist || b.dst( p.pos ) < minPointDist )
+					if( Arrays.asList( positions ).stream().anyMatch( a -> a.dst( p.pos ) < minPointDist ) )
 					{
 						continue searchPoints;
 					}
 				}
 				
-				point.draw( points[0].x, points[0].y, m );
-				point.draw( points[1].x, points[1].y, m );
+				Arrays.asList( points ).forEach( p -> point.draw( p.x, p.y, m ) );
 				
 				int boxWidth = MathUtils.random( 0, 3 );
 				int boxHeight = MathUtils.random( 0, 3 );
