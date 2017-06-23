@@ -40,9 +40,10 @@ public abstract class Bot implements Runnable
 		fc.register( FormServer.registerClasses ); //Just in case the bot gets a lobby message
 		
 		c = new GameClient();
-		c.register( fc );
+		c.isBot = true;
 		c.team = team;
 		c.name = name;
+		c.register( fc );
 		
 		fc.on( ServerMessages.GAMEOVER, o -> {
 			stop();

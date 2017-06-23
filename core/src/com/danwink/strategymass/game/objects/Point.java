@@ -155,7 +155,7 @@ public class Point
 		boolean friendlyPoint = false;
 		for( Point p : state.map.points )
 		{
-			if( p.isBase ) numBases++;
+			if( p.isBase && p.team == team ) numBases++;
 			if( !p.isBase && p.team == team ) friendlyPoint = true;
 		}
 		

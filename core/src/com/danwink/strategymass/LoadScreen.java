@@ -3,6 +3,7 @@ package com.danwink.strategymass;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.danwink.strategymass.AudioManager.GameSound;
 
 public class LoadScreen implements Screen
 {
@@ -18,6 +20,7 @@ public class LoadScreen implements Screen
 	BitmapFont f;
 	SpriteBatch batch;
 	
+	//TODO: this seems like a poor place for these lists
 	String[] textures = new String[] {
 		"grass_a",
 		"tree_b",
@@ -35,13 +38,22 @@ public class LoadScreen implements Screen
 		"spear",
 	};
 	
+	String[] sounds = new String[] {
+		"throw.wav"	
+	};
+	
 	public void show()
 	{
 		m = Assets.m;
 		
 		for( String t : textures )
 		{
-			m.load( t + ".png", Texture.class );
+			m.load( "image/" + t + ".png", Texture.class );
+		}
+		
+		for( GameSound s : AudioManager.GameSound.values() )
+		{
+			m.load( s.path, Sound.class );
 		}
 		
 		sr = new ShapeRenderer();
@@ -53,6 +65,7 @@ public class LoadScreen implements Screen
 	{
 		if( m.update() )
 		{
+			AudioManager.initSounds();
 			StrategyMass.game.setScreen( Screens.mainMenu );
 		}
 		

@@ -2,11 +2,10 @@ package com.danwink.strategymass.screens.play;
 
 import java.util.ArrayList;
 
-import net.dermetfan.utils.math.MathUtils;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
@@ -16,13 +15,17 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.danwink.dsync.DClient;
+import com.danwink.strategymass.Assets;
+import com.danwink.strategymass.AudioManager;
 import com.danwink.strategymass.MainMenu;
 import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.game.GameClient;
 import com.danwink.strategymass.game.GameRenderer;
+import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.ClientUnit;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Point;
@@ -75,6 +78,8 @@ public class PlayScreen implements Screen, InputProcessor
 		camera = new OrthographicCamera();
 		camera.setToOrtho( false );
 		camera.zoom = 2;
+		
+		AudioManager.setCamera( camera );
 		
 		input = new InputMultiplexer();
 		Gdx.input.setInputProcessor( input );

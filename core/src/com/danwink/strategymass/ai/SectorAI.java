@@ -292,7 +292,7 @@ public class SectorAI extends Bot
 					}
 				}
 				
-				if( ourSize > theirSize * 2.5f )
+				if( ourSize > theirSize * 2.5f || army.units.size() > 100 )
 				{
 					//ci.sl.received( fc, new Message( MessageType.MESSAGE, "Full Attack" ) );
 					for( Point b: state.map.points )

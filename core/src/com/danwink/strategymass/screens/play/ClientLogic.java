@@ -2,6 +2,8 @@ package com.danwink.strategymass.screens.play;
 
 import java.util.ArrayList;
 import com.badlogic.gdx.math.Vector2;
+import com.danwink.strategymass.AudioManager;
+import com.danwink.strategymass.AudioManager.GameSound;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.ClientUnit;
@@ -11,6 +13,7 @@ import com.danwink.strategymass.game.objects.UnitWrapper;
 public class ClientLogic
 {
 	GameState state;
+	public boolean isBot = false;
 	
 	public ClientLogic( GameState state )
 	{
@@ -53,7 +56,16 @@ public class ClientLogic
 		for( int i = 0; i < state.bullets.size(); i++ )
 		{
 			Bullet b = state.bullets.get( i );
-			b.update( dt, state );
+			int ret = b.update( dt, state );
+			if( !isBot )
+			{
+				switch( ret )
+				{
+				case 0: break;
+				case 1: break; // Hit wall
+				case 2: AudioManager.play( GameSound.UNIT_HIT, b.pos ); break; //Hit unit
+				}
+			}
 			if( !b.alive )
 			{
 				state.bullets.remove( i );

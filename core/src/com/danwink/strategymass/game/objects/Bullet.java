@@ -36,12 +36,20 @@ public class Bullet extends SyncObject<Bullet>
 		this.owner = so.owner;
 	}
 
-	public void update( float dt, GameState state )
+	/*
+	 * Returns:
+	 * 0 if alive
+	 * 1 if hit wall
+	 * 2 if hit man
+	 */
+	public int update( float dt, GameState state )
 	{
 		float sx = pos.x;
 		float sy = pos.y;
 		
 		move( dt, state );
+		
+		if( life <= 0 ) return 1;
 		
 		for( UnitWrapper uw : state.units )
 		{
@@ -61,9 +69,10 @@ public class Bullet extends SyncObject<Bullet>
 				
 				this.alive = false;
 				this.remove = true;
-				return;
+				return 2;
 			}
 		}
+		return 0;
 	}
 
 	public void move( float dt, GameState state )
