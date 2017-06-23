@@ -2,7 +2,6 @@ package com.danwink.strategymass.server;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.danwink.dsync.DServer;
-import com.danwink.dsync.sync.SyncServer;
 import com.danwink.libgdx.form.FormServer;
 import com.danwink.libgdx.form.SSelectBox;
 import com.danwink.libgdx.form.STextButton;
@@ -75,6 +74,7 @@ public class LobbyState implements com.danwink.dsync.ServerState
 			{
 				mapName = this.getSelected();
 				map = MapFileHelper.loadMap( mapName );
+				server.broadcastTCP( ServerMessages.LOBBY_MAP, map );
 			}
 		};
 		mapSelect.setValues( maps );
@@ -93,6 +93,7 @@ public class LobbyState implements com.danwink.dsync.ServerState
 			p.name = name;
 			slots[p.slot] = p;
 			server.sendTCP( id, ServerMessages.JOINSUCCESS, null );
+			server.sendTCP( id, ServerMessages.LOBBY_MAP, map );
 			fs.updateClient( id );
 			updateRow( p.slot );
 		});

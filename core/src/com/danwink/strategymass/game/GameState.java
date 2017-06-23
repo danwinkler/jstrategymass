@@ -11,6 +11,8 @@ import com.danwink.strategymass.game.objects.UnitWrapper;
 
 public class GameState
 {
+	//TODO: probably don't need O(1) random access for most of these,
+	// So something with O(1) insertion and removal while iterating probably makes more sense (like a linked list)
 	public ArrayList<UnitWrapper> units;
 	public HashMap<Integer, UnitWrapper> unitMap;
 	public Map map;

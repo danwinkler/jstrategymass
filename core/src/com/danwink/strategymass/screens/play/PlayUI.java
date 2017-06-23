@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -21,7 +18,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.danwink.strategymass.MainMenu;
 import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.game.MapFileHelper;
-import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.kotcrab.vis.ui.widget.VisDialog;
@@ -201,42 +197,5 @@ public class PlayUI
 		
 		playerInfo.show( stage, Actions.show() );
 		playerInfo.setPosition(Math.round((stage.getWidth() - playerInfo.getWidth()) / 2), Math.round((stage.getHeight() - playerInfo.getHeight()) / 2));
-	}
-	
-	public class Minimap extends Actor
-	{
-		float width = 200, height = 200;
-		
-		public Minimap()
-		{
-			super();
-			this.setSize( width, height );
-		}
-		
-		public void draw( Batch batch, float parentActor )
-		{
-			SpriteBatch b = (SpriteBatch)batch;
-			Map m = play.client.state.map;
-			
-			if( m == null ) return;
-			
-			float xScale = width / m.width;
-			float yScale = height / m.height;
-			
-			for( int y = 0; y < m.height; y++ )
-			{
-				for( int x = 0; x < m.width; x++ )
-				{
-					int tId = m.tiles[y][x];
-					batch.draw( 
-						tId == Map.TILE_TREE ? play.renderer.tree : play.renderer.grass, 
-						getX() + x*xScale, 
-						getY() + y*yScale,
-						xScale, 
-						yScale
-					);
-				}
-			}
-		}
 	}
 }

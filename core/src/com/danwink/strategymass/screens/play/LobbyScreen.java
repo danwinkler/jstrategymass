@@ -11,6 +11,7 @@ import com.danwink.libgdx.form.FormClient;
 import com.danwink.strategymass.MenuScreen;
 import com.danwink.strategymass.Screens;
 import com.danwink.strategymass.StrategyMass;
+import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.ServerMessages;
 import com.danwink.strategymass.server.LobbyPlayer;
@@ -26,12 +27,17 @@ public class LobbyScreen extends MenuScreen
 	FormClient fc;
 	
 	VisSelectBox<String> mapSelect;
+	Minimap map;
 	
 	public void register( DClient client )
 	{
 		this.client = client;
 		
 		fc = new FormClient( client, ServerState.LOBBY );
+		
+		client.on( ServerState.LOBBY, ServerMessages.LOBBY_MAP, (Map m) -> {
+			this.map.setMap( m );
+		});
 	}
 	
 	public void show()
@@ -48,6 +54,8 @@ public class LobbyScreen extends MenuScreen
 		
 		mapSelect = new VisSelectBox<>();
 		fc.add( "map", mapSelect );
+		
+		map = new Minimap();
 		
 		VisTextButton disc = new VisTextButton( "Disconnect" );
 		disc.addListener( new ChangeListener() {
@@ -72,12 +80,15 @@ public class LobbyScreen extends MenuScreen
 		table.add( mapSelect ).padTop( 30 ).colspan( 3 ).fillX();
 		table.row();
 		
+		table.add( map );
+		table.row();
+		
 		Table buttonRow = new Table();
 		buttonRow.add( disc ).width( 100 );
 		buttonRow.add( addBot ).padLeft( 20 ).width( 100 );
 		buttonRow.add( startGame ).padLeft( 20 ).width( 100 );
 		
-		table.add( buttonRow ).padTop( 30 ).colspan( 3 ).fillX();
+		table.add( buttonRow ).padTop( 30 ).colspan( 1 ).fillX();
 	}
 	
 	public void buildSlot( int i )

@@ -9,5 +9,4 @@ public enum ServerMessages
 	JOINSUCCESS, 
 	JOINFAIL, 
 	LOBBY_MAP, 
-	LOBBY_MAPLIST,
 }

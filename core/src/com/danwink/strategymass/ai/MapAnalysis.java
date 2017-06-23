@@ -204,7 +204,6 @@ public class MapAnalysis
 		}
 		catch( IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e )
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
