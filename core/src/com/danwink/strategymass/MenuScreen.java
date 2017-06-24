@@ -14,7 +14,7 @@ public abstract class MenuScreen implements Screen
 	
 	public void show()
 	{
-		stage = new Stage( new ScreenViewport());
+		stage = new Stage( new ScreenViewport() );
 		
 		table = new Table();
 		table.setFillParent( true );

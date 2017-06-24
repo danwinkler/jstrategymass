@@ -1,70 +1,87 @@
 package com.danwink.strategymass.screens.play;
 
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.danwink.strategymass.Assets;
+import com.danwink.strategymass.game.GameRenderer;
+import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Map;
 
 public class Minimap extends Actor
 {
-	float width = 200, height = 200;
-	public Map m;
-	public Texture tree, grass;
-	
-	float xo, yo, inc;
+	OrthographicCamera camera;
+	GameState state;
+	GameRenderer r;
 	
 	public Minimap()
 	{
 		super();
-		this.setSize( width, height );
+		this.setSize( 200, 200 );
 		
-		tree = Assets.getT( "tree_b" );
-		grass = Assets.getT( "grass_a" );
+		state = new GameState();
+		
+		r = new GameRenderer( state );
+		
+		camera = new OrthographicCamera();
 	}
 	
 	public void setMap( Map m )
 	{
-		this.m = m;
+		state.map = m;
 		computeSize();
 	}
 	
 	private void computeSize()
 	{
+		Map m = state.map;
+		
+		float xo, yo, inc;
+		
 		if( m.width >= m.height )
 		{
-			inc = width / m.width;
+			inc = getWidth() / m.width;
 			xo = 0;
-			yo = (inc * m.height) / 2f;
+			yo = (getHeight() - (inc * m.height)) * .5f;
 		}
 		else
 		{
-			inc = height / m.height;
-			xo = (inc * m.width) / 2f;
+			inc = getHeight() / m.height;
+			xo = (getWidth() - (inc * m.width)) * .5f;
 			yo = 0;
 		}
+		
+		int mx = m.width * m.tileWidth;
+		int my = m.height * m.tileHeight;
+		float rx = mx / getWidth();
+		float ry = my / getHeight();
+		camera.setToOrtho( false );
+		camera.zoom = rx < ry ? ry : rx;
+		camera.position.set( ((Gdx.graphics.getWidth() * .5f) - getX() - xo) * camera.zoom, ((Gdx.graphics.getHeight() * .5f) - getY() - yo) * camera.zoom, 0 );
+		
+		camera.update();
 	}
 	
 	public void draw( Batch batch, float parentActor )
 	{
 		SpriteBatch b = (SpriteBatch)batch;
 		
+		Map m = state.map;
+		
 		if( m == null ) return;
 		
-		for( int y = 0; y < m.height; y++ )
-		{
-			for( int x = 0; x < m.width; x++ )
-			{
-				int tId = m.tiles[y][x];
-				batch.draw( 
-					tId == Map.TILE_TREE ? tree : grass, 
-					getX() + x*inc + xo, 
-					getY() + y*inc + yo,
-					inc, 
-					inc
-				);
-			}
-		}
+		computeSize();
+		
+		Matrix4 prev = b.getProjectionMatrix().cpy();
+		
+		b.setProjectionMatrix( camera.combined );
+		
+		r.r += Gdx.graphics.getDeltaTime() * r.millSpeed;
+		r.renderMapBottom( b );
+		r.renderMapTop( b );
+		
+		b.setProjectionMatrix( prev );
 	}
 }

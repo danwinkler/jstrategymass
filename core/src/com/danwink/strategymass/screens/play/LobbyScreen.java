@@ -47,15 +47,20 @@ public class LobbyScreen extends MenuScreen
 	
 	public void build()
 	{
+		Table slotTable = new Table();
+		
 		for( int i = 0; i < LobbyState.LOBBY_SIZE; i++ )
 		{
-			buildSlot( i );
+			buildSlot( i, slotTable );
 		}
+		
+		table.add( slotTable );
 		
 		mapSelect = new VisSelectBox<>();
 		fc.add( "map", mapSelect );
 		
 		map = new Minimap();
+		map.setSize( 300, 300 );	
 		
 		VisTextButton disc = new VisTextButton( "Disconnect" );
 		disc.addListener( new ChangeListener() {
@@ -77,10 +82,16 @@ public class LobbyScreen extends MenuScreen
 		VisTextButton startGame = new VisTextButton( "Start" );
 		fc.add( "start", startGame );
 		
-		table.add( mapSelect ).padTop( 30 ).colspan( 3 ).fillX();
-		table.row();
+		Table mapTable = new Table();
 		
-		table.add( map );
+		mapTable.add( mapSelect ).padBottom( 10 ).fillX();
+		mapTable.row();
+		
+		mapTable.add( map );
+		mapTable.row();
+		
+		table.add( mapTable ).padLeft( 10 );
+		
 		table.row();
 		
 		Table buttonRow = new Table();
@@ -89,9 +100,11 @@ public class LobbyScreen extends MenuScreen
 		buttonRow.add( startGame ).padLeft( 20 ).width( 100 );
 		
 		table.add( buttonRow ).padTop( 30 ).colspan( 1 ).fillX();
+		
+		//table.setDebug( true, true );
 	}
 	
-	public void buildSlot( int i )
+	public void buildSlot( int i, Table table )
 	{
 		VisTextButton name = new VisTextButton("");
 		VisTextButton team = new VisTextButton("");
@@ -102,8 +115,8 @@ public class LobbyScreen extends MenuScreen
 		fc.add( "kick" + i, kick );
 		
 		table.add( name ).fillX().width( 400 ).padBottom( 1 );
-		table.add( team ).fillX().width( 30 ).padLeft( 1 );
-		table.add( kick ).fillX().width( 50 ).padLeft( 1 );
+		table.add( team ).fillX().width( 30 ).padLeft( 1 ).padBottom( 1 );
+		table.add( kick ).fillX().width( 50 ).padLeft( 1 ).padBottom( 1 );
 		table.row();
 	}
 }
