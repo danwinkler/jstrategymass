@@ -100,8 +100,6 @@ public class LobbyScreen extends MenuScreen
 		buttonRow.add( startGame ).padLeft( 20 ).width( 100 );
 		
 		table.add( buttonRow ).padTop( 30 ).colspan( 1 ).fillX();
-		
-		//table.setDebug( true, true );
 	}
 	
 	public void buildSlot( int i, Table table )

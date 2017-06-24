@@ -2,6 +2,7 @@ package com.danwink.strategymass.game;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
@@ -19,7 +20,7 @@ public class GameState
 	public ArrayList<Player> players;
 	public HashMap<Integer, Player> playerMap;
 	public ArrayList<Team> teams;
-	public ArrayList<Bullet> bullets;
+	public LinkedList<Bullet> bullets;
 	
 	public String mapName = "test";
 	
@@ -30,7 +31,7 @@ public class GameState
 		players = new ArrayList<>();
 		playerMap = new HashMap<>();
 		teams = new ArrayList<>();
-		bullets = new ArrayList<>();
+		bullets = new LinkedList<>();
 	}
 	
 	public void clear()

@@ -23,6 +23,8 @@ public class LobbyState implements com.danwink.dsync.ServerState
 	LobbyPlayer[] slots = new LobbyPlayer[LOBBY_SIZE];
 	
 	FormServer fs;
+
+	private DServer server;
 	
 	public LobbyState( GameServer game )
 	{
@@ -31,6 +33,8 @@ public class LobbyState implements com.danwink.dsync.ServerState
 	
 	public void register( DServer server )
 	{
+		this.server = server;
+		
 		maps = MapFileHelper.getMaps().toArray( new String[0] );
 		mapName = maps[0];
 		map = MapFileHelper.loadMap( mapName );
@@ -176,6 +180,7 @@ public class LobbyState implements com.danwink.dsync.ServerState
 	public void show()
 	{
 		fs.updateAllClients();
+		server.broadcastTCP( ServerMessages.LOBBY_MAP, map );
 	}
 
 	public void update( float dt )
