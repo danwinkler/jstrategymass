@@ -27,7 +27,7 @@ public class AudioManager
 
 	public static void play( GameSound sound, Vector2 pos )
 	{
-		soundMap.get( sound ).play( MathUtils.clamp( 1.f / camera.zoom, .1f, 1 ), MathUtils.random( .8f, 1.1f ), 0 );
+		soundMap.get( sound ).play( MathUtils.clamp( .2f / camera.zoom, .05f, 1 ), MathUtils.random( .8f, 1.1f ), 0 );
 	}
 	
 	public static enum GameSound

@@ -25,8 +25,9 @@ public class SectorAI extends Bot
 	ArrayList<Army> armies = new ArrayList<>();
 	HashMap<Unit, Army> unitArmyMap = new HashMap<>();
 	Point homeBase;
+	float expandDelay;
 	
-	public void update( Player me, GameState state )
+	public void update( Player me, GameState state, float dt )
 	{
 		if( state.map == null || me == null ) return;
 		
@@ -46,7 +47,7 @@ public class SectorAI extends Bot
 			}
 		}
 		assert( homeBase != null );
-		if( !battlePhase ) expandPhase( me, state );
+		if( !battlePhase ) expandPhase( me, state, dt );
 		else battlePhase( me, state );
 		
 	}
@@ -58,11 +59,18 @@ public class SectorAI extends Bot
 		armies.clear();
 		unitArmyMap.clear();
 		homeBase = null;
+		expandDelay = MathUtils.random( 0, 1 );
 	}
 	
 	//In this phase we try to expand and take every untaken point
-	public void expandPhase( Player me, GameState state )
+	public void expandPhase( Player me, GameState state, float dt )
 	{
+		if( expandDelay > 0 ) 
+		{
+			expandDelay -= dt;
+			return;
+		}
+		
 		//Build
 		if( me.money >= Unit.unitCost )
 		{
@@ -77,11 +85,34 @@ public class SectorAI extends Bot
 			
 			if( !u.isMoving() ) 
 			{
-				Point b = getBestUntakenAdjacentPoint( u.pos.x, u.pos.y, me.team ); 
+				//Find adjacent point noone's headed to
+				Point b = getBestUntakenAdjacentPoint( u, state, me.team ); 
 						
+				//otherwise find closest point no ones headed to
 				if( b == null )
 				{
-					b = findPointShortestPath( u.pos.x, u.pos.y, la.graph, tb -> { return tb.team == -1; });
+					b = findPointShortestPath( u.pos.x, u.pos.y, la.graph, tb -> { 
+						if( tb.team != -1 ) return false;
+						
+						//Look at other units and see if a unit is already heading there
+						for( UnitWrapper ouw : state.units )
+						{
+							Unit ou = ouw.getUnit();
+							if( ou.syncId == u.syncId ) continue;
+							
+							if( ou.onPath >= 0 && la.getZone( ou.targetX, ou.targetY ).p.id == tb.id )
+							{
+								return false;
+							}
+						}
+						return true;
+					});
+				}
+				
+				//Finally, if units are headed towards all untaken points, just double up
+				if( b == null )
+				{
+					b = findPointShortestPath( u.pos.x, u.pos.y, la.graph, tb -> tb.team == -1 );
 				}
 
 				//If all points are taken, head to battlePhase
@@ -97,14 +128,29 @@ public class SectorAI extends Bot
 		}
 	}
 	
-	public Point getBestUntakenAdjacentPoint( float x, float y, int team )
+	public Point getBestUntakenAdjacentPoint( Unit u, GameState state, int team )
 	{
-		Zone z = la.getZone( x, y );
+		Zone z = la.getZone( u.pos.x, u.pos.y );
 		Point best = null;
 		int distance = 100000;
+		neighborLoop:
 		for( Neighbor n : z.neighbors )
 		{
 			if( n.z.p.team != -1 ) continue;
+			
+			for( UnitWrapper uw : state.units )
+			{
+				Unit ou = uw.getUnit();
+				if( ou.syncId == u.syncId ) continue;
+				if( ou.onPath < 0 ) continue;
+				
+				Zone oz = la.getZone( ou.targetX, ou.targetY );
+				
+				if( oz == n.z )
+				{
+					continue neighborLoop;
+				}
+			}
 			
 			int total = 0;
 			for( int i = 0; i < n.z.baseDistances.length; i++ ) { if( team != i ) total += n.z.baseDistances[i]; }
@@ -332,7 +378,14 @@ public class SectorAI extends Bot
 				}
 			}
 			
-			zScore -= numUnitsAtPoint( z.p ) * 2;
+			int numUnits = numUnitsAtPoint( z.p );
+			
+			zScore -= numUnits * 2;
+			
+			if( numUnits == 0 )
+			{
+				zScore += 50;
+			}
 			
 			if( !isBorder )
 			{

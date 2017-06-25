@@ -3,10 +3,12 @@ package com.danwink.strategymass;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -46,9 +48,13 @@ public class LoadScreen implements Screen
 	{
 		m = Assets.m;
 		
+		TextureParameter param = new TextureParameter();
+		param.minFilter = TextureFilter.Linear;
+		param.genMipMaps = true;
+		
 		for( String t : textures )
 		{
-			m.load( "image/" + t + ".png", Texture.class );
+			m.load( "image/" + t + ".png", Texture.class, param );
 		}
 		
 		for( GameSound s : AudioManager.GameSound.values() )

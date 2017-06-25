@@ -60,6 +60,7 @@ public class PlayState implements com.danwink.dsync.ServerState
 	
 	public void setUpFromLobby( LobbyPlayer[] players )
 	{
+		StrategyMass.game.server.bots.clear();
 		playerKeyMap = new HashMap<>();
 		int key = 0;
 		for( LobbyPlayer lp : players )
@@ -104,6 +105,7 @@ public class PlayState implements com.danwink.dsync.ServerState
 		if( logic.isGameOver() )
 		{
 			server.broadcastTCP( ServerMessages.GAMEOVER, null );
+			sync.clear();
 			//TODO: make this async, and longer (for a game over message to appear)
 			try
 			{
@@ -117,6 +119,7 @@ public class PlayState implements com.danwink.dsync.ServerState
 			StrategyMass.game.server.bots.forEach( b -> {
 				b.stop();
 			});
+			StrategyMass.game.server.bots.clear();
 		}
 	}
 	

@@ -69,6 +69,7 @@ public abstract class Bot implements Runnable
 
 	public void run()
 	{
+		reset();
 		lastFrame = System.nanoTime();
 		running = true;
 		while( running ) {
@@ -79,9 +80,9 @@ public abstract class Bot implements Runnable
 			
 			c.update( dt );
 			if( c.gameOver ) {
-				reset();
+				running = false;
 			}
-			update( c.me, c.state );
+			update( c.me, c.state, dt );
 			
 			long remaining = targetNanosPerTick - (System.nanoTime() - now);
 			if( remaining < 0 ) continue;
@@ -98,7 +99,7 @@ public abstract class Bot implements Runnable
 	}
 	
 	public abstract void reset();
-	public abstract void update( Player me, GameState state );
+	public abstract void update( Player me, GameState state, float dt );
 	
 	//BOT API
 	public void send( Object key, Object value ) 
