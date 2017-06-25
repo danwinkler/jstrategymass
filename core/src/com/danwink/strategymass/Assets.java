@@ -1,8 +1,10 @@
 package com.danwink.strategymass;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 public class Assets
 {
@@ -16,5 +18,10 @@ public class Assets
 	public static Sound getS( String string )
 	{
 		return m.get( string, Sound.class );
+	}
+	
+	public static BitmapFont getF( String string )
+	{
+		return m.get( "font/" + string, BitmapFont.class );
 	}
 }

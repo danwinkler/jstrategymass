@@ -23,7 +23,7 @@ public class LoadScreen implements Screen
 	SpriteBatch batch;
 	
 	//TODO: this seems like a poor place for these lists
-	String[] textures = new String[] {
+	String[] textures = {
 		"grass_a",
 		"tree_b",
 		"unit_0",
@@ -40,8 +40,8 @@ public class LoadScreen implements Screen
 		"spear",
 	};
 	
-	String[] sounds = new String[] {
-		"throw.wav"	
+	String[] fonts = {
+		"title.fnt"
 	};
 	
 	public void show()
@@ -60,6 +60,11 @@ public class LoadScreen implements Screen
 		for( GameSound s : AudioManager.GameSound.values() )
 		{
 			m.load( s.path, Sound.class );
+		}
+		
+		for( String f : fonts )
+		{
+			m.load( "font/" + f, BitmapFont.class );
 		}
 		
 		sr = new ShapeRenderer();
