@@ -51,7 +51,7 @@ public class LobbyState implements com.danwink.dsync.ServerState
 			{
 				LobbyPlayer p = new LobbyPlayer();
 				p.name = BotNamer.getName();
-				p.id = MathUtils.random( 10000000 );
+				p.id = 100 + MathUtils.random( 10000000 );
 				p.bot = true;
 				p.slot = nextAvailableSlot( 0 );
 				p.team = p.slot % map.teams;
@@ -100,6 +100,20 @@ public class LobbyState implements com.danwink.dsync.ServerState
 			server.sendTCP( id, ServerMessages.LOBBY_MAP, map );
 			fs.updateClient( id );
 			updateRow( p.slot );
+		});
+		
+		server.on( ServerState.LOBBY, DServer.DISCONNECTED, (id, o) -> {
+			for( int i = 0; i < LOBBY_SIZE; i++ )
+			{
+				LobbyPlayer lp = slots[i];
+				if( lp == null ) continue;
+				if( lp.id == id )
+				{
+					slots[i] = null;
+					updateRow( i );
+					break;
+				}
+			}
 		});
 	}
 	
