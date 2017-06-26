@@ -353,25 +353,44 @@ public class Editor implements Screen, InputProcessor
 
 	public void render( float dt )
 	{
+		boolean moved = false;
 		if( Gdx.input.isKeyPressed( Input.Keys.LEFT ) )
 		{
 			camera.translate( -scrollSpeed * dt * camera.zoom, 0 );
 			camera.update();
+			moved = true;
 		}
 		if( Gdx.input.isKeyPressed( Input.Keys.RIGHT ) )
 		{
 			camera.translate( scrollSpeed * dt * camera.zoom, 0 );
 			camera.update();
+			moved = true;
 		}
 		if( Gdx.input.isKeyPressed( Input.Keys.DOWN ) )
 		{
 			camera.translate( 0, -scrollSpeed * dt * camera.zoom );
 			camera.update();
+			moved = true;
 		}
 		if( Gdx.input.isKeyPressed( Input.Keys.UP ) )
 		{
 			camera.translate( 0, scrollSpeed * dt * camera.zoom );
 			camera.update();
+			moved = true;
+		}
+		
+		if( moved && cb >= 0 )
+		{
+			Vector3 mousePosScreen = new Vector3( Gdx.input.getX(), Gdx.input.getY(), 0 );
+			Vector3 world = camera.unproject( mousePosScreen );
+			
+			int x = (int)(world.x / state.map.tileWidth);
+			int y = (int)(world.y / state.map.tileHeight);
+			
+			if( cb == Input.Buttons.RIGHT )
+				draw( x, y, grassBrush );
+			else if( cb == Input.Buttons.LEFT )
+				draw( x, y );
 		}
 		
 		r.r += Gdx.graphics.getDeltaTime() * r.millSpeed;
