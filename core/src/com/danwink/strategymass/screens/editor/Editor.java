@@ -142,7 +142,8 @@ public class Editor implements Screen, InputProcessor
 						{	
 							String nameText = name.getText();
 							if( nameText.isEmpty() ) return;
-							MapFileHelper.saveMap( state.map, name.getText() );
+							state.mapName = nameText;
+							MapFileHelper.saveMap( state.map, nameText );
 						}
 					}
 				};
