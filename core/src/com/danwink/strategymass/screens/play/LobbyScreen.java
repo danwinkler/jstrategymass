@@ -38,6 +38,10 @@ public class LobbyScreen extends MenuScreen
 		client.on( ServerState.LOBBY, ServerMessages.LOBBY_MAP, (Map m) -> {
 			this.map.setMap( m );
 		});
+		
+		client.on( ServerState.LOBBY, DClient.DISCONNECTED, o -> {
+			StrategyMass.game.setScreen( Screens.mainMenu );
+		});
 	}
 	
 	public void show()
