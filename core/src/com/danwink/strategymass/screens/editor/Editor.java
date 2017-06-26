@@ -70,6 +70,10 @@ public class Editor implements Screen, InputProcessor
 	
 	Brush b = new TileBrush( Map.TILE_GRASS );
 	
+	Brush grassBrush = new TileBrush( Map.TILE_GRASS );
+	
+	int cb = -1;
+	
 	public void show()
 	{
 		camera = new OrthographicCamera();
@@ -301,6 +305,20 @@ public class Editor implements Screen, InputProcessor
 		}
 	}
 	
+	public void draw( int x, int y, Brush b )
+	{
+		if( x < 0 || x >= state.map.width || y < 0 || y >= state.map.height ) return;
+		
+		if( b.mirrorable )
+		{
+			mirrorSelect.getSelected().draw( x, y, b, state.map );
+		}
+		else 
+		{
+			b.draw( x, y, state.map );
+		}
+	}
+	
 	public String verifyMap()
 	{
 		Map m = state.map;
@@ -444,14 +462,20 @@ public class Editor implements Screen, InputProcessor
 		int x = (int)(world.x / state.map.tileWidth);
 		int y = (int)(world.y / state.map.tileHeight);
 		
-		draw( x, y );
+		if( button == Input.Buttons.RIGHT )
+			draw( x, y, grassBrush );
+		else if( button == Input.Buttons.LEFT )
+			draw( x, y );
+		
+		cb = button;
 		
 		return true;
 	}
 
 	public boolean touchUp( int screenX, int screenY, int pointer, int button )
 	{
-		return false;
+		cb = -1;
+		return true;
 	}
 
 	public boolean touchDragged( int screenX, int screenY, int pointer )
@@ -462,7 +486,10 @@ public class Editor implements Screen, InputProcessor
 		int x = (int)(world.x / state.map.tileWidth);
 		int y = (int)(world.y / state.map.tileHeight);
 		
-		draw( x, y );
+		if( cb == Input.Buttons.RIGHT )
+			draw( x, y, grassBrush );
+		else if( cb == Input.Buttons.LEFT )
+			draw( x, y );
 		
 		return true;
 	}
