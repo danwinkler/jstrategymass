@@ -8,6 +8,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -27,6 +29,7 @@ import com.danwink.strategymass.screens.editor.Brushes.BaseBrush;
 import com.danwink.strategymass.screens.editor.Brushes.PointBrush;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.widget.VisDialog;
+import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.kotcrab.vis.ui.widget.VisTextField;
@@ -42,6 +45,7 @@ public class Editor implements Screen, InputProcessor
 	GameRenderer r;
 	
 	SpriteBatch batch;
+	ShapeRenderer sr;
 	
 	InputMultiplexer input;
 	
@@ -61,6 +65,8 @@ public class Editor implements Screen, InputProcessor
 	
 	TextButton newButton;
 	TextButton generateButton;
+	
+	VisLabel mouseLoc;
 	
 	Brush b = new TileBrush( Map.TILE_GRASS );
 	
@@ -108,6 +114,7 @@ public class Editor implements Screen, InputProcessor
 			new Mirrors.X(), 
 			new Mirrors.Y(),
 			new Mirrors.XY(),
+			new Mirrors.ThreeWay(),
 			new Mirrors.FourWay()
 		);
 		
@@ -222,6 +229,7 @@ public class Editor implements Screen, InputProcessor
 			}
 		});
 		
+		mouseLoc = new VisLabel( "" );
 		
 		table.add( grass ).fillX();
 		table.row();
@@ -251,6 +259,8 @@ public class Editor implements Screen, InputProcessor
 		table.add( generateButton ).fillX();
 		table.row();
 		
+		table.add( mouseLoc );
+		table.row();
 		table.add( exit ).fillX().expandY().bottom();
 		
 		table.top().right();
@@ -260,6 +270,7 @@ public class Editor implements Screen, InputProcessor
 		state.mapName = "";
 		
 		batch = new SpriteBatch();
+		sr = new ShapeRenderer();
 		
 		r = new GameRenderer( state );
 	}
@@ -355,6 +366,26 @@ public class Editor implements Screen, InputProcessor
 		r.renderMapTop( batch );
 		
 		batch.end();
+		
+		sr.setProjectionMatrix( camera.combined );
+		sr.begin( ShapeType.Line );
+		Vector3 mousePosScreen = new Vector3( Gdx.input.getX(), Gdx.input.getY(), 0 );
+		Vector3 world = camera.unproject( mousePosScreen );
+		
+		int selectX = (int)(world.x / state.map.tileWidth);
+		int selectY = (int)(world.y / state.map.tileHeight);
+		
+		if( world.x >= 0 && selectX < state.map.width && world.y >= 0 && selectY < state.map.height )
+		{
+			sr.rect( selectX * state.map.tileWidth, selectY * state.map.tileHeight, state.map.tileWidth, state.map.tileHeight );
+			mouseLoc.setText( selectX + ", " + selectY );
+		}
+		else
+		{
+			mouseLoc.setText( "" );
+		}
+		
+		sr.end();
 		
 		stage.act( Gdx.graphics.getDeltaTime() );
 		stage.draw();

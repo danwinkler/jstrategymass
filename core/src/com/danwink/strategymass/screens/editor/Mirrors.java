@@ -1,6 +1,8 @@
 package com.danwink.strategymass.screens.editor;
 
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.game.objects.Map;
 
 public class Mirrors
@@ -44,6 +46,29 @@ public class Mirrors
 			return new GridPoint2[] {
 				new GridPoint2( x, y ),
 				new GridPoint2( (m.width-1)-x, (m.height-1)-y )
+			};
+		}	
+	}
+	
+	public static class ThreeWay extends Mirror
+	{
+		public GridPoint2[] getPoints( int x, int y, Map m )
+		{
+			float cX = m.width / 2.f;
+			float cY = m.height / 2.f;
+			
+			Vector2 v = new Vector2( x-cX, y-cY );
+			
+			float len = v.len();
+			float angle = v.angle() * MathUtils.degreesToRadians;
+			
+			float a1 = angle + (MathUtils.PI2/3.f);
+			float a2 = angle + (MathUtils.PI2/3.f) * 2;
+			
+			return new GridPoint2[] {
+				new GridPoint2( x, y ),
+				new GridPoint2( MathUtils.round( cX + (MathUtils.cos( a1 ) * len) ), MathUtils.round( cY + (MathUtils.sin( a1 ) * len) ) ),
+				new GridPoint2( MathUtils.round( cX + (MathUtils.cos( a2 ) * len) ), MathUtils.round( cY + (MathUtils.sin( a2 ) * len) ) ),
 			};
 		}	
 	}
