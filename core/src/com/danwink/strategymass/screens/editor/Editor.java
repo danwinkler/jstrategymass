@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -338,6 +339,12 @@ public class Editor implements Screen, InputProcessor
 				}
 				lastBase = i;
 				numBases++;
+				
+				GridPoint2 exit = state.map.findOpenAdjecentTile( (int)(p.pos.x / state.map.tileWidth), (int)(p.pos.y / state.map.tileHeight) );
+				if( exit == null ) 
+				{
+					return "Base " + i + " has no exit.";
+				}
 			}
 		}
 		
