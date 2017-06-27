@@ -116,8 +116,12 @@ public class GameLogic
 		Unit u = new Unit();
 		u.owner = id;
 		u.team = p.team;
+		
+		GridPoint2 adj = state.map.findOpenAdjecentTile( (int)(base.pos.x / state.map.tileWidth), (int)(base.pos.y / state.map.tileHeight) );
+		
 		u.pos = base.pos.cpy();
-		u.pos.y -= 33;
+		u.pos.x += (adj.x) * 33;
+		u.pos.y += (adj.y) * 33;
 		u.pos.x += MathUtils.random( -.01f, .01f );
 		u.pos.y += MathUtils.random( -.01f, .01f );
 		sync.add( u );

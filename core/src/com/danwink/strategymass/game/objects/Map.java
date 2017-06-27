@@ -2,6 +2,7 @@ package com.danwink.strategymass.game.objects;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.dsync.PartialUpdatable;
@@ -166,5 +167,29 @@ public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<P
 	public ArrayList<Point> partialMakePacket()
 	{
 		return points;
+	}
+	
+	public static final GridPoint2[] adjacentCheckList = {
+		new GridPoint2( 0, -1 ),
+		new GridPoint2( -1, 0 ),
+		new GridPoint2( 1, 0 ),
+		new GridPoint2( 0, 1 )
+	};
+	
+	public GridPoint2 findOpenAdjecentTile( int x, int y )
+	{
+		for( GridPoint2 gp : adjacentCheckList )
+		{
+			int tx = gp.x+x;
+			int ty = gp.y+y;
+			
+			if( tx < 0 || ty < 0 || tx >= width || ty >= height ) continue;
+			
+			if( tiles[ty][tx] == TILE_GRASS )
+			{
+				return gp;
+			}
+		}
+		return null;
 	}
 }
