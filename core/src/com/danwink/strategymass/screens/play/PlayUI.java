@@ -41,6 +41,8 @@ public class PlayUI
 	VisTable debugPanel;
 	Label unitCount;
 	
+	float playerInfoTimer = 0;
+	
 	public PlayUI( InputMultiplexer input )
 	{
 		stage = new Stage( new ScreenViewport());
@@ -161,6 +163,13 @@ public class PlayUI
 		
 		stage.act( Gdx.graphics.getDeltaTime() );
 		stage.draw();
+		
+		playerInfoTimer += Gdx.graphics.getDeltaTime();
+		if( playerInfoTimer >= 1 )
+		{
+			buildPlayerInfo();
+			playerInfoTimer -= 1;
+		}
 	}
 	
 	public void setMoney( int amt )
@@ -173,7 +182,7 @@ public class PlayUI
 		//stage.dispose();
 	}
 	
-	public void showPlayers( ArrayList<Player> players )
+	public void buildPlayerInfo()
 	{
 		Table t = playerInfo.getContentTable();
 		t.clearChildren();
@@ -185,7 +194,7 @@ public class PlayUI
 		t.add( "Units Lost" );
 		t.row();
 		
-		for( Player p : players )
+		for( Player p : play.client.state.players )
 		{
 			t.add( p.name );
 			t.add( "" + p.team );
@@ -194,6 +203,11 @@ public class PlayUI
 			t.add( "" + p.unitsLost );
 			t.row();
 		}
+	}
+	
+	public void showPlayers()
+	{
+		buildPlayerInfo();
 		
 		playerInfo.show( stage, Actions.show() );
 		playerInfo.setPosition(Math.round((stage.getWidth() - playerInfo.getWidth()) / 2), Math.round((stage.getHeight() - playerInfo.getHeight()) / 2));

@@ -208,7 +208,7 @@ public class PlayScreen implements Screen, InputProcessor
 		switch( keycode )
 		{
 		case Input.Keys.TAB:
-			ui.showPlayers( client.state.players );
+			ui.showPlayers();
 			return true;
 		}
 		
