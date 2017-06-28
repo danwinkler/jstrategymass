@@ -71,10 +71,15 @@ public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<P
 	
 	public int getTileFromWorld( float x, float y )
 	{
-		int tx = (int)(x / tileWidth);
-		int ty = (int)(y / tileHeight);
+		int tx = MathUtils.floor( x / tileWidth );
+		int ty = MathUtils.floor( y / tileHeight );
 		
 		return getTile( tx, ty );
+	}
+	
+	public GridPoint2 worldToTile( float x, float y )
+	{
+		return new GridPoint2( MathUtils.floor( x / tileWidth ), MathUtils.floor( y / tileHeight ) );
 	}
 	
 	public int getTile( int x, int y )
@@ -97,7 +102,7 @@ public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<P
 			Point p = points.get( i );
 			if( p.isBase && p.team == team )
 			{
-				deletePoint( (int)(p.pos.x / tileWidth), (int)(p.pos.y / tileHeight) );
+				deletePoint( MathUtils.floor( p.pos.x / tileWidth ), MathUtils.floor( p.pos.y / tileHeight ) );
 				i--;
 			}
 		}

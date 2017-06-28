@@ -117,7 +117,7 @@ public class GameLogic
 		u.owner = id;
 		u.team = p.team;
 		
-		GridPoint2 adj = state.map.findOpenAdjecentTile( (int)(base.pos.x / state.map.tileWidth), (int)(base.pos.y / state.map.tileHeight) );
+		GridPoint2 adj = state.map.findOpenAdjecentTile( MathUtils.floor(base.pos.x / state.map.tileWidth), MathUtils.floor(base.pos.y / state.map.tileHeight) );
 		
 		u.pos = base.pos.cpy();
 		u.pos.x += (adj.x) * 33;
@@ -196,6 +196,14 @@ public class GameLogic
 
 	public void moveUnits( int id, Vector2 pos, ArrayList<Integer> units )
 	{
+		int tx = MathUtils.floor(pos.x / state.map.tileWidth);
+		int ty = MathUtils.floor(pos.y / state.map.tileHeight);
+		
+		if( tx < 0 || ty < 0 || tx >= state.map.width || ty >= state.map.height )
+		{
+			return;
+		}
+		
 		for( Integer u : units )
 		{
 			UnitWrapper uw = state.unitMap.get( u );
@@ -203,11 +211,9 @@ public class GameLogic
 			Unit unit = uw.getUnit();
 			if( unit.owner == id )
 			{
-				int x = (int)(unit.pos.x / state.map.tileWidth);
-				int y = (int)(unit.pos.y / state.map.tileHeight);
+				int x = MathUtils.floor(unit.pos.x / state.map.tileWidth);
+				int y = MathUtils.floor(unit.pos.y / state.map.tileHeight);
 				
-				int tx = (int)(pos.x / state.map.tileWidth);
-				int ty = (int)(pos.y / state.map.tileHeight);
 				
 				//graph.search returns null when it can't find a path
 				ArrayList<GridPoint2> path = graph.search( x, y, tx, ty );

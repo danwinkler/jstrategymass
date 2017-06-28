@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -385,7 +386,7 @@ public class Editor implements Screen, InputProcessor
 				lastBase = i;
 				numBases++;
 				
-				GridPoint2 exit = state.map.findOpenAdjecentTile( (int)(p.pos.x / state.map.tileWidth), (int)(p.pos.y / state.map.tileHeight) );
+				GridPoint2 exit = state.map.findOpenAdjecentTile( MathUtils.floor(p.pos.x / state.map.tileWidth), MathUtils.floor(p.pos.y / state.map.tileHeight) );
 				if( exit == null ) 
 				{
 					return "Base " + i + " has no exit.";
@@ -436,8 +437,8 @@ public class Editor implements Screen, InputProcessor
 			Vector3 mousePosScreen = new Vector3( Gdx.input.getX(), Gdx.input.getY(), 0 );
 			Vector3 world = camera.unproject( mousePosScreen );
 			
-			int x = (int)(world.x / state.map.tileWidth);
-			int y = (int)(world.y / state.map.tileHeight);
+			int x = MathUtils.floor(world.x / state.map.tileWidth);
+			int y = MathUtils.floor(world.y / state.map.tileHeight);
 			
 			if( cb == Input.Buttons.RIGHT )
 				draw( x, y, grassBrush );
@@ -462,8 +463,8 @@ public class Editor implements Screen, InputProcessor
 		Vector3 mousePosScreen = new Vector3( Gdx.input.getX(), Gdx.input.getY(), 0 );
 		Vector3 world = camera.unproject( mousePosScreen );
 		
-		int selectX = (int)(world.x / state.map.tileWidth);
-		int selectY = (int)(world.y / state.map.tileHeight);
+		int selectX = MathUtils.floor(world.x / state.map.tileWidth);
+		int selectY = MathUtils.floor(world.y / state.map.tileHeight);
 		
 		if( world.x >= 0 && selectX < state.map.width && world.y >= 0 && selectY < state.map.height )
 		{
@@ -541,8 +542,8 @@ public class Editor implements Screen, InputProcessor
 		Vector3 mousePosScreen = new Vector3( Gdx.input.getX(), Gdx.input.getY(), 0 );
 		Vector3 world = camera.unproject( mousePosScreen );
 		
-		int x = (int)(world.x / state.map.tileWidth);
-		int y = (int)(world.y / state.map.tileHeight);
+		int x = MathUtils.floor(world.x / state.map.tileWidth);
+		int y = MathUtils.floor(world.y / state.map.tileHeight);
 		
 		if( button == Input.Buttons.RIGHT )
 			draw( x, y, grassBrush );
@@ -565,8 +566,8 @@ public class Editor implements Screen, InputProcessor
 		Vector3 mousePosScreen = new Vector3( Gdx.input.getX(), Gdx.input.getY(), 0 );
 		Vector3 world = camera.unproject( mousePosScreen );
 		
-		int x = (int)(world.x / state.map.tileWidth);
-		int y = (int)(world.y / state.map.tileHeight);
+		int x = MathUtils.floor(world.x / state.map.tileWidth);
+		int y = MathUtils.floor(world.y / state.map.tileHeight);
 		
 		if( cb == Input.Buttons.RIGHT )
 			draw( x, y, grassBrush );

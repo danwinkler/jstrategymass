@@ -62,8 +62,8 @@ public class Unit extends SyncObject<Unit> implements PartialUpdatable<UnitParti
 				d.x += MathUtils.clamp( (tx - pos.x) * .5f, -speedDt, speedDt );
 				d.y += MathUtils.clamp( (ty - pos.y) * .5f, -speedDt, speedDt );
 				
-				int tileX = (int)(pos.x/state.map.tileWidth);
-				int tileY = (int)(pos.y/state.map.tileHeight);
+				int tileX = MathUtils.floor( pos.x/state.map.tileWidth );
+				int tileY = MathUtils.floor( pos.y/state.map.tileHeight );
 				if( tileX == gp.x && tileY == gp.y )
 				{
 					update = true;
@@ -107,8 +107,8 @@ public class Unit extends SyncObject<Unit> implements PartialUpdatable<UnitParti
 			//TODO: the current mapping of world to tile is broken for negative numbers
 			if( pos.x + d.x < 0 ) d.x = 0;
 			if( pos.y + d.y < 0 ) d.y = 0;
-			if( !state.map.isPassable( (int)((pos.x + d.x) / state.map.tileWidth), (int)(pos.y/state.map.tileHeight) ) ) d.x = 0;
-			if( !state.map.isPassable( (int)(pos.x/state.map.tileWidth), (int)((pos.y+d.y)/state.map.tileHeight) ) ) d.y = 0;
+			if( !state.map.isPassable( MathUtils.floor((pos.x + d.x) / state.map.tileWidth), MathUtils.floor(pos.y/state.map.tileHeight) ) ) d.x = 0;
+			if( !state.map.isPassable( MathUtils.floor(pos.x/state.map.tileWidth), MathUtils.floor((pos.y+d.y)/state.map.tileHeight) ) ) d.y = 0;
 			
 			d.limit( speed );
 			

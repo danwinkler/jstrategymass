@@ -121,8 +121,8 @@ public class Bullet extends SyncObject<Bullet>
 		Vector2 direction = new Vector2( dx, dy );
 		
 		// find the tile at the start position of the ray
-		cx = (int)(x / map.tileWidth);
-		cy = (int)(y / map.tileHeight);
+		cx = MathUtils.floor( x / map.tileWidth );
+		cy = MathUtils.floor( y / map.tileHeight );
 		
 		if( cx < 0 || cx >= map.width || cy < 0 || cy >= map.height )
 		{

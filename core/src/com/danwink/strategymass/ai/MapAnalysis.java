@@ -93,27 +93,24 @@ public class MapAnalysis
 	{
 		for( Point b : m.points )
 		{
+			GridPoint2 t = m.worldToTile( b.pos.x, b.pos.y );
 			if( b.isBase ) 
 			{
-				int x = (int)(b.pos.x / m.tileWidth);
-				int y = (int)(b.pos.y / m.tileHeight);
 				Zone z = new Zone();
 				z.c = new Color( MathUtils.random(), MathUtils.random(), MathUtils.random(), .3f );
 				z.p = b;
 				z.adjacent = z.p.findAjacent( m );
-				tiles[x][y].zone = z;
+				tiles[t.x][t.y].zone = z;
 				zones.add( z );
-				tiles[x][y].side = b.team;
+				tiles[t.x][t.y].side = b.team;
 			} 
 			else
 			{
-				int x = (int)(b.pos.x/m.tileWidth);
-				int y = (int)(b.pos.y/m.tileHeight);
 				Zone z = new Zone();
 				z.c = new Color( MathUtils.random(), MathUtils.random(), MathUtils.random(), .3f );
 				z.p = b;
 				z.adjacent = z.p.findAjacent( m );
-				tiles[x][y].zone = z;
+				tiles[t.x][t.y].zone = z;
 				zones.add( z );
 			}
 		}
@@ -323,11 +320,13 @@ public class MapAnalysis
 	
 	public Zone getZone( float x, float y )
 	{
-		return tiles[(int)(x/m.tileWidth)][(int)(y/m.tileHeight)].zone;
+		GridPoint2 t = m.worldToTile( x, y );
+		return tiles[t.x][t.y].zone;
 	}
 	
 	public int getSide( float x, float y )
 	{
-		return tiles[(int)(x/m.tileWidth)][(int)(y/m.tileHeight)].side;
+		GridPoint2 t = m.worldToTile( x, y );
+		return tiles[t.x][t.y].side;
 	}
 }

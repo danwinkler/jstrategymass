@@ -125,6 +125,7 @@ public abstract class Bot implements Runnable
 	{
 		Point closeb = null;
 		float closeDist = Float.MAX_VALUE;
+		GridPoint2 t = c.state.map.worldToTile( x, y );
 		for( Point b : c.state.map.points )
 		{
 			if( f.valid( b ) )
@@ -133,8 +134,8 @@ public abstract class Bot implements Runnable
 				ArrayList<GridPoint2> path = graph.search( 
 					adj.x, 
 					adj.y, 
-					(int)(x/c.state.map.tileWidth), 
-					(int)(y/c.state.map.tileHeight) 
+					t.x, 
+					t.y 
 				);
 				
 				if( path == null ) continue;

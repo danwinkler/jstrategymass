@@ -95,10 +95,10 @@ public class Point
 	
 	public boolean isHere( Vector2 u, GameState state )
 	{
-		int px = (int)(pos.x / state.map.tileWidth);
-		int py = (int)(pos.y / state.map.tileHeight);
-		int ux = (int)(u.x / state.map.tileWidth);
-		int uy = (int)(u.y / state.map.tileHeight);
+		int px = MathUtils.floor( pos.x / state.map.tileWidth );
+		int py = MathUtils.floor( pos.y / state.map.tileHeight );
+		int ux = MathUtils.floor( u.x / state.map.tileWidth );
+		int uy = MathUtils.floor( u.y / state.map.tileHeight );
 		
 		return Math.abs( px-ux ) <= 1 && Math.abs( py-uy ) <= 1;
 	}
@@ -112,14 +112,15 @@ public class Point
 	
 	public GridPoint2 findAjacent( Map m )
 	{
-		int px = (int)(pos.x / m.tileWidth);
-		int py = (int)(pos.y / m.tileHeight);
+		GridPoint2 p = m.worldToTile( pos.x, pos.y );
 		
 		for( GridPoint2 l : adjacentList )
 		{
-			if( m.isPassable( px + l.x, py + l.y ) ) 
+			if( m.isPassable( p.x + l.x, p.y + l.y ) ) 
 			{
-				return new GridPoint2( px + l.x, py + l.y );
+				p.x += l.x;
+				p.y += l.y;
+				return p;
 			}
 		}
 		return null;
@@ -133,15 +134,14 @@ public class Point
 	
 	public ArrayList<GridPoint2> adjacents( Map m )
 	{
-		int px = (int)(pos.x / m.tileWidth);
-		int py = (int)(pos.y / m.tileHeight);
+		GridPoint2 p = m.worldToTile( pos.x, pos.y );
 		ArrayList<GridPoint2> adjs = new ArrayList<>();
 
 		for( GridPoint2 l : adjacentList )
 		{
-			if( m.isPassable( px + l.x, py + l.y ) ) 
+			if( m.isPassable( p.x + l.x, p.y + l.y ) ) 
 			{
-				adjs.add( new GridPoint2( px + l.x, py + l.y ) );
+				adjs.add( new GridPoint2( p.x + l.x, p.y + l.y ) );
 			}
 		}
 		return adjs;
