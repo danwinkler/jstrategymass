@@ -104,6 +104,9 @@ public class Unit extends SyncObject<Unit> implements PartialUpdatable<UnitParti
 		//Move if we need to
 		if( d.x != 0 || d.y != 0 )
 		{
+			//TODO: the current mapping of world to tile is broken for negative numbers
+			if( pos.x + d.x < 0 ) d.x = 0;
+			if( pos.y + d.y < 0 ) d.y = 0;
 			if( !state.map.isPassable( (int)((pos.x + d.x) / state.map.tileWidth), (int)(pos.y/state.map.tileHeight) ) ) d.x = 0;
 			if( !state.map.isPassable( (int)(pos.x/state.map.tileWidth), (int)((pos.y+d.y)/state.map.tileHeight) ) ) d.y = 0;
 			

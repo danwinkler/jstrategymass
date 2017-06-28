@@ -54,6 +54,7 @@ public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<P
 	//This shouldn't ever happen because the map is only sent once
 	public void set( Map so )
 	{
+		this.name = so.name;
 		this.tileWidth = so.tileWidth;
 		this.tileHeight = so.tileHeight;
 		this.width = so.width;

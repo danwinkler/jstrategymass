@@ -270,6 +270,8 @@ public class PlayScreen implements Screen, InputProcessor
 		if( client.state.map == null ) return false;
 		Vector3 projected = camera.unproject( new Vector3( screenX, screenY, 0 ) );
 		
+		if( projected.x < 0 || projected.y < 0 ) return false;
+		
 		if( button == Buttons.LEFT )
 		{
 			selecting = true;

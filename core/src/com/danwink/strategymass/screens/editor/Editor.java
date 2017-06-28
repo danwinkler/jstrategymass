@@ -1,5 +1,8 @@
 package com.danwink.strategymass.screens.editor;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
@@ -26,6 +29,7 @@ import com.danwink.strategymass.game.MapFileHelper;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.screens.editor.Brushes.TileBrush;
+import com.esotericsoftware.kryo.Kryo;
 import com.danwink.strategymass.screens.editor.Brushes.BaseBrush;
 import com.danwink.strategymass.screens.editor.Brushes.PointBrush;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
@@ -44,6 +48,9 @@ public class Editor implements Screen, InputProcessor
 	
 	GameState state;
 	GameRenderer r;
+	
+	public LinkedList<Map> undoStack;
+	Kryo mapCopier;
 	
 	SpriteBatch batch;
 	ShapeRenderer sr;
@@ -174,6 +181,7 @@ public class Editor implements Screen, InputProcessor
 						{
 							state.mapName = select.getSelected();
 							state.map = MapFileHelper.loadMap( select.getSelected() );
+							undoStack.clear();
 						}
 					}
 				};
@@ -205,6 +213,7 @@ public class Editor implements Screen, InputProcessor
 								int w = Integer.parseInt( wField.getText() );
 								int h = Integer.parseInt( hField.getText() );
 								state.map = new Map( w, h );
+								undoStack.clear();
 							}
 							catch( NumberFormatException ex )
 							{
@@ -231,6 +240,7 @@ public class Editor implements Screen, InputProcessor
 		generateButton = new VisTextButton( "Generate" );
 		generateButton.addListener( new ClickListener() {
 			public void clicked( InputEvent e, float x, float y ) {
+				pushUndoStack();
 				MapGenerator.generate( state.map, mirrorSelect.getSelected() );
 			}
 		});
@@ -275,10 +285,38 @@ public class Editor implements Screen, InputProcessor
 		state.map = new Map( 31, 31 );
 		state.mapName = "";
 		
+		undoStack = new LinkedList<>();
+		mapCopier = new Kryo();
+		mapCopier.register( Map.class );
+		mapCopier.register( Point.class );
+		mapCopier.register( ArrayList.class );
+		mapCopier.register( int[].class );
+		mapCopier.register( int[][].class );
+		
 		batch = new SpriteBatch();
 		sr = new ShapeRenderer();
 		
 		r = new GameRenderer( state );
+	}
+	
+	public void pushUndoStack()
+	{
+		Map copy = mapCopier.copy( state.map );
+		undoStack.push( copy ); //To front
+		if( undoStack.size() > 100 ) 
+		{
+			undoStack.removeLast();
+		}
+		System.out.println( "push " + undoStack.size() );
+	}
+	
+	public void popUndoStack()
+	{
+		System.out.println( "pop " + undoStack.size() );
+		if( !undoStack.isEmpty() )
+		{
+			state.map.set( undoStack.pop() );//From front
+		}
 	}
 	
 	public TextButton buildBrushButton( String text, Brush brush )
@@ -468,6 +506,14 @@ public class Editor implements Screen, InputProcessor
 
 	public boolean keyDown( int keycode )
 	{
+		switch( keycode )
+		{
+		case Input.Keys.Z:
+			if( Gdx.input.isKeyPressed( Input.Keys.CONTROL_LEFT ) )
+			{
+				popUndoStack();
+			}
+		}
 		return false;
 	}
 
@@ -483,6 +529,8 @@ public class Editor implements Screen, InputProcessor
 
 	public boolean touchDown( int screenX, int screenY, int pointer, int button )
 	{
+		pushUndoStack();
+		
 		Vector3 mousePosScreen = new Vector3( Gdx.input.getX(), Gdx.input.getY(), 0 );
 		Vector3 world = camera.unproject( mousePosScreen );
 		
