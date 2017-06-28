@@ -164,6 +164,7 @@ public class Editor implements Screen, InputProcessor
 				d.button( "Cancel", false );
 				
 				d.show( stage );
+				name.focusField();
 			}
 		});
 		
@@ -234,6 +235,7 @@ public class Editor implements Screen, InputProcessor
 				d.button( "Cancel", false );
 				
 				d.show( stage );
+				wField.focusField();
 			}
 		});
 		
