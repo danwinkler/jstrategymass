@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.libgdx.form.FormServer;
+import com.danwink.strategymass.ai.MapAnalysis.Zone;
 import com.danwink.strategymass.game.GameClient;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.MapPathFinding.MapGraph;
@@ -148,7 +149,22 @@ public abstract class Bot implements Runnable
 		return closeb;
 	}
 	
-	public int numUnitsAtPoint( Point p )
+	public int numUnitsInZone( Zone z, MapAnalysis ma )
+	{
+		int count = 0;
+		for( UnitWrapper uw : c.state.units )
+		{
+			Unit u = uw.getUnit();
+			Zone uZone = ma.getZone( u.pos.x, u.pos.y ); 
+			if( uZone != null && uZone.p.id == z.p.id )
+			{
+				count++;
+			}
+		}
+		return count;
+	}
+	
+	public int numUnitsAtPointOld( Point p )
 	{
 		int count = 0;
 		for( UnitWrapper uw : c.state.units )

@@ -310,7 +310,7 @@ public class SectorAI extends Bot
 					
 					if( !n.z.p.isCapturable( state ) ) continue;
 					
-					int nZoneStrength = numUnitsAtPoint( n.z.p );
+					int nZoneStrength = numUnitsInZone( n.z, la );
 					
 					if( nZoneStrength < army.units.size() * .75f )
 					{
@@ -369,7 +369,7 @@ public class SectorAI extends Bot
 			{
 				if( n.z.p.team != c.me.team )
 				{
-					zScore += numUnitsAtPoint( n.z.p );
+					zScore += numUnitsInZone( n.z, la );
 					isBorder = true;
 				}
 				else
@@ -378,7 +378,7 @@ public class SectorAI extends Bot
 				}
 			}
 			
-			int numUnits = numUnitsAtPoint( z.p );
+			int numUnits = numUnitsInZone( z, la );
 			
 			zScore -= numUnits * 2;
 			
