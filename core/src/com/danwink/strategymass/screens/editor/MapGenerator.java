@@ -54,36 +54,46 @@ public class MapGenerator
 		*/
 		
 		//Add bases
-		int baseX = 1;
-		int baseY = 1;
+		int baseX = m.width / 2;
+		int baseY = m.height / 2;
 		
 		//This is a hacky way to figure out how many bases we need to make
 		GridPoint2[] bases = mirror.getPoints( baseX, baseY, m );
 		
-		if( bases.length > 2 )
+		findBase:
+		while( true )
 		{
-			baseX = MathUtils.random( 2, m.width / 3 );
-			baseY = MathUtils.random( 2, m.height / 3 );
-		}
-		else
-		{
-			baseX = MathUtils.random( 2, m.width / 3 );
-			baseY = MathUtils.random( 2, m.height - 3 );
-		}
-		
-		bases = mirror.getPoints( baseX, baseY, m );
-		
-		for( int i = 0; i < bases.length; i++ )
-		{
-			(new Brushes.BaseBrush( i )).draw( bases[i].x, bases[i].y, m );
-		}
-		
-		int baseBoxWidth = MathUtils.random( 1, 3 );
-		int baseBoxHeight = MathUtils.random( 1, 3 );
-		
-		for( GridPoint2 p : bases )
-		{
-			boxAround( p.x, p.y, baseBoxWidth, baseBoxHeight, m );
+			if( bases.length > 2 )
+			{
+				baseX = MathUtils.random( 2, m.width / 3 );
+				baseY = MathUtils.random( 2, m.height / 3 );
+			}
+			else
+			{
+				baseX = MathUtils.random( 2, m.width / 3 );
+				baseY = MathUtils.random( 2, m.height - 3 );
+			}
+			
+			bases = mirror.getPoints( baseX, baseY, m );
+			
+			for( int i = 0; i < bases.length; i++ )
+			{
+				GridPoint2 gp = bases[i];
+				if( gp.x < 1 || gp.y < 1 || gp.x >= m.width-1 || gp.y >= m.height-1 )
+				{
+					continue findBase;
+				}
+				(new Brushes.BaseBrush( i )).draw( bases[i].x, bases[i].y, m );
+			}
+			
+			int baseBoxWidth = MathUtils.random( 1, 3 );
+			int baseBoxHeight = MathUtils.random( 1, 3 );
+			
+			for( GridPoint2 p : bases )
+			{
+				boxAround( p.x, p.y, baseBoxWidth, baseBoxHeight, m );
+			}
+			break;
 		}
 		
 		//Add points
@@ -101,6 +111,14 @@ public class MapGenerator
 					.map( p -> new Vector2( (p.x+.5f) * m.tileWidth, (p.y+.5f) * m.tileHeight ) )
 					.collect( Collectors.toList() )
 					.toArray( new Vector2[0] );
+				
+				for( GridPoint2 gp : points )
+				{
+					if( gp.x < 1 || gp.y < 1 || gp.x >= m.width-1 || gp.y >= m.height-1 )
+					{
+						continue searchPoints;
+					}
+				}
 				
 				for( Point p : m.points )
 				{

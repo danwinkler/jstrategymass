@@ -241,7 +241,12 @@ public class Editor implements Screen, InputProcessor
 		generateButton.addListener( new ClickListener() {
 			public void clicked( InputEvent e, float x, float y ) {
 				pushUndoStack();
+				try {
 				MapGenerator.generate( state.map, mirrorSelect.getSelected() );
+				} catch( Exception ex )
+				{
+					ex.printStackTrace();
+				}
 			}
 		});
 		
