@@ -270,8 +270,6 @@ public class PlayScreen implements Screen, InputProcessor
 		if( client.state.map == null ) return false;
 		Vector3 projected = camera.unproject( new Vector3( screenX, screenY, 0 ) );
 		
-		if( projected.x < 0 || projected.y < 0 ) return false;
-		
 		if( button == Buttons.LEFT )
 		{
 			selecting = true;
@@ -280,6 +278,7 @@ public class PlayScreen implements Screen, InputProcessor
 		} else if( button == Buttons.RIGHT )
 		{
 			int tile = client.state.map.getTileFromWorld( projected.x, projected.y );
+			if( tile == Map.TILE_TREE ) return false;
 			if( tile == Map.TILE_BASE || tile == Map.TILE_POINT )
 			{
 				Point p = client.state.map.getPoint( MathUtils.floor(projected.x / client.state.map.tileWidth), MathUtils.floor(projected.y / client.state.map.tileWidth) );
@@ -289,7 +288,6 @@ public class PlayScreen implements Screen, InputProcessor
 			}
 			
 			client.client.sendTCP( ClientMessages.MOVEUNITS, new Packets.MoveUnitPacket( new Vector2( projected.x, projected.y ), selected ) );
-			
 		}
 		
 		return true;
