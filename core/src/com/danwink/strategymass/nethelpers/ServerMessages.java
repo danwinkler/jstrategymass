@@ -9,4 +9,6 @@ public enum ServerMessages
 	JOINSUCCESS, 
 	JOINFAIL, 
 	LOBBY_MAP, 
+	
+	POSTGAME_STATS, 
 }

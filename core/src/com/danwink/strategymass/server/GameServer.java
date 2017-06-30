@@ -34,6 +34,7 @@ public class GameServer
 	
 	PlayState play = new PlayState();
 	LobbyState lobby = new LobbyState( this );
+	PostGameState postGame = new PostGameState();
 	
 	public GameServer()
 	{
@@ -42,11 +43,13 @@ public class GameServer
 		
 		play.register( server );
 		lobby.register( server );
+		postGame.register( server );
 		
 		stateManager = new ServerStateManager( server );
 		
 		stateManager.add( ServerState.PLAY, play );
 		stateManager.add( ServerState.LOBBY, lobby );
+		stateManager.add( ServerState.POSTGAME, postGame );
 		
 		server.setState( ServerState.LOBBY );
 	}

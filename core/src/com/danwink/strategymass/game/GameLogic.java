@@ -15,6 +15,7 @@ import com.danwink.strategymass.game.objects.ServerUnit;
 import com.danwink.strategymass.game.objects.Team;
 import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitWrapper;
+import com.danwink.dsync.ListenerManager;
 import com.danwink.dsync.sync.SyncServer;
 
 public class GameLogic
@@ -28,10 +29,14 @@ public class GameLogic
 	
 	float timeUntilNextTick = tickInterval;
 	
+	ListenerManager<TickListener> tickListeners;
+	
 	public GameLogic( GameState state, SyncServer server )
 	{
 		this.state = state;
 		this.sync = server;
+		
+		tickListeners = new ListenerManager<>();
 	}
 	
 	public void newGame()
@@ -52,7 +57,7 @@ public class GameLogic
 		state.teams.clear();
 		for( int i = 0; i < n; i++ )
 		{
-			state.teams.add( new Team( n ) );
+			state.teams.add( new Team( i ) );
 		}
 	}
 	
@@ -192,6 +197,7 @@ public class GameLogic
 			p.money += pointCount[p.team];
 			p.update = true;
 		}
+		tickListeners.call( t->t.tick() );
 	}
 
 	public void moveUnits( int id, Vector2 pos, ArrayList<Integer> units )
@@ -257,5 +263,15 @@ public class GameLogic
 			}
 		}
 		return true;
+	}
+
+	public void onTick( TickListener tickListener )
+	{
+		tickListeners.on( tickListener );
+	}
+	
+	public static interface TickListener
+	{
+		public void tick();
 	}
 }

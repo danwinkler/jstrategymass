@@ -4,6 +4,7 @@ import com.danwink.strategymass.screens.play.ConnectedScreen;
 import com.danwink.strategymass.screens.play.ConnectingScreen;
 import com.danwink.strategymass.screens.play.LobbyScreen;
 import com.danwink.strategymass.screens.play.PlayScreen;
+import com.danwink.strategymass.screens.play.PostGameScreen;
 
 public class Screens
 {
@@ -15,4 +16,5 @@ public class Screens
 	public static ConnectingScreen connecting = new ConnectingScreen();
 	public static LobbyScreen lobby = new LobbyScreen();
 	public static PlayScreen play = new PlayScreen();
+	public static PostGameScreen postGame = new PostGameScreen();
 }

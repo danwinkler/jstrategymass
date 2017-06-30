@@ -39,7 +39,7 @@ public class ConnectedScreen implements Screen
 		Screens.connecting.register( client );
 		Screens.play.register( client );
 		Screens.lobby.register( client );
-		
+		Screens.postGame.register( client );
 		
 		client.on( DEndPoint.SET_STATE, (ServerState state) -> {
 			System.out.println( "CLIENT CHANGE STATE " + state );
@@ -51,6 +51,8 @@ public class ConnectedScreen implements Screen
 			case PLAY:
 				setScreen( Screens.play );
 				break;
+			case POSTGAME:
+				setScreen( Screens.postGame );
 			default:
 				break;
 			}

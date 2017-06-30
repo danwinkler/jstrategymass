@@ -14,6 +14,8 @@ public class Team extends SyncObject<Team>
 	
 	public int id;
 		
+	public Team() {}
+	
 	public Team( int id )
 	{
 		this.id = id;

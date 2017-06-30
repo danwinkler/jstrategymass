@@ -13,6 +13,7 @@ import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitWrapper;
+import com.danwink.strategymass.gamestats.GameStats;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.Packets;
 import com.danwink.strategymass.nethelpers.ServerMessages;
@@ -27,6 +28,8 @@ public class PlayState implements com.danwink.dsync.ServerState
 	
 	HashMap<Integer, LobbyPlayer> playerKeyMap;
 	
+	GameStats stats;
+	
 	public void register( DServer server )
 	{
 		this.server = server;
@@ -35,6 +38,12 @@ public class PlayState implements com.danwink.dsync.ServerState
 		
 		state = new GameState();
 		logic = new GameLogic( state, sync );
+		
+		stats = new GameStats();
+		
+		logic.onTick(()->{
+			stats.update( state );
+		});
 		
 		server.on( ServerState.PLAY, ClientMessages.JOIN, (int id, Integer key) -> {
 			Player p = logic.addPlayer( id );
@@ -94,6 +103,7 @@ public class PlayState implements com.danwink.dsync.ServerState
 	public void show()
 	{
 		logic.newGame();
+		stats.newGame( state );
 	}
 	
 	public void update( float dt )
@@ -115,11 +125,12 @@ public class PlayState implements com.danwink.dsync.ServerState
 			{
 				e.printStackTrace();
 			}
-			server.setState( ServerState.LOBBY );
 			StrategyMass.game.server.bots.forEach( b -> {
 				b.stop();
 			});
 			StrategyMass.game.server.bots.clear();
+			server.setState( ServerState.POSTGAME );
+			server.broadcastTCP( ServerMessages.POSTGAME_STATS, stats );
 		}
 	}
 	
