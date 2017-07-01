@@ -31,6 +31,7 @@ public class GameStats
 	public void update( GameState state )
 	{
 		teamStats.forEach( ts -> ts.update( state ) );
-		playerStats.forEach( ps -> ps.update( state ) );
+		//Commented out because it makes the gamestats object to big to send over the network
+		//playerStats.forEach( ps -> ps.update( state ) );
 	}
 }

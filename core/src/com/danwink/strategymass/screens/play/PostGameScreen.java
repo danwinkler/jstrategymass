@@ -3,10 +3,13 @@ package com.danwink.strategymass.screens.play;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.danwink.dsync.DClient;
@@ -61,6 +64,8 @@ public class PostGameScreen extends MenuScreen
 		
 		tp.add( new GraphPane( "Units", units ) );
 		tp.add( new GraphPane( "Points", points ) );	
+		
+		tp.switchTab( 0 );
 	}
 	
 	public void register( DClient client )
@@ -149,6 +154,10 @@ public class PostGameScreen extends MenuScreen
 			float dy = (this.getHeight()-10) / maxMag;
 			
 			sr.translate( 0, 5, 0 );
+			int closestPointL = -1;
+			int closestPointI = -1;
+			float closestPointD = 20;
+			Vector2 m = new Vector2( Gdx.input.getX() - getX(), (Gdx.graphics.getHeight() - Gdx.input.getY()) - getY() );
 			for( int l = 0; l < lines.size(); l++ )
 			{
 				ArrayList<Integer> line = lines.get( l );
@@ -163,12 +172,38 @@ public class PostGameScreen extends MenuScreen
 						line.get( i+1 ) * dy,
 						2
 					);
+					
+					float d = m.dst( i * dx, line.get( i ) * dy );
+					if( d < closestPointD )
+					{
+						closestPointL = l;
+						closestPointI = i;
+						closestPointD = d;
+					}
 				}
+			}
+			
+			
+			if( closestPointL >= 0 )
+			{
+				sr.setColor( colors.get( closestPointL ) );
+				sr.circle( closestPointI * dx, lines.get( closestPointL ).get( closestPointI ) * dy, 5 );
 			}
 			
 			sr.end();
 			
 			batch.begin();
+			
+			if( closestPointL >= 0 )
+			{
+				BitmapFont f = new BitmapFont();
+				f.draw( 
+					batch, 
+					lines.get( closestPointL ).get( closestPointI ) + "", 
+					getX() + closestPointI * dx + 5, 
+					getY() + lines.get( closestPointL ).get( closestPointI ) * dy + 15 
+				);
+			}
 		}
 	}
 }
