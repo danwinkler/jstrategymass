@@ -378,6 +378,11 @@ public class SectorAI extends Bot
 				}
 			}
 			
+			for( Zone v : z.visible )
+			{
+				zScore -= numUnitsInZone( v, la, u -> u.team != c.me.team );
+			}
+			
 			int numUnits = numUnitsInZone( z, la );
 			
 			zScore -= numUnits * 2;

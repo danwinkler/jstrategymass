@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.danwink.strategymass.game.MapPathFinding;
 import com.danwink.strategymass.game.MapPathFinding.MapGraph;
+import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Point;
 
@@ -174,6 +175,38 @@ public class MapAnalysis
 		}
 	}
 	
+	public void calculatePointVisibility()
+	{
+		for( Zone a : zones )
+		{
+			ArrayList<GridPoint2> at = a.p.adjacents( m );
+			innerZone:
+			for( Zone b : zones )
+			{
+				if( a == b ) continue;
+				
+				ArrayList<GridPoint2> bt = b.p.adjacents( m );
+				
+				for( GridPoint2 ag : at )
+				{
+					for( GridPoint2 bg : bt )
+					{
+						float ax = (ag.x+.5f) * m.tileWidth;
+						float ay = (ag.y+.5f) * m.tileHeight;
+						float bx = (bg.x+.5f) * m.tileWidth;
+						float by = (bg.y+.5f) * m.tileHeight;
+						
+						if( !Bullet.hitwall( ax, ay, bx-ax, by-ay, m ) )
+						{
+							a.visible.add( b );
+							continue innerZone;
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	public void build( Map m )
 	{
 		this.m = m;
@@ -223,6 +256,9 @@ public class MapAnalysis
 		
 		//Calculate distances from bases
 		calculateBaseDistances();
+		
+		//Calculate point visibility
+		calculatePointVisibility();
 	}
 	
 	class TileAnalysis
@@ -246,6 +282,7 @@ public class MapAnalysis
 	{
 		Color c;
 		ArrayList<Neighbor> neighbors = new ArrayList<Neighbor>();
+		ArrayList<Zone> visible = new ArrayList<Zone>();
 		Point p;
 		GridPoint2 adjacent;
 		int[] baseDistances = new int[4];
@@ -300,11 +337,27 @@ public class MapAnalysis
 		Gdx.gl.glDisable( GL30.GL_BLEND );
 		
 		g.begin( ShapeType.Line );
+		
+		g.setColor( Color.CYAN );
 		for( Zone z : zones )
 		{
 			for( Neighbor n : z.neighbors )
 			{
 				g.line( z.p.pos, n.z.p.pos );
+			}
+		}
+		
+		g.setColor( Color.YELLOW );
+		for( Zone a : zones )
+		{
+			for( Zone b : a.visible )
+			{
+				g.line(
+					a.p.pos.x + 5,
+					a.p.pos.y + 5,
+					b.p.pos.x + 5,
+					b.p.pos.y + 5
+				);
 			}
 		}
 		g.end();

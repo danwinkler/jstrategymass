@@ -24,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.danwink.strategymass.MainMenu;
 import com.danwink.strategymass.StrategyMass;
+import com.danwink.strategymass.ai.MapAnalysis;
 import com.danwink.strategymass.game.GameRenderer;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.MapFileHelper;
@@ -82,6 +83,9 @@ public class Editor implements Screen, InputProcessor
 	Brush grassBrush = new TileBrush( Map.TILE_GRASS );
 	
 	int cb = -1;
+	
+	boolean showDebug = false;
+	MapAnalysis ma;
 	
 	public void show()
 	{
@@ -478,6 +482,11 @@ public class Editor implements Screen, InputProcessor
 		
 		sr.end();
 		
+		if( ma != null && showDebug )
+		{
+			ma.render( sr, batch );
+		}
+		
 		stage.act( Gdx.graphics.getDeltaTime() );
 		stage.draw();
 	}
@@ -520,6 +529,25 @@ public class Editor implements Screen, InputProcessor
 			if( Gdx.input.isKeyPressed( Input.Keys.CONTROL_LEFT ) )
 			{
 				popUndoStack();
+			}
+			break;
+		case Input.Keys.F2:
+			showDebug = !showDebug;
+			if( showDebug )
+			{
+				ma = new MapAnalysis();
+				ma.build( state.map );
+			}
+			break;
+		case Input.Keys.F3:
+			try 
+			{
+				ma = new MapAnalysis();
+				ma.build( state.map );
+			} 
+			catch( Exception ex )
+			{
+				ex.printStackTrace();
 			}
 		}
 		return false;

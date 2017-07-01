@@ -165,6 +165,21 @@ public abstract class Bot implements Runnable
 		return count;
 	}
 	
+	public int numUnitsInZone( Zone z, MapAnalysis ma, Filter<Unit> filter )
+	{
+		int count = 0;
+		for( UnitWrapper uw : c.state.units )
+		{
+			Unit u = uw.getUnit();
+			Zone uZone = ma.getZone( u.pos.x, u.pos.y ); 
+			if( uZone != null && uZone.p.id == z.p.id && filter.valid( u ) )
+			{
+				count++;
+			}
+		}
+		return count;
+	}
+	
 	public int numUnitsAtPointOld( Point p )
 	{
 		int count = 0;
