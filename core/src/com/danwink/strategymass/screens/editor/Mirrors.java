@@ -50,7 +50,7 @@ public class Mirrors
 		}	
 	}
 	
-	public static class ThreeWay extends Mirror
+	public static class ThreeRot extends Mirror
 	{
 		public GridPoint2[] getPoints( int x, int y, Map m )
 		{
@@ -69,6 +69,19 @@ public class Mirrors
 				new GridPoint2( x, y ),
 				new GridPoint2( MathUtils.round( cX + (MathUtils.cos( a1 ) * len) ), MathUtils.round( cY + (MathUtils.sin( a1 ) * len) ) ),
 				new GridPoint2( MathUtils.round( cX + (MathUtils.cos( a2 ) * len) ), MathUtils.round( cY + (MathUtils.sin( a2 ) * len) ) ),
+			};
+		}	
+	}
+	
+	public static class FourRot extends Mirror
+	{
+		public GridPoint2[] getPoints( int x, int y, Map m )
+		{	
+			return new GridPoint2[] {
+				new GridPoint2( x, y ),
+				new GridPoint2( (m.width-1) - y, x ),
+				new GridPoint2( (m.width-1) - x, (m.height-1) - y ),
+				new GridPoint2( y, (m.height-1) - x ),
 			};
 		}	
 	}

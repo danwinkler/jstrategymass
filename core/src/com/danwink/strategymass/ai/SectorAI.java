@@ -232,7 +232,7 @@ public class SectorAI extends Bot
 			if( army.moving ) continue;
 			
 			//For each zone on border, give a score based on the relative strength vs the closest enemy zone
-			Zone bestBorderZone = findBestBorderZone();
+			Zone bestBorderZone = findBestBorderZone( army );
 			if( bestBorderZone == null ) continue; //TODO: under what circumstances is this null
 			
 			//If at home base and the home base is not the frontline
@@ -254,7 +254,7 @@ public class SectorAI extends Bot
 				Zone currentZone = la.getZone( army.location.x, army.location.y );
 				
 				//If taking a point, never give up!
-				if( currentZone.p.team != me.team )
+				if( currentZone.p.team != me.team && currentZone.p.isCapturable( state ) )
 				{
 					continue;
 				}
@@ -280,8 +280,7 @@ public class SectorAI extends Bot
 					}
 				}
 				
-				//If not on a border zone
-				//Move to a good border zone
+				//Determine if on a border zone
 				boolean borderZone = false;
 				for( Neighbor n : currentZone.neighbors )
 				{
@@ -291,9 +290,13 @@ public class SectorAI extends Bot
 						break;
 					}
 				}
+				
+				//If not on a border zone
+				//Move to a good border zone
+				
 				if( !borderZone )
 				{
-					Zone best = findBestBorderZone();
+					Zone best = findBestBorderZone( army );
 					//Send army to the weakest point
 					if( best != null )
 					{
@@ -308,9 +311,9 @@ public class SectorAI extends Bot
 				{
 					if( n.z.p.team == me.team ) continue;
 					
-					if( !n.z.p.isCapturable( state ) ) continue;
-					
 					int nZoneStrength = numUnitsInZone( n.z, la );
+					
+					if( !n.z.p.isCapturable( state ) && nZoneStrength > army.units.size() * .1f ) continue;
 					
 					if( nZoneStrength < army.units.size() * .75f )
 					{
@@ -355,7 +358,7 @@ public class SectorAI extends Bot
 				
 	}
 	
-	public Zone findBestBorderZone()
+	public Zone findBestBorderZone( Army army )
 	{
 		Zone best = null;
 		int score = -1000;
@@ -363,7 +366,9 @@ public class SectorAI extends Bot
 		{
 			if( z.p.team != c.me.team ) continue;
 			
-			int zScore = 5; //Each point gets a base amount so even if its unoccupied its worth creating a front against
+			int numUnits = numUnitsInZone( z, la );
+			
+			int zScore = 0;
 			boolean isBorder = false;
 			for( Neighbor n : z.neighbors )
 			{
@@ -378,19 +383,26 @@ public class SectorAI extends Bot
 				}
 			}
 			
-			for( Zone v : z.visible )
+			if( isBorder )
 			{
-				zScore -= numUnitsInZone( v, la, u -> u.team != c.me.team );
+				for( Zone v : z.visible )
+				{
+					int diff = (army.units.size() + numUnits) - numUnitsInZone( v, la, u -> u.team != c.me.team ); 
+					zScore += Math.max( diff, 0 );
+				}
+				
+				if( numUnits == 0 )
+				{
+					zScore += 50;
+				}
+				
+				if( numUnits * 10 < army.units.size() )
+				{
+					zScore += 100;
+				}
 			}
 			
-			int numUnits = numUnitsInZone( z, la );
-			
-			zScore -= numUnits * 2;
-			
-			if( numUnits == 0 )
-			{
-				zScore += 50;
-			}
+			zScore -= numUnits * 3;
 			
 			if( !isBorder )
 			{

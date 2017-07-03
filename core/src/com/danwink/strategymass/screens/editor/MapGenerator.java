@@ -91,7 +91,8 @@ public class MapGenerator
 			
 			for( GridPoint2 p : bases )
 			{
-				boxAround( p.x, p.y, baseBoxWidth, baseBoxHeight, m );
+				boxAround( p.x, p.y, baseBoxWidth, baseBoxHeight, m, mirror, grass );
+				break;
 			}
 			break;
 		}
@@ -134,7 +135,8 @@ public class MapGenerator
 				int boxHeight = MathUtils.random( 0, 3 );
 				for( GridPoint2 p : points )
 				{
-					boxAround( p.x, p.y, boxWidth, boxHeight, m );
+					boxAround( p.x, p.y, boxWidth, boxHeight, m, mirror, grass );
+					break;
 				}
 				
 				continue addPoints;
@@ -168,7 +170,7 @@ public class MapGenerator
 		}
 	}
 	
-	private static void boxAround( int x, int y, int w, int h, Map m )
+	private static void boxAround( int x, int y, int w, int h, Map m, Mirror mirror, Brush b )
 	{
 		int minX = x - w;
 		int minY = y - h;
@@ -186,7 +188,7 @@ public class MapGenerator
 			{
 				if( m.getTile( xx, yy ) == Map.TILE_TREE )
 				{
-					m.setTile( xx, yy, Map.TILE_GRASS );
+					mirror.draw( xx, yy, b, m );
 				}
 			}
 		}

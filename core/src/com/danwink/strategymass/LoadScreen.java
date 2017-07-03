@@ -30,6 +30,7 @@ public class LoadScreen implements Screen
 		"unit_1",
 		"unit_2",
 		"unit_3",
+		"unit_necklace",
 		"base_bottom",
 		"base_top",
 		"base_bottom_color",

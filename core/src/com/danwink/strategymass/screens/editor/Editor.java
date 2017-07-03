@@ -131,7 +131,8 @@ public class Editor implements Screen, InputProcessor
 			new Mirrors.X(), 
 			new Mirrors.Y(),
 			new Mirrors.XY(),
-			new Mirrors.ThreeWay(),
+			new Mirrors.ThreeRot(),
+			new Mirrors.FourRot(),
 			new Mirrors.FourWay()
 		);
 		
@@ -535,8 +536,15 @@ public class Editor implements Screen, InputProcessor
 			showDebug = !showDebug;
 			if( showDebug )
 			{
-				ma = new MapAnalysis();
-				ma.build( state.map );
+				try 
+				{
+					ma = new MapAnalysis();
+					ma.build( state.map );
+				} 
+				catch( Exception ex )
+				{
+					ex.printStackTrace();
+				}
 			}
 			break;
 		case Input.Keys.F3:

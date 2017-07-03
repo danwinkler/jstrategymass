@@ -161,7 +161,15 @@ public class MapAnalysis
 				if( base != null )
 				{
 					GridPoint2 bp = base.findAjacent( m );
-					z.baseDistances[team] = graph.search( bp.x, bp.y, zp.x, zp.y ).size();
+					ArrayList<GridPoint2> path = graph.search( bp.x, bp.y, zp.x, zp.y );
+					if( path == null ) 
+					{
+						z.baseDistances[team] = 1000000;
+					}
+					else
+					{
+					z.baseDistances[team] = path.size();
+					}
 				}
 				else 
 				{

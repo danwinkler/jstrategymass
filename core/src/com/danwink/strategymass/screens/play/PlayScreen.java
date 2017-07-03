@@ -132,7 +132,7 @@ public class PlayScreen implements Screen, InputProcessor
 		Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT );
 		
 		//Render game
-		renderer.render( camera );
+		renderer.render( camera, client.me );
 		
 		//Render select box and selected units
 		shapeRenderer.setProjectionMatrix( camera.combined );

@@ -12,6 +12,7 @@ import com.danwink.strategymass.ai.MapAnalysis;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.ClientUnit;
 import com.danwink.strategymass.game.objects.Map;
+import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Team;
 import com.danwink.strategymass.game.objects.UnitWrapper;
@@ -31,6 +32,7 @@ public class GameRenderer
 	Texture b0color;
 	
 	Texture m0, m1, m2, m3;
+	Texture myunit;
 	
 	Texture spear;
 	
@@ -67,13 +69,15 @@ public class GameRenderer
 		m2 = Assets.getT( "unit_2" );
 		m3 = Assets.getT( "unit_3" );
 		
+		myunit = Assets.getT( "unit_necklace" );
+		
 		spear = Assets.getT( "spear" );
 		
 		unitMap = new Texture[] { m0, m1, m2, m3 };
 		textureMap = new Texture[] { grass, tree, b0, p0 };
 	}
 	
-	public void render( OrthographicCamera camera )
+	public void render( OrthographicCamera camera, Player owner )
 	{
 		r += Gdx.graphics.getDeltaTime() * millSpeed;
 		
@@ -96,6 +100,10 @@ public class GameRenderer
 			{
 				ClientUnit cu = (ClientUnit)uw;
 				batch.draw( unitMap[cu.u.team], cu.x - 32, cu.y - 32 );
+				if( owner.playerId == cu.u.owner )
+				{
+					batch.draw( myunit, cu.x - 32, cu.y - 32 );
+				}
 			}
 			
 			for( Bullet b : state.bullets ) 
