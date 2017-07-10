@@ -18,6 +18,7 @@ import com.danwink.strategymass.game.objects.UnitWrapper;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.Packets;
 
+//Augustus
 public class SectorAI extends Bot
 {	
 	MapAnalysis la;
@@ -223,7 +224,7 @@ public class SectorAI extends Bot
 		
 		//TODO: figure out line of sight calculations (they are critical to gameplay)
 		//For each army
-		armyBreak:
+		armyLoop:
 		for( int i = 0; i < armies.size(); i++ )
 		{
 			Army army = armies.get( i );
@@ -232,11 +233,11 @@ public class SectorAI extends Bot
 			if( army.moving ) continue;
 			
 			//For each zone on border, give a score based on the relative strength vs the closest enemy zone
-			Zone bestBorderZone = findBestBorderZone( army );
+			Zone bestBorderZone = this.findBestReinforceZone( army );
 			if( bestBorderZone == null ) continue; //TODO: under what circumstances is this null
 			
 			//If at home base and the home base is not the frontline
-			if( homeBase.isHere( army.location, state ) && bestBorderZone.p != homeBase )
+			if( homeBase.isHere( army.location, state ) && isBorder( la.getZone( homeBase.pos.x, homeBase.pos.y ) ) )
 			{
 				//If more than n units
 				if( army.units.size() > 2 )
@@ -245,7 +246,7 @@ public class SectorAI extends Bot
 					if( bestBorderZone != null )
 					{
 						army.moveGrid( bestBorderZone.p.randomAdjacent( state.map ) );
-						break armyBreak;
+						continue armyLoop;
 					}
 				}
 			}
@@ -296,30 +297,22 @@ public class SectorAI extends Bot
 				
 				if( !borderZone )
 				{
-					Zone best = findBestBorderZone( army );
+					Zone best = findBestReinforceZone( army );
 					//Send army to the weakest point
 					if( best != null )
 					{
 						army.moveGrid( best.p.randomAdjacent( state.map ) );
-						break armyBreak;
+						continue armyLoop;
 					}
 				}
 				
 				//Look at closest enemy zone
 				//Decide if you can attack, then attack if so
-				for( Neighbor n : currentZone.neighbors )
+				Zone attackZone = this.findBestAttackZone( army );
+				if( attackZone != null )
 				{
-					if( n.z.p.team == me.team ) continue;
-					
-					int nZoneStrength = numUnitsInZone( n.z, la );
-					
-					if( !n.z.p.isCapturable( state ) && nZoneStrength > army.units.size() * .1f ) continue;
-					
-					if( nZoneStrength < army.units.size() * .75f )
-					{
-						army.moveGrid( n.z.p.randomAdjacent( state.map ) );
-						break armyBreak;
-					}
+					army.moveGrid( attackZone.p.randomAdjacent( state.map ) );
+					continue armyLoop;
 				}
 				
 				//Finally, if there's nothing to do, check and see if we dwarf the enemy in size
@@ -358,57 +351,141 @@ public class SectorAI extends Bot
 				
 	}
 	
-	public Zone findBestBorderZone( Army army )
+	public boolean isBorder( Zone z )
+	{
+		for( Neighbor n : z.neighbors )
+		{
+			if( n.z.p.team != c.me.team )
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public float reinforceScoreZone( Zone z, Army army )
+	{
+		if( z.p.team != c.me.team )
+		{
+			return -1;
+		}
+		
+		float zScore = 0;
+		
+		boolean sameZone = la.getZone( army.location.x, army.location.y ) == z;
+		
+		if( sameZone )
+		{
+			zScore += 30;
+		}
+		
+		int numUnits = numUnitsInZone( z, la );
+		
+		boolean isBorder = isBorder( z );
+		
+		for( Neighbor n : z.neighbors )
+		{
+			if( n.z.p.team != c.me.team )
+			{
+				//We want to reinforce zones that neighbor zones with lots of enemies
+				zScore += numUnitsInZone( n.z, la );
+			}
+			else
+			{
+				// a zone that borders more of our own zones should get a higher score
+				zScore += 5;
+			}
+		}
+		
+		if( isBorder )
+		{
+			//We don't want to visit a zone with more units visible than the size of our army
+			int visible = 0;
+			for( Zone v : z.visible )
+			{
+				visible += numUnitsInZone( v, la, u -> u.team != c.me.team ); 
+			}
+			//lack of visible units shouldn't be a bonus
+			zScore += Math.max( (army.units.size() + numUnits) - visible, 0 );
+			
+			//If border zone is empty, give a big bonus
+			if( numUnits == 0 )
+			{
+				zScore += 50;
+			}
+			
+			if( numUnits * 10 < army.units.size() )
+			{
+				zScore += 100;
+			}
+			
+			zScore -= z.baseDistances[c.me.team];
+		}
+		else //if not the border
+		{
+			//We should reinforce the border first
+			zScore -= 100;
+		}
+		
+		//We want to also veer towards not reinforcing points with lots of units
+		zScore -= numUnits * 3;
+		
+		return zScore;
+	}
+	
+	public Zone findBestReinforceZone( Army army )
 	{
 		Zone best = null;
-		int score = -1000;
+		float score = -1000;
 		for( Zone z : la.zones )
 		{
 			if( z.p.team != c.me.team ) continue;
 			
-			int numUnits = numUnitsInZone( z, la );
-			
-			int zScore = 0;
-			boolean isBorder = false;
-			for( Neighbor n : z.neighbors )
+			float zScore = reinforceScoreZone( z, army );
+						
+			if( zScore > score )
 			{
-				if( n.z.p.team != c.me.team )
-				{
-					zScore += numUnitsInZone( n.z, la );
-					isBorder = true;
-				}
-				else
-				{
-					zScore += 5; // a zone that borders more of our own zones should get a higher score
-				}
+				score = zScore;
+				best = z;
 			}
+		}
+		return best;
+	}
+	
+	public float attackScoreZone( Zone z, Army army )
+	{
+		int zoneStrength = numUnitsInZone( z, la );
+		
+		//If the zone isn't capturable, but we have 10x the units on it, attack it anyway
+		if( !z.p.isCapturable( c.state ) && zoneStrength > army.units.size() * .1f ) return 1;
+		
+		//If army size * .75 is greater than the number of units on zone, this will be > 1
+		//This means we will always attack weakest neighbor (TODO: correct?)
+		float score = (army.units.size() * .75f) / zoneStrength; 
+		
+		if( z.neighbors.size() <= 2 ) 
+		{
+			score += .1f;
+		}
+		
+		return score;
+	}
+	
+	public Zone findBestAttackZone( Army army )
+	{
+		Zone currentZone = la.getZone( army.location.x, army.location.y );
+		
+		Zone best = null;
+		//Don't accept zones with score < 1
+		float score = .99999999f;
+		for( Neighbor n : currentZone.neighbors )
+		{
+			Zone z = n.z;
+			if( z.p.team == c.me.team ) continue;
 			
-			if( isBorder )
-			{
-				for( Zone v : z.visible )
-				{
-					int diff = (army.units.size() + numUnits) - numUnitsInZone( v, la, u -> u.team != c.me.team ); 
-					zScore += Math.max( diff, 0 );
-				}
-				
-				if( numUnits == 0 )
-				{
-					zScore += 50;
-				}
-				
-				if( numUnits * 10 < army.units.size() )
-				{
-					zScore += 100;
-				}
-			}
-			
-			zScore -= numUnits * 3;
-			
-			if( !isBorder )
-			{
-				zScore -= 100;
-			}
-			
+			float zScore = attackScoreZone( z, army );
+						
 			if( zScore > score )
 			{
 				score = zScore;
