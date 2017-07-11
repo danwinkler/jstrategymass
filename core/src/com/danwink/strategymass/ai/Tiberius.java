@@ -2,6 +2,7 @@ package com.danwink.strategymass.ai;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,9 +13,12 @@ import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
+import com.danwink.strategymass.ai.MapAnalysis.Neighbor;
 import com.danwink.strategymass.ai.MapAnalysis.Zone;
+import com.danwink.strategymass.ai.SectorAI.Army;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Player;
+import com.danwink.strategymass.game.objects.Point;
 import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitWrapper;
 import com.danwink.strategymass.nethelpers.ClientMessages;
@@ -45,7 +49,7 @@ import com.danwink.strategymass.nethelpers.Packets;
 public class Tiberius extends Bot
 {
 	public float ownUnitsInZoneScalar = 1;
-	public float zoneIsBorderBuff = 50;
+	public float zoneIsBorderBuff = 100;
 	public float neighborUnitsScalar = 1;
 	public float neighborCountScalar = 6;
 	public float distanceFromHomeBaseScalar = 1;
@@ -55,13 +59,15 @@ public class Tiberius extends Bot
 	public float distanceToZoneScalar = 1;
 	public float visibleEnemyScalar = 1;
 	
+	public float attackStrengthRatio = .75f;
+	
 	MapAnalysis ma;
 	AIAPI api;
 	
 	StateMachine<Tiberius, AIState> sm;
 	
 	LinkedList<BattleGroup> groups = new LinkedList<>();
-	HashMap<Unit, BattleGroup> unitGroupMap = new HashMap<>();
+	HashMap<Integer, BattleGroup> unitGroupMap = new HashMap<>();
 	
 	ArrayList<ZoneScore> globalScores = new ArrayList<>();
 	
@@ -139,8 +145,8 @@ public class Tiberius extends Bot
 						//Junk to move unit
 						GridPoint2 locationGrid = next.p.randomAdjacent( b.c.state.map );
 						Vector2 location = new Vector2( 
-							(locationGrid.x*.5f) * b.c.state.map.tileWidth, 
-							(locationGrid.x*.5f) * b.c.state.map.tileHeight 
+							(locationGrid.x+.5f) * b.c.state.map.tileWidth, 
+							(locationGrid.y+.5f) * b.c.state.map.tileHeight 
 						);
 						
 						b.moveUnit( u, location.x, location.y );
@@ -151,21 +157,63 @@ public class Tiberius extends Bot
 		MAIN() {
 			public void update( Tiberius b )
 			{
-				//For each unit
-					//If not in group
-						//Look for nearby group
-						//If found
-							//add
-						//else
-							//create new group and add
+				//Add units to groups
+				b.c.state.units.forEach( uw -> {
+					Unit u = uw.getUnit();
+					if( !b.unitGroupMap.containsKey( u.syncId ) )
+					{
+						BattleGroup myGroup = null;
+						for( BattleGroup g : b.groups )
+						{
+							if( g.location.dst( u.pos ) < b.c.state.map.tileWidth*5 )
+							{
+								myGroup = g;
+								break;
+							}
+						}
+						
+						//If we still didnt find an army to add to, start a new one
+						if( myGroup == null )
+						{
+							myGroup = b.new BattleGroup();
+							myGroup.location = new Vector2( u.pos.x, u.pos.y );
+							b.groups.add( myGroup );
+						}
+						
+						myGroup.units.add( u );
+						b.unitGroupMap.put( u.syncId, myGroup );
+					}
+				});
 				
 				//Create Global Zone rankings
+				b.calculateGlobalScores();
 				
-				//For each group
-					//update
-					//if close to another, add all our units to theirs
-					//if # of units == 0
-						//remove group
+				Iterator<BattleGroup> groupIter = b.groups.iterator();
+				while( groupIter.hasNext() )
+				{
+					BattleGroup g = groupIter.next();
+					g.update();
+					
+					for( BattleGroup og : b.groups )
+					{
+						if( g == og ) continue;
+						
+						if( og.location.dst( g.location ) < b.c.state.map.tileWidth*5 )
+						{
+							og.units.addAll( g.units );
+							for( Unit u : g.units )
+							{
+								b.unitGroupMap.put( u.syncId, og );
+							}
+							g.units.clear();
+						}
+					}
+					
+					if( g.units.size() == 0 )
+					{
+						groupIter.remove();
+					}
+				}
 			}
 		};
 		
@@ -225,8 +273,8 @@ public class Tiberius extends Bot
 				.baseDistances[c.me.team];
 			int unitsInZone = api.numUnitsInZone( z, ma );
 			
-			// + How many of our own units are there;
-			score += api.numUnitsInZone( z, ma, u -> u.team == c.me.team ) * ownUnitsInZoneScalar;
+			// - How many of our own units are there;
+			score -= api.numUnitsInZone( z, ma, u -> u.team == c.me.team ) * ownUnitsInZoneScalar;
 			// + If the zone is on the border
 			if( isBorder ) score += zoneIsBorderBuff;
 			// + Neighboring zones have enemy units
@@ -237,6 +285,8 @@ public class Tiberius extends Bot
 			score -= maxDistanceFromBase * distanceFromHomeBaseScalar;
 			// + Zone is empty
 			if( unitsInZone == 0 ) score += unitsInZone;
+			// -- We don't own zone
+			if( z.p.team != c.me.team ) score -= 1000;
 			
 			s.score = score;
 		});
@@ -253,27 +303,80 @@ public class Tiberius extends Bot
 			ma.zones.forEach( z -> zoneScores.add( new ZoneScore( z ) ) );
 		}
 		
-		public void update( float dt )
+		public void update()
 		{
 			//Remove dead units
 			for( int i = 0; i < units.size(); i++ )
 			{
 				if( units.get( i ).remove )
 				{
-					unitGroupMap.remove( units.remove( i ) );
+					unitGroupMap.remove( units.remove( i ).syncId );
 					i--;
 				}
+			}
+			
+			Zone currentZone = ma.getZone( location.x, location.y );
+			
+			//If we are taking another zone, don't do anything else
+			if( currentZone.p.team != c.me.team )
+			{
+				//If we are at a non-capturable base, attack
+				if( !currentZone.p.isCapturable( c.state ) )
+				{
+					attack();
+				}
+				
+				return;
 			}
 			
 			//Zone scores are the combination of group specific scores and global scores
 			calculateZoneScores();
 			
 			ZoneScore max = zoneScores.stream().max( (a, b) -> Float.compare( a.score, b.score ) ).get();
-			Zone currentZone = ma.getZone( location.x, location.y );
 			
 			if( currentZone != max.z )
 			{
 				move( max.z );
+				return;
+			}
+			
+			attack();
+		}
+		
+		public void attack()
+		{
+			Zone attackZone = getAttackZone();
+			if( attackZone != null )
+			{
+				move( attackZone );
+				return;
+			}
+			
+			//Finally a check to make sure we don't get stuck
+			int ourSize = 0, theirSize = 0;
+			for( UnitWrapper uw : c.state.units )
+			{
+				Unit u = uw.getUnit();
+				if( c.state.playerMap.get( u.owner ).team == c.me.team )
+				{
+					ourSize++;
+				}
+				else
+				{
+					theirSize++;
+				}
+			}
+			
+			if( ourSize > theirSize * 2.5f )
+			{
+				for( Zone z : ma.zones )
+				{
+					if( z.p.team != c.me.team && z.p.isCapturable( c.state ) )
+					{
+						move( z );
+						return;
+					}
+				}
 			}
 		}
 		
@@ -318,6 +421,26 @@ public class Tiberius extends Bot
 				
 				s.score = score + globalScores.get( i ).score;
 			}
+		}
+		
+		public Zone getAttackZone()
+		{
+			Zone currentZone = ma.getZone( location.x, location.y );
+			for( Neighbor n : currentZone.neighbors )
+			{
+				if( n.z.p.team == c.me.team ) continue;
+				
+				if( !n.z.p.isCapturable( c.state ) ) continue;
+				
+				int enemyUnits = api.numUnitsInZone( n.z, ma, u -> u.team != c.me.team );
+				
+				if( units.size() * attackStrengthRatio > enemyUnits )
+				{
+					return n.z;
+				}
+			}
+			
+			return null;
 		}
 	}
 	

@@ -8,6 +8,7 @@ import com.danwink.dsync.sync.SyncServer;
 import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.ai.Bot;
 import com.danwink.strategymass.ai.SectorAI;
+import com.danwink.strategymass.ai.Tiberius;
 import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Player;
@@ -78,7 +79,7 @@ public class PlayState implements com.danwink.dsync.ServerState
 			{
 				if( lp.bot )
 				{
-					Bot a = new SectorAI();
+					Bot a = new Tiberius();
 					a.team = lp.team;
 					a.name = lp.name;
 					a.key = key++;
