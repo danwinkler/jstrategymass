@@ -194,18 +194,22 @@ public class Tiberius extends Bot
 					BattleGroup g = groupIter.next();
 					g.update();
 					
-					for( BattleGroup og : b.groups )
+					if( !g.isMoving() )
 					{
-						if( g == og ) continue;
-						
-						if( og.location.dst( g.location ) < b.c.state.map.tileWidth*5 )
+						for( BattleGroup og : b.groups )
 						{
-							og.units.addAll( g.units );
-							for( Unit u : g.units )
+							if( g == og ) continue;
+							if( og.isMoving() ) continue;
+							
+							if( og.location.dst( g.location ) < b.c.state.map.tileWidth*5 )
 							{
-								b.unitGroupMap.put( u.syncId, og );
+								og.units.addAll( g.units );
+								for( Unit u : g.units )
+								{
+									b.unitGroupMap.put( u.syncId, og );
+								}
+								g.units.clear();
 							}
-							g.units.clear();
 						}
 					}
 					
@@ -345,6 +349,8 @@ public class Tiberius extends Bot
 		
 		public void attack()
 		{
+			if( isMoving() ) return;
+			
 			Zone attackZone = getAttackZone();
 			if( attackZone != null )
 			{
@@ -392,6 +398,18 @@ public class Tiberius extends Bot
 				unitIdsToMove.add( u.syncId );
 			}
 			send( ClientMessages.MOVEUNITS, new Packets.MoveUnitPacket( location, unitIdsToMove ) );
+		}
+		
+		public boolean isMoving()
+		{
+			for( Unit u : units )
+			{
+				if( u.isMoving() )
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 		
 		public void calculateZoneScores()
