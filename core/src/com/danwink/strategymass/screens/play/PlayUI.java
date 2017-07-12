@@ -1,10 +1,13 @@
 package com.danwink.strategymass.screens.play;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -12,19 +15,23 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.danwink.strategymass.MainMenu;
 import com.danwink.strategymass.StrategyMass;
+import com.danwink.strategymass.ai.Tiberius;
 import com.danwink.strategymass.game.MapFileHelper;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
+import com.kotcrab.vis.ui.widget.VisSlider;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
+import com.kotcrab.vis.ui.widget.VisWindow;
 
 public class PlayUI
 {
@@ -37,6 +44,8 @@ public class PlayUI
 	TextButton addUnit;
 	
 	VisDialog playerInfo;
+	
+	VisWindow aiEditor;
 	
 	VisTable debugPanel;
 	Label unitCount;
@@ -107,6 +116,17 @@ public class PlayUI
 			
 		debugPanel.add( unitCount ).padTop( 30 );
 		stage.addActor( debugPanel );
+		
+		aiEditor = new VisWindow( "AI Editor" );
+		
+		buildAIEditor();
+		
+		aiEditor.setResizable( true );
+		aiEditor.setSize( 400, 600 );
+		
+		aiEditor.setVisible( false );
+		stage.addActor( aiEditor );
+		aiEditor.setPosition( 0, Gdx.graphics.getHeight() - aiEditor.getHeight() - 20 );
 	}
 
 	public void resize( int width, int height ) 
@@ -117,6 +137,11 @@ public class PlayUI
 	public void toggleDebug()
 	{
 		debugPanel.setVisible( !debugPanel.isVisible() );
+	}
+	
+	public void toggleAIEditor()
+	{
+		aiEditor.setVisible( !aiEditor.isVisible() );
 	}
 	
 	public void showExitDialog()
@@ -203,6 +228,53 @@ public class PlayUI
 			t.add( "" + p.unitsLost );
 			t.row();
 		}
+	}
+	
+	public void buildAIEditor()
+	{
+		List<Field> fields = Tiberius.fm.getFields();
+		for( Field f : fields )
+		{
+			float value;
+			try
+			{
+				value = f.getFloat( null );
+				VisSlider s = new VisSlider( value * .01f, value * 10, value * .01f, false );
+				s.setValue( value );
+				VisLabel vLabel = new VisLabel( "" + value );
+				
+				
+				addAIEditorSliderListener( s, f, vLabel );
+				
+				aiEditor.add( new VisLabel( f.getName() ) );
+				aiEditor.add( s ).width( 200 );
+				aiEditor.add( vLabel );
+				aiEditor.row();
+			}
+			catch( IllegalArgumentException | IllegalAccessException e )
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void addAIEditorSliderListener( VisSlider s, Field f, VisLabel vLabel )
+	{
+		s.addListener( new ChangeListener() {
+			public void changed( ChangeEvent event, Actor actor )
+			{
+				try
+				{
+					f.setFloat( null, s.getValue() );
+					vLabel.setText( "" + s.getValue() );
+				}
+				catch( IllegalArgumentException | IllegalAccessException e )
+				{
+					e.printStackTrace();
+				}
+			}					
+		});
 	}
 	
 	public void showPlayers()

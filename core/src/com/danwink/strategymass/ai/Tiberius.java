@@ -8,12 +8,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
+import com.danwink.fieldaccess.Accessable;
+import com.danwink.fieldaccess.FieldManager;
 import com.danwink.strategymass.ai.MapAnalysis.Neighbor;
 import com.danwink.strategymass.ai.MapAnalysis.Zone;
 import com.danwink.strategymass.ai.SectorAI.Army;
@@ -50,19 +54,27 @@ import com.danwink.strategymass.nethelpers.Packets;
  */
 public class Tiberius extends Bot
 {
-	public float ownUnitsInZoneScalar = 1;
-	public float zoneIsBorderBuff = 500;
-	public float neighborUnitsScalar = 30;
-	public float neighborCountScalar = 6;
-	public float distanceFromHomeBaseScalar = 30;
-	public float emptyZoneBuff = 30;
-	public float strongestTeamBuff = 25;
 	
-	public float currentZoneBuff = 30;
-	public float distanceToZoneScalar = 1;
-	public float visibleEnemyScalar = 1;
+	@Accessable public static float ownUnitsInZoneScalar = 1;
+	@Accessable public static float zoneIsBorderBuff = 500;
+	@Accessable public static float neighborUnitsScalar = 30;
+	@Accessable public static float neighborCountScalar = 6;
+	@Accessable public static float distanceFromHomeBaseScalar = 30;
+	@Accessable public static float emptyZoneBuff = 30;
+	@Accessable public static float strongestTeamBuff = 25;
 	
-	public float attackStrengthRatio = .75f;
+	@Accessable public static float currentZoneBuff = 30;
+	@Accessable public static float distanceToZoneScalar = 1;
+	@Accessable public static float visibleEnemyScalar = 1;
+	
+	@Accessable public static float attackStrengthRatio = .75f;
+	
+	public static FieldManager fm;
+	
+	static 
+	{
+		fm = new FieldManager( Tiberius.class );
+	}
 	
 	MapAnalysis ma;
 	AIAPI api;
@@ -70,6 +82,7 @@ public class Tiberius extends Bot
 	StateMachine<Tiberius, AIState> sm;
 	
 	LinkedList<BattleGroup> groups = new LinkedList<>();
+	LinkedList<BattleGroup> toAdd = new LinkedList<>();
 	HashMap<Integer, BattleGroup> unitGroupMap = new HashMap<>();
 	
 	ArrayList<ZoneScore> globalScores = new ArrayList<>();
@@ -123,6 +136,8 @@ public class Tiberius extends Bot
 		}
 		
 		sm.update();
+		
+		System.out.println( currentZoneBuff );
 	}
 	
 	public enum AIState implements State<Tiberius>
@@ -231,6 +246,9 @@ public class Tiberius extends Bot
 						groupIter.remove();
 					}
 				}
+				
+				b.groups.addAll( b.toAdd );
+				b.toAdd.clear();
 			}
 		};
 		
@@ -370,6 +388,17 @@ public class Tiberius extends Bot
 			
 			if( currentZone != max.z )
 			{
+				if( isMoving() )
+				{
+					BattleGroup newG = new BattleGroup();
+					newG.location = location.cpy();
+					List<Unit> sub = units.subList( 0, units.size()/2 );
+					newG.units = new LinkedList<Unit>( sub );
+					sub.clear(); //Sub is backed by units list, so clearing sub will clear that part of units
+					newG.units.forEach( u -> unitGroupMap.put( u.syncId, newG ) );
+					toAdd.add( newG );
+				}
+				
 				move( max.z );
 				return;
 			}
