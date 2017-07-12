@@ -51,11 +51,11 @@ import com.danwink.strategymass.nethelpers.Packets;
 public class Tiberius extends Bot
 {
 	public float ownUnitsInZoneScalar = 1;
-	public float zoneIsBorderBuff = 150;
-	public float neighborUnitsScalar = .9f;
+	public float zoneIsBorderBuff = 500;
+	public float neighborUnitsScalar = 30;
 	public float neighborCountScalar = 6;
-	public float distanceFromHomeBaseScalar = 1;
-	public float emptyZoneBuff = 150;
+	public float distanceFromHomeBaseScalar = 30;
+	public float emptyZoneBuff = 30;
 	public float strongestTeamBuff = 25;
 	
 	public float currentZoneBuff = 30;
@@ -74,10 +74,10 @@ public class Tiberius extends Bot
 	
 	ArrayList<ZoneScore> globalScores = new ArrayList<>();
 	ArrayList<TeamScore> teamScores = new ArrayList<>();
+	int teamStrength;
 	
 	int numAllies;
 	int playerTeamIndex;
-	
 
 	public void reset()
 	{
@@ -281,9 +281,6 @@ public class Tiberius extends Bot
 			
 			//Precompute some stuff
 			boolean isBorder = api.isBorder( z );
-			int neighborUnits = z.neighbors.stream()
-				.mapToInt( n -> numUnitsInZone( n.z, ma, u -> u.team != c.me.team ) )
-				.sum();
 			float maxDistanceFromBase = ma.zones.stream()
 				.max( (a, b) -> a.baseDistances[c.me.team] - b.baseDistances[c.me.team] )
 				.get()
@@ -295,19 +292,19 @@ public class Tiberius extends Bot
 			
 			// + If the zone is on the border
 			if( isBorder ) score += zoneIsBorderBuff;
-			// + Neighboring zones have enemy units
-			score += neighborUnits * neighborUnitsScalar;
 			// - Number of neighbors
 			score -= z.neighbors.size() * neighborCountScalar;
 			// - Distance from home base
-			score -= (z.baseDistances[c.me.team] * distanceFromHomeBaseScalar) / maxDistanceFromBase;
+			if( maxDistanceFromBase != 0 ) score -= (z.baseDistances[c.me.team] * distanceFromHomeBaseScalar) / maxDistanceFromBase;
 			// + Zone is next to zone owned by strongest team
-			score += strongestTeamNeighbors * strongestTeamBuff;
+			if( teamScores.get( 0 ).team != c.me.team ) score += strongestTeamNeighbors * strongestTeamBuff;
 			// -- We don't own zone
-			if( z.p.team != c.me.team ) score -= 1000;
+			if( z.p.team != c.me.team ) score -= 10000;
 			
 			s.score = score;
 		});
+		
+		teamStrength = (int)c.state.units.stream().filter( uw -> uw.getUnit().team == c.me.team ).count();
 	}
 	
 	public void calculateTeamScores()
@@ -329,6 +326,7 @@ public class Tiberius extends Bot
 		LinkedList<Unit> units = new LinkedList<>();
 		Vector2 location = new Vector2();
 		ArrayList<ZoneScore> zoneScores = new ArrayList<>();
+		int attackCooldown = 0;
 		
 		public BattleGroup()
 		{
@@ -337,6 +335,8 @@ public class Tiberius extends Bot
 		
 		public void update()
 		{
+			if( attackCooldown > 0 ) attackCooldown--;
+			
 			//Remove dead units
 			for( int i = 0; i < units.size(); i++ )
 			{
@@ -361,6 +361,8 @@ public class Tiberius extends Bot
 				return;
 			}
 			
+			if( attack() ) return;
+			
 			//Zone scores are the combination of group specific scores and global scores
 			calculateZoneScores();
 			
@@ -371,19 +373,18 @@ public class Tiberius extends Bot
 				move( max.z );
 				return;
 			}
-			
-			attack();
 		}
 		
-		public void attack()
+		public boolean attack()
 		{
-			if( isMoving() ) return;
+			if( isMoving() ) return false;
+			if( attackCooldown > 0 ) return false;
 			
 			Zone attackZone = getAttackZone();
 			if( attackZone != null )
 			{
 				move( attackZone );
-				return;
+				return true;
 			}
 			
 			//Finally a check to make sure we don't get stuck
@@ -408,14 +409,17 @@ public class Tiberius extends Bot
 					if( z.p.team != c.me.team && z.p.isCapturable( c.state ) )
 					{
 						move( z );
-						return;
+						return true;
 					}
 				}
 			}
+			
+			return false;
 		}
 		
 		public void move( Zone z )
 		{
+			attackCooldown = 10;
 			GridPoint2 locGrid = z.p.randomAdjacent( c.state.map );
 			location.x = (locGrid.x + .5f) * c.state.map.tileWidth;
 			location.y = (locGrid.y + .5f) * c.state.map.tileHeight;
@@ -457,6 +461,9 @@ public class Tiberius extends Bot
 					.sum();
 				int distanceToPoint = ma.graph.search( currentTile.x, currentTile.y, z.adjacent.x, z.adjacent.y ).size();
 				int unitsInZone = api.numUnitsInZone( z, ma, u -> u.team == c.me.team && unitGroupMap.get( u.syncId ) != this );
+				int neighborUnits = z.neighbors.stream()
+					.mapToInt( n -> numUnitsInZone( n.z, ma, u -> u.team != c.me.team ) )
+					.sum();
 				
 				// + Currently in zone
 				if( currentZone == z ) score += currentZoneBuff;
@@ -465,9 +472,15 @@ public class Tiberius extends Bot
 				// - zone is visible to lots of enemies
 				score -= visibleUnits * visibleEnemyScalar;
 				// + Zone is empty
-				if( unitsInZone == 0 ) score += unitsInZone;
+				if( unitsInZone == 0 ) score += emptyZoneBuff;
+				
+				if( unitsInZone == 0 ) unitsInZone = 1; //This hack prevents us from dividing by 0
+				
 				// - How many of our own units are there;
-				score -= api.numUnitsInZone( z, ma, u -> u.team == c.me.team && unitGroupMap.get( u.syncId ) != this ) * ownUnitsInZoneScalar;
+				if( teamStrength != 0 ) score -= unitsInZone * ownUnitsInZoneScalar / teamStrength;
+				// + Neighboring zones have enemy units
+				score += (neighborUnits * neighborUnitsScalar) / unitsInZone;
+				
 				
 				s.score = score + globalScores.get( i ).score;
 			}
