@@ -8,7 +8,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.danwink.strategymass.Assets;
+import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.ai.MapAnalysis;
+import com.danwink.strategymass.ai.Tiberius;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.ClientUnit;
 import com.danwink.strategymass.game.objects.Map;
@@ -118,6 +120,8 @@ public class GameRenderer
 			{
 				shape.setProjectionMatrix( camera.combined );
 				ma.render( shape, batch );
+				//Tiberius t = (Tiberius)StrategyMass.game.server.bots.get( 0 );
+				//t.render( shape, batch );
 			}
 		}
 	}

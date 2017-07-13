@@ -35,6 +35,8 @@ public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<P
 	
 	public void addPoint( int x, int y, boolean isBase, int team )
 	{
+		if( x < 0 || x >= width || y < 0 || y >= height ) return;
+		
 		float px = x * tileWidth + (tileWidth/2);
 		float py = y * tileHeight + (tileHeight/2);
 		
@@ -54,6 +56,7 @@ public class Map extends SyncObject<Map> implements PartialUpdatable<ArrayList<P
 	//This shouldn't ever happen because the map is only sent once
 	public void set( Map so )
 	{
+		System.out.println( "map set" );
 		this.name = so.name;
 		this.tileWidth = so.tileWidth;
 		this.tileHeight = so.tileHeight;

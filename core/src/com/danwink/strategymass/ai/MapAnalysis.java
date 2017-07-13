@@ -39,12 +39,35 @@ public class MapAnalysis
 		}
 	}
 	
+	public void spreadArea( int startX, int endX, int dx, int startY, int endY, int dy, TileAnalysis[][] changes, Field f ) throws IllegalArgumentException, IllegalAccessException
+	{
+		for( int x = startX; x != endX; x += dx )
+		{
+			for( int y = startY; y != endY; y += dy )
+			{
+				TileAnalysis t = tiles[x][y];
+				
+				if( f.get( t ) == null ) continue;
+				
+				spreadTile( t, x, y, x-1, y, changes, f );
+				spreadTile( t, x, y, x+1, y, changes, f );
+				spreadTile( t, x, y, x, y-1, changes, f );
+				spreadTile( t, x, y, x, y+1, changes, f );
+			}
+		}
+	}
+	
 	public void fillField( String fieldName ) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
 	{
+		int midX = m.width / 2;
+		int midY = m.height / 2;
+		
 		Field f = TileAnalysis.class.getField( fieldName );
 		for( int i = 0; i < 500; i++ )
 		{
 			TileAnalysis[][] changes = new TileAnalysis[width][height];
+			
+			/*
 			for( int x = 0; x < width; x++ )
 			{
 				for( int y = 0; y < height; y++ )
@@ -59,6 +82,12 @@ public class MapAnalysis
 					spreadTile( t, x, y, x, y+1, changes, f );
 				}
 			}
+			*/
+			
+			spreadArea( midX, -1, -1, midY, -1, -1, changes, f );
+			spreadArea( midX+1, width, 1, midY, -1, -1, changes, f );
+			spreadArea( midX, -1, -1, midY+1, height, 1, changes, f );
+			spreadArea( midX+1, width, 1, midY+1, height, 1, changes, f );
 			
 			boolean canExit = true;
 			for( int x = 0; x < width; x++ )
@@ -245,7 +274,6 @@ public class MapAnalysis
 			e.printStackTrace();
 		}
 		
-		
 		//for each zone, calculate adjacent zones, and distances to each zone
 		for( int x = 0; x < width; x++ )
 		{
@@ -260,7 +288,7 @@ public class MapAnalysis
 		
 		//Calculate zone distances
 		//Prune neighbors whose paths force us to go through another zone's building (so we dont feed)
-		pruneNeighbors( graph );
+		//pruneNeighbors( graph );
 		
 		//Calculate distances from bases
 		calculateBaseDistances();

@@ -28,7 +28,7 @@ public class GameServer
 	public DServer server;
 	ServerStateManager stateManager;
 	
-	ArrayList<Bot> bots;
+	public ArrayList<Bot> bots;
 	
 	boolean nextMap = false;
 	

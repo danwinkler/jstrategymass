@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,6 +15,10 @@ import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.msg.Telegram;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.fieldaccess.Accessable;
@@ -57,14 +62,14 @@ public class Tiberius extends Bot
 	
 	@Accessable public static float ownUnitsInZoneScalar = 1;
 	@Accessable public static float zoneIsBorderBuff = 500;
-	@Accessable public static float neighborUnitsScalar = 30;
+	@Accessable public static float neighborUnitsScalar = 15;
 	@Accessable public static float neighborCountScalar = 6;
 	@Accessable public static float distanceFromHomeBaseScalar = 30;
 	@Accessable public static float emptyZoneBuff = 30;
 	@Accessable public static float strongestTeamBuff = 25;
 	
-	@Accessable public static float currentZoneBuff = 30;
-	@Accessable public static float distanceToZoneScalar = 1;
+	@Accessable public static float currentZoneScalar = 1.25f;
+	@Accessable public static float distanceToZoneScalar = 6;
 	@Accessable public static float visibleEnemyScalar = 1;
 	
 	@Accessable public static float attackStrengthRatio = .75f;
@@ -136,8 +141,6 @@ public class Tiberius extends Bot
 		}
 		
 		sm.update();
-		
-		System.out.println( currentZoneBuff );
 	}
 	
 	public enum AIState implements State<Tiberius>
@@ -181,12 +184,15 @@ public class Tiberius extends Bot
 				//Add units to groups
 				b.c.state.units.forEach( uw -> {
 					Unit u = uw.getUnit();
+					
+					if( u.owner != b.c.me.playerId ) return;
+					
 					if( !b.unitGroupMap.containsKey( u.syncId ) )
 					{
 						BattleGroup myGroup = null;
 						for( BattleGroup g : b.groups )
 						{
-							if( g.location.dst( u.pos ) < b.c.state.map.tileWidth*5 )
+							if( g.location.dst( u.pos ) < b.c.state.map.tileWidth*5 && !g.isMoving() )
 							{
 								myGroup = g;
 								break;
@@ -196,9 +202,9 @@ public class Tiberius extends Bot
 						//If we still didnt find an army to add to, start a new one
 						if( myGroup == null )
 						{
-							myGroup = b.new BattleGroup();
+							myGroup = b.new BattleGroup( b );
 							myGroup.location = new Vector2( u.pos.x, u.pos.y );
-							b.groups.add( myGroup );
+							b.groups.addFirst( myGroup );
 						}
 						
 						myGroup.units.add( u );
@@ -221,13 +227,17 @@ public class Tiberius extends Bot
 					//Combine groups
 					if( !g.isMoving() )
 					{
+						Zone currentZone = b.ma.getZone( g.location.x, g.location.y );
+						
 						for( BattleGroup og : b.groups )
 						{
 							if( g == og ) continue;
 							if( og.isMoving() ) continue;
 							if( g.units.size() + og.units.size() > 100 ) continue; //TODO: Move var to top
 							
-							if( og.location.dst( g.location ) < b.c.state.map.tileWidth*5 )
+							Zone ogZone = b.ma.getZone( og.location.x, og.location.y );
+							
+							if( og.location.dst( g.location ) < b.c.state.map.tileWidth*5 && ogZone == currentZone )
 							{
 								og.units.addAll( g.units );
 								for( Unit u : g.units )
@@ -316,10 +326,6 @@ public class Tiberius extends Bot
 			if( maxDistanceFromBase != 0 ) score -= (z.baseDistances[c.me.team] * distanceFromHomeBaseScalar) / maxDistanceFromBase;
 			// + Zone is next to zone owned by strongest team
 			if( teamScores.get( 0 ).team != c.me.team ) score += strongestTeamNeighbors * strongestTeamBuff;
-			// -- We don't own zone
-			if( z.p.team != c.me.team ) score -= 10000;
-			
-			s.score = score;
 		});
 		
 		teamStrength = (int)c.state.units.stream().filter( uw -> uw.getUnit().team == c.me.team ).count();
@@ -345,16 +351,18 @@ public class Tiberius extends Bot
 		Vector2 location = new Vector2();
 		ArrayList<ZoneScore> zoneScores = new ArrayList<>();
 		int attackCooldown = 0;
+		Tiberius t;
+		StateMachine<BattleGroup, BattleGroupState> sm;
 		
-		public BattleGroup()
+		public BattleGroup( Tiberius t )
 		{
+			this.t = t;
 			ma.zones.forEach( z -> zoneScores.add( new ZoneScore( z ) ) );
+			sm = new DefaultStateMachine<BattleGroup, BattleGroupState>( this, BattleGroupState.WAITING );
 		}
 		
 		public void update()
 		{
-			if( attackCooldown > 0 ) attackCooldown--;
-			
 			//Remove dead units
 			for( int i = 0; i < units.size(); i++ )
 			{
@@ -365,50 +373,20 @@ public class Tiberius extends Bot
 				}
 			}
 			
+			//If for some reason we end up with an invalid position, head home.
 			Zone currentZone = ma.getZone( location.x, location.y );
 			
-			//If we are taking another zone, don't do anything else
-			if( currentZone.p.team != c.me.team )
+			if( currentZone == null )
 			{
-				//If we are at a non-capturable base, attack
-				if( !currentZone.p.isCapturable( c.state ) )
-				{
-					attack();
-				}
-				
+				move( ma.zones.stream().filter( z -> z.p.isBase && z.p.team == c.me.team ).findFirst().get() );
 				return;
 			}
 			
-			if( attack() ) return;
-			
-			//Zone scores are the combination of group specific scores and global scores
-			calculateZoneScores();
-			
-			ZoneScore max = zoneScores.stream().max( (a, b) -> Float.compare( a.score, b.score ) ).get();
-			
-			if( currentZone != max.z )
-			{
-				if( isMoving() )
-				{
-					BattleGroup newG = new BattleGroup();
-					newG.location = location.cpy();
-					List<Unit> sub = units.subList( 0, units.size()/2 );
-					newG.units = new LinkedList<Unit>( sub );
-					sub.clear(); //Sub is backed by units list, so clearing sub will clear that part of units
-					newG.units.forEach( u -> unitGroupMap.put( u.syncId, newG ) );
-					toAdd.add( newG );
-				}
-				
-				move( max.z );
-				return;
-			}
+			sm.update();
 		}
 		
 		public boolean attack()
 		{
-			if( isMoving() ) return false;
-			if( attackCooldown > 0 ) return false;
-			
 			Zone attackZone = getAttackZone();
 			if( attackZone != null )
 			{
@@ -488,14 +466,13 @@ public class Tiberius extends Bot
 				int visibleUnits = z.visible.stream()
 					.mapToInt( v -> numUnitsInZone( v, ma, u -> u.team != c.me.team ) )
 					.sum();
-				int distanceToPoint = ma.graph.search( currentTile.x, currentTile.y, z.adjacent.x, z.adjacent.y ).size();
+				ArrayList<GridPoint2> pathToPoint = ma.graph.search( currentTile.x, currentTile.y, z.adjacent.x, z.adjacent.y );
+				int distanceToPoint = pathToPoint != null ? pathToPoint.size() : 100000;
 				int unitsInZone = api.numUnitsInZone( z, ma, u -> u.team == c.me.team && unitGroupMap.get( u.syncId ) != this );
 				int neighborUnits = z.neighbors.stream()
 					.mapToInt( n -> numUnitsInZone( n.z, ma, u -> u.team != c.me.team ) )
 					.sum();
 				
-				// + Currently in zone
-				if( currentZone == z ) score += currentZoneBuff;
 				// - Distance to point
 				score -= distanceToPoint * distanceToZoneScalar;
 				// - zone is visible to lots of enemies
@@ -534,6 +511,169 @@ public class Tiberius extends Bot
 			
 			return null;
 		}
+		
+		public void waitingUpdate()
+		{
+			Zone currentZone = ma.getZone( location.x, location.y );
+			if( currentZone.p.team == c.me.team )
+			{
+				if( api.isBorder( currentZone ) )
+				{
+					//If home base is border, treat as normal border
+					updateBorder( currentZone );
+				}
+				else
+				{
+					if( currentZone.p.isBase )
+					{
+						updateHomeBase( currentZone );
+					}
+					else
+					{
+						updateInterior( currentZone );
+					}
+				}
+			}
+			else
+			{
+				if( currentZone.p.isBase )
+				{
+					updateEnemyBase( currentZone );
+				}
+				else
+				{
+					updateEnemyPoint( currentZone );
+				}
+			}
+		}
+		
+		/**
+		 * Move straight away to best neighbor
+		 * @param current
+		 */
+		public void updateHomeBase( Zone current )
+		{
+			Optional<ZoneScore> max = zoneScores.stream()
+				.filter( s -> current.neighbors.stream().anyMatch( n -> n.z == s.z ) ) //Is a neighbor
+				.filter( s -> s.z.p.team == c.me.team ) //Is owned by us
+				.max( (a, b) -> Float.compare( a.score, b.score ) );
+			
+			if( max.isPresent() )
+			{
+				move( max.get().z );
+				sm.changeState( BattleGroupState.MOVING );
+			}
+		}
+		
+		/**
+		 * Find a border zone to head to
+		 * @param current
+		 */
+		public void updateInterior( Zone current )
+		{
+			Optional<ZoneScore> max = zoneScores.stream()
+					.filter( s -> api.isBorder( s.z ) ) //Is Border
+					.filter( s -> s.z.p.team == c.me.team ) //Is owned by us
+					.max( (a, b) -> Float.compare( a.score, b.score ) );
+				
+			if( max.isPresent() )
+			{
+				move( max.get().z );
+				sm.changeState( BattleGroupState.MOVING );
+			}
+		}
+		
+		public void updateBorder( Zone current )
+		{
+			//Check to see if there is a border zone we'd rather be at
+			ZoneScore maxScore = zoneScores.stream()
+				.filter( s -> api.isBorder( s.z ) ) //Is Border
+				.filter( s -> s.z.p.team == c.me.team ) //Is owned by us
+				.max( (a, b) -> Float.compare( a.score, b.score ) ).get();
+			ZoneScore currentScore = zoneScores.stream().filter( s -> s.z == current ).findFirst().get();
+			
+			if( maxScore.z != currentScore.z && maxScore.score > currentScore.score * currentZoneScalar )
+			{
+				move( maxScore.z );
+				sm.changeState( BattleGroupState.MOVING );
+				return;
+			}
+			
+			if( attack() )
+			{
+				sm.changeState( BattleGroupState.ATTACKING );
+			}
+		}
+		
+		public void updateEnemyPoint( Zone current )
+		{
+			
+		}
+		
+		public void updateEnemyBase( Zone current )
+		{
+			
+		}
+	}
+	
+	public enum BattleGroupState implements State<BattleGroup>
+	{
+		WAITING() {
+			public void update( BattleGroup g )
+			{
+				g.calculateZoneScores();
+				
+				g.waitingUpdate();
+			}
+		},
+		MOVING() {
+			public void update( BattleGroup g )
+			{
+				Zone currentZone = g.t.ma.getZone( g.location.x, g.location.y );
+				
+				if( currentZone.p.team != g.t.c.team )
+				{
+					Optional<ZoneScore> max = g.zoneScores.stream()
+							.filter( s -> g.t.api.isBorder( s.z ) ) //Is Border
+							.filter( s -> s.z.p.team == g.t.c.me.team ) //Is owned by us
+							.max( (a, b) -> Float.compare( a.score, b.score ) );
+						
+					if( max.isPresent() )
+					{
+						g.move( max.get().z );
+					}
+				}
+				
+				if( !g.isMoving() )
+				{
+					g.sm.changeState( WAITING );
+				}
+			}
+		},
+		ATTACKING() {
+			public void update( BattleGroup g )
+			{
+				if( !g.isMoving() )
+				{
+					g.sm.changeState( WAITING );
+				}
+			}
+		};
+
+		public void enter( BattleGroup entity )
+		{
+			
+		}
+
+		public void exit( BattleGroup entity )
+		{
+			
+		}
+
+		public boolean onMessage( BattleGroup entity, Telegram telegram )
+		{
+			return false;
+		}
 	}
 	
 	public class ZoneScore
@@ -556,5 +696,34 @@ public class Tiberius extends Bot
 		{
 			this.team = team;
 		}
+	}
+
+	public void render( ShapeRenderer shape, SpriteBatch batch )
+	{
+		if( groups.isEmpty() ) return;
+		BattleGroup g = groups.getLast();
+		
+		shape.begin( ShapeType.Line );
+		
+		Zone currentZone = ma.getZone( g.location.x, g.location.y );
+		
+		shape.circle( currentZone.p.pos.x, currentZone.p.pos.y, 30 );
+		
+		shape.circle( g.location.x, g.location.y, 20 );
+		
+		for( Unit u : g.units )
+		{
+			shape.line( u.pos, g.location );
+		}
+		
+		shape.end();
+		
+		BitmapFont f = new BitmapFont();
+		batch.begin();
+		for( ZoneScore z : g.zoneScores )
+		{
+			f.draw( batch, z.score + "", z.z.p.pos.x + 32, z.z.p.pos.y + 15 );
+		}
+		batch.end();
 	}
 }

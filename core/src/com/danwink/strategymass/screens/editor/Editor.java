@@ -558,7 +558,7 @@ public class Editor implements Screen, InputProcessor
 				ex.printStackTrace();
 			}
 		}
-		return false;
+		return true;
 	}
 
 	public boolean keyUp( int keycode )
