@@ -139,7 +139,7 @@ public class GameRenderer
 					batch.draw( shieldMap[cu.u.team], cu.x - h_size, cu.y - h_size, size, size );
 					if( owner.playerId == cu.u.owner )
 					{
-						batch.draw( myunit, cu.x - h_size, cu.y - h_size, size, size );
+						batch.draw( myunit, cu.x - h_size - 2, cu.y - h_size, size, size );
 					}
 				}
 			}
