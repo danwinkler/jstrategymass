@@ -22,6 +22,12 @@ public class ServerUnit implements UnitWrapper
 		u.move( dt, state );
 		u.shoot( dt, logic, state );
 		
+		if( u.absorbCount >= 9 )
+		{
+			u.remove = true;
+			logic.buildMegaUnit( u.owner, u.pos );
+		}
+		
 		if( u.health <= 0 )
 		{
 			u.remove = true;

@@ -2,6 +2,8 @@ package com.danwink.strategymass.game;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
@@ -9,8 +11,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.game.MapPathFinding.MapGraph;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
+import com.danwink.strategymass.game.objects.MegaUnit;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
+import com.danwink.strategymass.game.objects.RegularUnit;
 import com.danwink.strategymass.game.objects.ServerUnit;
 import com.danwink.strategymass.game.objects.Team;
 import com.danwink.strategymass.game.objects.Unit;
@@ -118,7 +122,7 @@ public class GameLogic
 		p.unitsBuilt++;
 		p.update = true;
 		
-		Unit u = new Unit();
+		Unit u = new RegularUnit();
 		u.owner = id;
 		u.team = p.team;
 		
@@ -226,11 +230,7 @@ public class GameLogic
 				if( path != null ) 
 				{
 					//TODO: move this into a move function on unit
-					unit.path = path;
-					unit.onPath = 0;	
-					unit.targetX = pos.x;
-					unit.targetY = pos.y;
-					unit.update = true;
+					unit.setMove( pos, path );
 				}
 			}
 		}
@@ -241,6 +241,17 @@ public class GameLogic
 		Bullet b = new Bullet( unit.pos.cpy(), heading );
 		b.team = unit.team;
 		b.owner = unit.owner;
+		sync.add( b );
+		state.bullets.add( b );
+	}
+	
+	public void shootBullet( Unit unit, float heading, int damage, boolean dieOnHit )
+	{
+		Bullet b = new Bullet( unit.pos.cpy(), heading );
+		b.damage = damage;
+		b.team = unit.team;
+		b.owner = unit.owner;
+		b.dieOnHit = dieOnHit;
 		sync.add( b );
 		state.bullets.add( b );
 	}
@@ -273,5 +284,56 @@ public class GameLogic
 	public static interface TickListener
 	{
 		public void tick();
+	}
+
+	public void combineUnits( int owner, ArrayList<Integer> ids )
+	{
+		List<Unit> units = ids.stream()
+			.map( id -> state.unitMap.get( id ) )
+			.filter( uw -> uw != null )
+			.map( uw -> uw.getUnit() )
+			.filter( u -> u.owner == owner && u instanceof RegularUnit && u.targetAbsorb == -1 )
+			.collect( Collectors.toList() );
+		
+		if( units.size() >= 10 )
+		{
+			Unit target = units.get( 0 );
+			target.absorbCount = 0;
+			target.targetAbsorb = target.syncId;
+			
+			int tx = MathUtils.floor(target.pos.x / state.map.tileWidth);
+			int ty = MathUtils.floor(target.pos.y / state.map.tileHeight);
+			for( int i = 1; i < 10; i++ )
+			{
+				Unit u = units.get( i );
+				int x = MathUtils.floor(u.pos.x / state.map.tileWidth);
+				int y = MathUtils.floor(u.pos.y / state.map.tileHeight);
+				
+				
+				//graph.search returns null when it can't find a path
+				ArrayList<GridPoint2> path = graph.search( x, y, tx, ty );
+				if( path != null )
+				{
+					u.setMove( target.pos, path );
+					u.targetAbsorb = target.syncId;
+				}
+			}
+		}
+	}
+
+	public void buildMegaUnit( int owner, Vector2 pos )
+	{
+		Player p = state.playerMap.get( owner );
+		
+		p.unitsBuilt++;
+		p.update = true;
+		
+		Unit u = new MegaUnit();
+		u.owner = owner;
+		u.team = p.team;
+		u.pos = pos.cpy();
+		
+		sync.add( u );
+		state.addUnit( new ServerUnit( u ) );
 	}
 }

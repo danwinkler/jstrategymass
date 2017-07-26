@@ -1,25 +1,18 @@
 package com.danwink.strategymass.game;
 
-import java.io.IOException;
-
-import com.danwink.strategymass.Assets;
 import com.danwink.strategymass.AudioManager;
 import com.danwink.strategymass.AudioManager.GameSound;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.ClientUnit;
 import com.danwink.strategymass.game.objects.Map;
+import com.danwink.strategymass.game.objects.MegaUnit;
 import com.danwink.strategymass.game.objects.Player;
+import com.danwink.strategymass.game.objects.RegularUnit;
 import com.danwink.strategymass.game.objects.Unit;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.math.MathUtils;
 import com.danwink.dsync.DClient;
 import com.danwink.dsync.sync.SyncClient;
-import com.danwink.dsync.sync.SyncServer;
-import com.danwink.strategymass.nethelpers.ClassRegister;
-import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.ServerMessages;
 import com.danwink.strategymass.screens.play.ClientLogic;
-import com.danwink.strategymass.server.GameServer;
 import com.danwink.strategymass.server.ServerState;
 
 public class GameClient
@@ -67,11 +60,19 @@ public class GameClient
 			state.addPlayer( p );
 		});
 		
-		sync.onAddAndJoin( Unit.class, u -> {
+		sync.onAddAndJoin( RegularUnit.class, u -> {
 			state.addUnit( new ClientUnit( u ) );
 		});
 		
-		sync.onRemove( Unit.class, id -> {
+		sync.onAddAndJoin( MegaUnit.class, u -> {
+			state.addUnit( new ClientUnit( u ) );
+		});
+		
+		sync.onRemove( RegularUnit.class, id -> {
+			state.removeUnit( id );
+		});
+		
+		sync.onRemove( MegaUnit.class, id -> {
 			state.removeUnit( id );
 		});
 		

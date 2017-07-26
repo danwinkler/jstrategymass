@@ -1,5 +1,6 @@
 package com.danwink.strategymass.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.badlogic.gdx.math.MathUtils;
@@ -61,6 +62,10 @@ public class PlayState implements com.danwink.dsync.ServerState
 			{
 				logic.buildUnit( id );
 			}
+		});
+		
+		server.on( ServerState.PLAY, ClientMessages.MEGAUNIT, (int id, ArrayList<Integer> ids) -> {
+			logic.combineUnits( id, ids );
 		});
 		
 		server.on( ServerState.PLAY, ClientMessages.MOVEUNITS, (int id, Packets.MoveUnitPacket p) -> {

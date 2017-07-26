@@ -17,6 +17,7 @@ public class Bullet extends SyncObject<Bullet>
 	public int damage = 30;
 	public float life = -100;
 	public int owner;
+	public boolean dieOnHit = true;
 	
 	public Bullet() {}
 	
@@ -34,6 +35,7 @@ public class Bullet extends SyncObject<Bullet>
 		this.damage = so.damage;
 		this.life = so.life;
 		this.owner = so.owner;
+		this.dieOnHit = so.dieOnHit;
 	}
 
 	/*
@@ -51,12 +53,13 @@ public class Bullet extends SyncObject<Bullet>
 		
 		if( life <= 0 ) return 1;
 		
+		boolean hitMan = false;
 		for( UnitWrapper uw : state.units )
 		{
 			Unit u = uw.getUnit();
 			if( u.team == this.team ) continue;
 			
-			if( Intersector.distanceSegmentPoint( sx, sy, pos.x, pos.y, u.pos.x, u.pos.y ) < Unit.radius )
+			if( Intersector.distanceSegmentPoint( sx, sy, pos.x, pos.y, u.pos.x, u.pos.y ) < u.radius )
 			{
 				u.health -= this.damage;
 				
@@ -67,11 +70,21 @@ public class Bullet extends SyncObject<Bullet>
 					p.update = true;
 				}
 				
-				this.alive = false;
-				this.remove = true;
-				return 2;
+				if( dieOnHit )
+				{
+					this.alive = false;
+					this.remove = true;
+					return 2;
+				}
+				hitMan = true;
 			}
 		}
+		
+		if( hitMan )
+		{
+			return 2;
+		}
+		
 		return 0;
 	}
 

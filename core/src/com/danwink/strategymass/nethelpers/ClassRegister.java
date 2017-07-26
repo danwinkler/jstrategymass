@@ -6,8 +6,10 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
+import com.danwink.strategymass.game.objects.MegaUnit;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
+import com.danwink.strategymass.game.objects.RegularUnit;
 import com.danwink.strategymass.game.objects.Team;
 import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitPartial;
@@ -28,6 +30,8 @@ public class ClassRegister
 		Map.class,
 		Point.class,
 		Unit.class,
+		RegularUnit.class,
+		MegaUnit.class,
 		Team.class,
 		Player.class,
 		Bullet.class,

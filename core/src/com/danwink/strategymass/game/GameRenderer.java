@@ -14,9 +14,12 @@ import com.danwink.strategymass.ai.Tiberius;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.ClientUnit;
 import com.danwink.strategymass.game.objects.Map;
+import com.danwink.strategymass.game.objects.MegaUnit;
 import com.danwink.strategymass.game.objects.Player;
 import com.danwink.strategymass.game.objects.Point;
+import com.danwink.strategymass.game.objects.RegularUnit;
 import com.danwink.strategymass.game.objects.Team;
+import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitWrapper;
 
 public class GameRenderer
@@ -33,7 +36,9 @@ public class GameRenderer
 	Texture b0, b1;
 	Texture b0color;
 	
+	Texture u0, u1, u2, u3;
 	Texture m0, m1, m2, m3;
+	Texture s0, s1, s2, s3;
 	Texture myunit;
 	
 	Texture spear;
@@ -43,6 +48,8 @@ public class GameRenderer
 	
 	Texture[] textureMap;
 	Texture[] unitMap;
+	Texture[] manMap;
+	Texture[] shieldMap;
 	
 	MapAnalysis ma;
 	boolean debug;
@@ -66,16 +73,29 @@ public class GameRenderer
 		b0color = Assets.getT( "base_bottom_color" );
 		b1 = Assets.getT( "base_top" );
 		
-		m0 = Assets.getT( "unit_0" );
-		m1 = Assets.getT( "unit_1" );
-		m2 = Assets.getT( "unit_2" );
-		m3 = Assets.getT( "unit_3" );
+		u0 = Assets.getT( "unit_0" );
+		u1 = Assets.getT( "unit_1" );
+		u2 = Assets.getT( "unit_2" );
+		u3 = Assets.getT( "unit_3" );
+		
+		m0 = Assets.getT( "man_0" );
+		m1 = Assets.getT( "man_1" );
+		m2 = Assets.getT( "man_2" );
+		m3 = Assets.getT( "man_3" );
+
+		s0 = Assets.getT( "shield_0" );
+		s1 = Assets.getT( "shield_1" );
+		s2 = Assets.getT( "shield_2" );
+		s3 = Assets.getT( "shield_3" );
+
 		
 		myunit = Assets.getT( "unit_necklace" );
 		
 		spear = Assets.getT( "spear" );
 		
-		unitMap = new Texture[] { m0, m1, m2, m3 };
+		unitMap = new Texture[] { u0, u1, u2, u3 };
+		manMap = new Texture[] { m0, m1, m2, m3 };
+		shieldMap = new Texture[] { s0, s1, s2, s3 };
 		textureMap = new Texture[] { grass, tree, b0, p0 };
 	}
 	
@@ -101,16 +121,33 @@ public class GameRenderer
 			for( UnitWrapper uw : state.units ) 
 			{
 				ClientUnit cu = (ClientUnit)uw;
-				batch.draw( unitMap[cu.u.team], cu.x - 32, cu.y - 32 );
-				if( owner.playerId == cu.u.owner )
+				Unit u = cu.getUnit();
+				if( u instanceof RegularUnit )
 				{
-					batch.draw( myunit, cu.x - 32, cu.y - 32 );
+					float size = 64;
+					float h_size = size*.5f;
+					batch.draw( unitMap[cu.u.team], cu.x - h_size, cu.y - h_size, size, size );
+					if( owner.playerId == cu.u.owner )
+					{
+						batch.draw( myunit, cu.x - h_size, cu.y - h_size, size, size );
+					}
+				}
+				else
+				{
+					float size = 128;
+					float h_size = size*.5f;
+					batch.draw( shieldMap[cu.u.team], cu.x - h_size, cu.y - h_size, size, size );
+					if( owner.playerId == cu.u.owner )
+					{
+						batch.draw( myunit, cu.x - h_size, cu.y - h_size, size, size );
+					}
 				}
 			}
 			
 			for( Bullet b : state.bullets ) 
 			{
-				batch.draw( spear, b.pos.x - 16, b.pos.y - 16, 16, 16, 32, 32, 1, 1, MathUtils.radiansToDegrees * b.heading - 90, 0, 0, 32, 32, false, false );
+				float scale = b.dieOnHit ? 1 : 1.6f;
+				batch.draw( spear, b.pos.x - 16, b.pos.y - 16, 16, 16, 32, 32, scale, scale, MathUtils.radiansToDegrees * b.heading - 90, 0, 0, 32, 32, false, false );
 			}
 			
 			renderMapTop( batch );
@@ -120,8 +157,6 @@ public class GameRenderer
 			{
 				shape.setProjectionMatrix( camera.combined );
 				ma.render( shape, batch );
-				//Tiberius t = (Tiberius)StrategyMass.game.server.bots.get( 0 );
-				//t.render( shape, batch );
 			}
 		}
 	}

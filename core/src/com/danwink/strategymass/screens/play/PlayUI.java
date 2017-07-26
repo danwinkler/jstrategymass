@@ -42,6 +42,7 @@ public class PlayUI
 	Label fps;
 	Label money;
 	TextButton addUnit;
+	TextButton megaUnit;
 	
 	VisDialog playerInfo;
 	
@@ -69,6 +70,7 @@ public class PlayUI
 		//table.setDebug( true ); // This is optional, but enables debug lines for tables.
 		
 		addUnit = new VisTextButton( "Add Unit" );
+		megaUnit = new VisTextButton( "Combine" );
 		fps = new VisLabel( "FPS: 0" );
 		money = new VisLabel( "Money: 0" );
 		
@@ -83,12 +85,21 @@ public class PlayUI
 			}
 		});
 		
+		megaUnit.addListener( new ChangeListener() {
+			public void changed( ChangeEvent event, Actor actor ) {
+				play.client.client.sendTCP( ClientMessages.MEGAUNIT, play.selected );
+			}
+		});
+		
 		table.add( money ).top().left(); 
 		table.add( fps ).top().right().expand();
 		
 		table.row();
 		
-		table.add( addUnit ).width( 100 ).height( 60 ).left().bottom().expand();
+		table.add( addUnit ).width( 100 ).height( 60 ).left().bottom();
+		table.add( megaUnit ).width( 100 ).height( 60 ).left().bottom().expand().padLeft( 5 );
+		
+		megaUnit.setDisabled( true );
 		
 		//not sure minimap is important when you have full zoom control
 		//table.add( new Minimap() ).right().bottom().expand();
@@ -142,6 +153,11 @@ public class PlayUI
 	public void toggleAIEditor()
 	{
 		aiEditor.setVisible( !aiEditor.isVisible() );
+	}
+	
+	public void setCombineButtonEnabled( boolean state )
+	{
+		megaUnit.setDisabled( !state );
 	}
 	
 	public void showExitDialog()

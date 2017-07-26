@@ -333,15 +333,18 @@ public class Tiberius extends Bot
 	
 	public void calculateTeamScores()
 	{
+		//Reset Scores
 		teamScores.forEach( t -> t.strength = 0 );
 		
+		//Put team scores in order of team id
 		teamScores.sort( (a, b) -> a.team - b.team );
 		
+		//Team score is # of units
 		c.state.units.forEach( u -> {
 			teamScores.get( c.team ).strength++;
 		});
 		
-		//Largest to smallest
+		//Sort team scores by score, largest to smallest
 		teamScores.sort( (a, b) -> b.strength - a.strength );
 	}
 	

@@ -7,6 +7,7 @@ import com.danwink.strategymass.AudioManager.GameSound;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.ClientUnit;
+import com.danwink.strategymass.game.objects.RegularUnit;
 import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitWrapper;
 
@@ -49,6 +50,72 @@ public class ClientLogic
 		}
 		
 		return units;
+	}
+	
+	public ArrayList<Integer> getUnitIds( Vector2 a, int owner )
+	{
+		ArrayList<Integer> units = new ArrayList<>();
+		
+		Unit closest = null;
+		float distance = 100000000;
+		for( UnitWrapper uw : state.units )
+		{
+			Unit u = uw.getUnit();
+			if( u.owner != owner ) continue;
+			
+			float d = u.pos.dst2( a ); 
+			if( d < distance && d < u.radius*u.radius )
+			{
+				closest = u;
+				distance = d;
+			}
+		}
+		
+		if( closest != null )
+		{
+			units.add( closest.syncId );
+		}
+		
+		return units;
+	}
+	
+	public ArrayList<Integer> getVisibleUnitsOfType( Vector2 min, Vector2 max, int owner, Class<? extends Unit> type )
+	{
+		ArrayList<Integer> units = new ArrayList<>();
+		
+		for( UnitWrapper uw : state.units )
+		{
+			Unit u = uw.getUnit();
+			if( u.owner != owner ) continue;
+			
+			if( type.isInstance( u ) && u.pos.x > min.x && u.pos.x < max.x && u.pos.y > min.y && u.pos.y < max.y )
+			{
+				units.add( u.syncId );
+			}
+		}
+		
+		return units;
+	}
+	
+	public boolean canCombine( ArrayList<Integer> ids )
+	{
+		int count = 0;
+		
+		for( Integer id : ids )
+		{
+			Unit u = state.unitMap.get( id ).getUnit();
+			if( u instanceof RegularUnit )
+			{
+				count++;
+				if( count >= 10 )
+				{
+					return true;
+				}
+			}
+			
+		}
+		
+		return false;
 	}
 	
 	public void update( float dt )

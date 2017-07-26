@@ -29,6 +29,7 @@ import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.ClientUnit;
 import com.danwink.strategymass.game.objects.Map;
 import com.danwink.strategymass.game.objects.Point;
+import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.nethelpers.ClientMessages;
 import com.danwink.strategymass.nethelpers.Packets;
 import com.danwink.strategymass.nethelpers.ServerMessages;
@@ -56,6 +57,7 @@ public class PlayScreen implements Screen, InputProcessor
 	
 	float scrollSpeed = 300;
 	float zoomSpeed = .1f;
+	long lastClick = 0;
 	
 	public void register( DClient dclient )
 	{
@@ -148,7 +150,7 @@ public class PlayScreen implements Screen, InputProcessor
 		{
 			ClientUnit uw = (ClientUnit)client.state.unitMap.get( i );
 			if( uw == null ) continue;
-			shapeRenderer.circle( uw.x, uw.y, 16 );
+			shapeRenderer.circle( uw.x, uw.y, uw.u.radius );
 		}
 	
 		shapeRenderer.end();
@@ -304,8 +306,27 @@ public class PlayScreen implements Screen, InputProcessor
 			Vector3 projected = camera.unproject( new Vector3( screenX, screenY, 0 ) );
 			selectEnd.set( projected.x, projected.y );
 			
-			selected = client.logic.getUnitIds( selectStart, selectEnd, client.me.playerId );
+			long thisClick = System.currentTimeMillis();
 			
+			if( thisClick - lastClick < 200 && selected.size() > 0 )
+			{
+				Vector3 min = camera.unproject( new Vector3( 0, 0, 0 ) );
+				Vector3 max = camera.unproject( new Vector3( Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 0 ) );
+				Class<? extends Unit> type = ((Unit)client.sync.get( selected.get( 0 ) )).getClass();
+				selected = client.logic.getVisibleUnitsOfType( new Vector2( min.x, max.y ), new Vector2( max.x, min.y ), client.me.playerId, type );
+			}
+			else if( selectStart.dst( selectEnd ) < 2 )
+			{
+				selected = client.logic.getUnitIds( selectEnd, client.me.playerId );
+			}
+			else
+			{
+				selected = client.logic.getUnitIds( selectStart, selectEnd, client.me.playerId );
+			}
+			
+			ui.setCombineButtonEnabled( client.logic.canCombine( selected ) );
+			
+			lastClick = thisClick;
 			selecting = false;
 		}
 		return true;
