@@ -14,7 +14,13 @@ import com.google.gson.GsonBuilder;
 
 public class MapFileHelper
 {
+	final static String localMapsPath = "maps/";
+	final static String devMapsPath = "desktop/maps/";
+	static String mapsPath;
+
 	static {
+		mapsPath = Gdx.files.local(devMapsPath).exists() ? devMapsPath : localMapsPath;
+
 		GsonBuilder builder = new GsonBuilder();
 		builder.setExclusionStrategies( new ExclusionStrategy() {
 			public boolean shouldSkipField( FieldAttributes f )
@@ -37,7 +43,7 @@ public class MapFileHelper
 	
 	public static Map loadMap( String name )
 	{
-		Map m = gson.fromJson( Gdx.files.local( "maps/" + name + ".json" ).readString(), Map.class );
+		Map m = gson.fromJson( Gdx.files.local( mapsPath + name + ".json" ).readString(), Map.class );
 		
 		//Support for legacy maps
 		if( m.teams == 0 )
@@ -50,7 +56,7 @@ public class MapFileHelper
 	
 	public static void saveMap( Map m, String name )
 	{
-		FileHandle f = Gdx.files.local( "maps/" + name + ".json" );
+		FileHandle f = Gdx.files.local( mapsPath + name + ".json" );
 		
 		f.writeString( gson.toJson( m ), false );
 	}
@@ -58,7 +64,7 @@ public class MapFileHelper
 	public static ArrayList<String> getMaps()
 	{
 		ArrayList<String> maps = new ArrayList<String>();
-		Arrays.asList( Gdx.files.local("maps/").list() ).forEach( f -> {
+		Arrays.asList( Gdx.files.local(mapsPath).list() ).forEach( f -> {
 			if( f.extension().equals( "json" ) ) {
 				maps.add( f.nameWithoutExtension() );
 			}

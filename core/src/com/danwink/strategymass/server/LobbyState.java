@@ -152,9 +152,22 @@ public class LobbyState implements com.danwink.dsync.ServerState
 				if( !lp.bot ) return;
 				
 				slots[i] = null;
-				updateRow( i );
+				moveOccupiedSlotsToBeginning();
 			}
 		});
+	}
+
+	public void moveOccupiedSlotsToBeginning() {
+		int j = 0;
+		for (int i = 0; i < slots.length; i++) {
+			if (slots[i] != null) {
+				LobbyPlayer temp = slots[j];
+				slots[j] = slots[i];
+				slots[i] = temp;
+				j++;
+			}
+		}
+		updateRows();
 	}
 	
 	public void updateRows()

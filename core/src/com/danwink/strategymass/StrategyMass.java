@@ -8,7 +8,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
 import com.danwink.strategymass.server.GameServer;
-import com.danwink.strategymass.server.ServerState;
 import com.kotcrab.vis.ui.VisUI;
 
 public class StrategyMass extends Game

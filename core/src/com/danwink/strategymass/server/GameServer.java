@@ -4,21 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.danwink.dsync.DServer;
-import com.danwink.dsync.DServer.Updateable;
 import com.danwink.dsync.ServerStateManager;
-import com.danwink.dsync.sync.SyncServer;
-import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.ai.Bot;
-import com.danwink.strategymass.game.GameLogic;
-import com.danwink.strategymass.game.GameState;
-import com.danwink.strategymass.game.MapFileHelper;
-import com.danwink.strategymass.game.objects.Player;
-import com.danwink.strategymass.game.objects.Unit;
-import com.danwink.strategymass.game.objects.UnitWrapper;
 import com.danwink.strategymass.nethelpers.ClassRegister;
-import com.danwink.strategymass.nethelpers.ClientMessages;
-import com.danwink.strategymass.nethelpers.Packets;
-import com.danwink.strategymass.nethelpers.ServerMessages;
 
 public class GameServer
 {
