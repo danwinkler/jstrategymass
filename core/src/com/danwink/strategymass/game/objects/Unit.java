@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.danwink.strategymass.GridBucket;
 import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.dsync.PartialUpdatable;
@@ -52,9 +53,13 @@ public class Unit extends SyncObject<Unit> implements PartialUpdatable<UnitParti
 		this.shootInterval = u.shootInterval;
 	}
 	
-	public void move( float dt, GameState state )
+	public void move( float dt, GameState state, GridBucket<UnitWrapper> gridBucket )
 	{
 		Vector2 d = new Vector2();
+
+		int tileX = MathUtils.floor( pos.x/state.map.tileWidth );
+		int tileY = MathUtils.floor( pos.y/state.map.tileHeight );
+
 		//Move along path
 		if( onPath != -1 )
 		{
@@ -68,8 +73,6 @@ public class Unit extends SyncObject<Unit> implements PartialUpdatable<UnitParti
 				d.x += MathUtils.clamp( (tx - pos.x) * .5f, -speedDt, speedDt );
 				d.y += MathUtils.clamp( (ty - pos.y) * .5f, -speedDt, speedDt );
 				
-				int tileX = MathUtils.floor( pos.x/state.map.tileWidth );
-				int tileY = MathUtils.floor( pos.y/state.map.tileHeight );
 				if( tileX == gp.x && tileY == gp.y )
 				{
 					update = true;
@@ -104,21 +107,25 @@ public class Unit extends SyncObject<Unit> implements PartialUpdatable<UnitParti
 		
 		//Repel other units
 		float pushDt = pushConstant;
-		for( UnitWrapper uw : state.units ) 
-		{
-			Unit u = uw.getUnit();
-			if( u.syncId == syncId ) continue;
-			
-			float udx = u.pos.x - pos.x;
-			float udy = u.pos.y - pos.y;
-			
-			float d2 = udx*udx + udy*udy;
-			if( Math.abs( d2 ) < radius*radius*1.5f*1.5f )
-			{
-				d.x += MathUtils.clamp( -(60.f / d2) * udx, -pushDt, pushDt ) * dt;
-				d.y += MathUtils.clamp( -(60.f / d2) * udy, -pushDt, pushDt ) * dt;
+		for( int x = -1; x <= 1; x++ ) {
+            for( int y = -1; y <= 1; y++ ) {
+				for( UnitWrapper uw : gridBucket.get( tileX + x, tileY + y, 0) ) 
+				{
+					Unit u = uw.getUnit();
+					if( u.syncId == syncId ) continue;
+					
+					float udx = u.pos.x - pos.x;
+					float udy = u.pos.y - pos.y;
+					
+					float d2 = udx*udx + udy*udy;
+					if( Math.abs( d2 ) < radius*radius*1.5f*1.5f )
+					{
+						d.x += MathUtils.clamp( -(60.f / d2) * udx, -pushDt, pushDt ) * dt;
+						d.y += MathUtils.clamp( -(60.f / d2) * udy, -pushDt, pushDt ) * dt;
+					}
+				}
 			}
-		}
+}
 		
 		//Move if we need to
 		if( d.x != 0 || d.y != 0 )

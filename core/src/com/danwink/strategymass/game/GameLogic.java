@@ -5,9 +5,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.danwink.strategymass.GridBucket;
+import com.danwink.strategymass.StrategyMass;
 import com.danwink.strategymass.game.MapPathFinding.MapGraph;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.Map;
@@ -34,6 +37,9 @@ public class GameLogic
 	float timeUntilNextTick = tickInterval;
 	
 	ListenerManager<TickListener> tickListeners;
+	GridBucket<UnitWrapper> gridBucket;
+
+	int maxUnits;
 	
 	public GameLogic( GameState state, SyncServer server )
 	{
@@ -54,6 +60,10 @@ public class GameLogic
 		
 		setMap( MapFileHelper.loadMap( state.mapName ) );
 		makeTeams( state.map.teams );
+		gridBucket = new GridBucket<>( state.map.width, state.map.height, 1 );
+
+		Preferences prefs = StrategyMass.getSettings();
+		maxUnits = prefs.getInteger("maxunits");
 	}
 	
 	public void makeTeams( int n )
@@ -111,49 +121,59 @@ public class GameLogic
 
 	public void buildUnit( int id )
 	{
-		Player p = state.playerMap.get( id );
-		if( p.money < 10 ) return;
-		
-		Point base = getTeamBase( p.team );
-		
-		if( base == null ) return;
-		
-		p.money -= 10;
-		p.unitsBuilt++;
-		p.update = true;
-		
-		Unit u = new RegularUnit();
-		u.owner = id;
-		u.team = p.team;
-		
-		GridPoint2 adj = state.map.findOpenAdjecentTile( MathUtils.floor(base.pos.x / state.map.tileWidth), MathUtils.floor(base.pos.y / state.map.tileHeight) );
-		
-		u.pos = base.pos.cpy();
-		u.pos.x += (adj.x) * 33;
-		u.pos.y += (adj.y) * 33;
-		u.pos.x += MathUtils.random( -.01f, .01f );
-		u.pos.y += MathUtils.random( -.01f, .01f );
-		sync.add( u );
-		state.addUnit( new ServerUnit( u ) );
+		long playerUnitCount = state.units.stream().filter(u -> u.getUnit().owner == id ).count();
+		int playerUnitMax = maxUnits / state.players.size();
+		if( playerUnitCount < playerUnitMax ) {
+			Player p = state.playerMap.get( id );
+			if( p.money < 10 ) return;
+			
+			Point base = getTeamBase( p.team );
+			
+			if( base == null ) return;
+			
+			p.money -= 10;
+			p.unitsBuilt++;
+			p.update = true;
+			
+			Unit u = new RegularUnit();
+			u.owner = id;
+			u.team = p.team;
+			
+			GridPoint2 adj = state.map.findOpenAdjecentTile( MathUtils.floor(base.pos.x / state.map.tileWidth), MathUtils.floor(base.pos.y / state.map.tileHeight) );
+			
+			u.pos = base.pos.cpy();
+			u.pos.x += (adj.x) * 33;
+			u.pos.y += (adj.y) * 33;
+			u.pos.x += MathUtils.random( -.01f, .01f );
+			u.pos.y += MathUtils.random( -.01f, .01f );
+			sync.add( u );
+			state.addUnit( new ServerUnit( u ) );
+		}
 	}
 	
 	public Point getTeamBase( int team )
 	{
-		for( Point p : state.map.points )
-		{
-			if( p.isBase && p.team == team ) {
-				return p;
-			}
+		List<Point> bases = state.map.points.stream().filter(p -> p.isBase && p.team == team ).collect(Collectors.toList());
+		if( bases.size() > 0 ) {
+			return bases.get(MathUtils.random(bases.size()-1));
 		}
 		return null;
 	}
 
 	public void update( float dt )
 	{
+		gridBucket.clear();
+		for( UnitWrapper uw : state.units ) {
+			Unit u = uw.getUnit();
+			int tx = MathUtils.floor(u.pos.x / state.map.tileWidth);
+			int ty = MathUtils.floor(u.pos.y / state.map.tileHeight);
+			gridBucket.put(uw, tx, ty, 0);
+		}
+
 		for( int i = 0; i < state.units.size(); i++ ) 
 		{
 			ServerUnit u = (ServerUnit)state.units.get( i ); 
-			u.update( dt, this, state );
+			u.update( dt, this, state, gridBucket );
 			if( u.getUnit().remove )
 			{
 				Player p = state.playerMap.get( u.getUnit().owner );
@@ -295,7 +315,7 @@ public class GameLogic
 			.filter( u -> u.owner == owner && u instanceof RegularUnit && u.targetAbsorb == -1 )
 			.collect( Collectors.toList() );
 		
-		if( units.size() >= 10 )
+		if( units.size() >= MegaUnit.NUM_UNITS_TO_CREATE )
 		{
 			Unit target = units.get( 0 );
 			target.absorbCount = 0;
@@ -303,7 +323,7 @@ public class GameLogic
 			
 			int tx = MathUtils.floor(target.pos.x / state.map.tileWidth);
 			int ty = MathUtils.floor(target.pos.y / state.map.tileHeight);
-			for( int i = 1; i < 10; i++ )
+			for( int i = 1; i < MegaUnit.NUM_UNITS_TO_CREATE; i++ )
 			{
 				Unit u = units.get( i );
 				int x = MathUtils.floor(u.pos.x / state.map.tileWidth);

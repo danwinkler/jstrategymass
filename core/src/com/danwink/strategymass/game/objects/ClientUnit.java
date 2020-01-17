@@ -1,6 +1,7 @@
 package com.danwink.strategymass.game.objects;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.danwink.strategymass.GridBucket;
 import com.danwink.strategymass.game.GameState;
 
 public class ClientUnit implements UnitWrapper
@@ -20,9 +21,9 @@ public class ClientUnit implements UnitWrapper
 		return u;
 	}
 	
-	public void update( float dt, GameState state )
+	public void update( float dt, GameState state, GridBucket<UnitWrapper> gridBucket )
 	{
-		u.move( dt, state );
+		u.move( dt, state, gridBucket );
 		
 		x = MathUtils.lerp( x, u.pos.x, .5f );
 		y = MathUtils.lerp( y, u.pos.y, .5f );

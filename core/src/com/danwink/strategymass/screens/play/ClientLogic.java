@@ -1,12 +1,16 @@
 package com.danwink.strategymass.screens.play;
 
 import java.util.ArrayList;
+
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.strategymass.AudioManager;
+import com.danwink.strategymass.GridBucket;
 import com.danwink.strategymass.AudioManager.GameSound;
 import com.danwink.strategymass.game.GameState;
 import com.danwink.strategymass.game.objects.Bullet;
 import com.danwink.strategymass.game.objects.ClientUnit;
+import com.danwink.strategymass.game.objects.MegaUnit;
 import com.danwink.strategymass.game.objects.RegularUnit;
 import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitWrapper;
@@ -15,6 +19,7 @@ public class ClientLogic
 {
 	GameState state;
 	public boolean isBot = false;
+	GridBucket<UnitWrapper> gridBucket;
 	
 	public ClientLogic( GameState state )
 	{
@@ -107,7 +112,7 @@ public class ClientLogic
 			if( u instanceof RegularUnit )
 			{
 				count++;
-				if( count >= 10 )
+				if( count >= MegaUnit.NUM_UNITS_TO_CREATE )
 				{
 					return true;
 				}
@@ -120,6 +125,20 @@ public class ClientLogic
 	
 	public void update( float dt )
 	{
+		if( gridBucket == null ) {
+			if( state.map != null ) {
+				gridBucket = new GridBucket<>( state.map.width, state.map.height, 1 );
+			}
+		} else {
+			gridBucket.clear();
+			for( UnitWrapper uw : state.units ) {
+				Unit u = uw.getUnit();
+				int tx = MathUtils.floor(u.pos.x / state.map.tileWidth);
+				int ty = MathUtils.floor(u.pos.y / state.map.tileHeight);
+				gridBucket.put(uw, tx, ty, 0);
+			}
+		}
+
 		for( int i = 0; i < state.bullets.size(); i++ )
 		{
 			Bullet b = state.bullets.get( i );
@@ -143,7 +162,7 @@ public class ClientLogic
 		for( int i = 0; i < state.units.size(); i++ )
 		{
 			ClientUnit u = (ClientUnit)state.units.get( i );
-			u.update( dt, state );
+			u.update( dt, state, gridBucket );
 		}
 		
 		state.units.sort((a, b) -> {

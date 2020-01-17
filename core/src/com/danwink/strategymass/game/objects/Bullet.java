@@ -67,6 +67,7 @@ public class Bullet extends SyncObject<Bullet>
 				{
 					Player p = state.playerMap.get( this.owner );
 					p.unitsKilled++;
+					p.money += u instanceof MegaUnit ? MegaUnit.NUM_UNITS_TO_CREATE / 2 : 1;
 					p.update = true;
 				}
 				

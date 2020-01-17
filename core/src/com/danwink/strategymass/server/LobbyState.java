@@ -79,6 +79,7 @@ public class LobbyState implements com.danwink.dsync.ServerState
 				mapName = this.getSelected();
 				map = MapFileHelper.loadMap( mapName );
 				server.broadcastTCP( ServerMessages.LOBBY_MAP, map );
+				allocateTeams();
 			}
 		};
 		mapSelect.setValues( maps );
@@ -166,6 +167,14 @@ public class LobbyState implements com.danwink.dsync.ServerState
 				slots[i] = temp;
 				j++;
 			}
+		}
+		updateRows();
+	}
+
+	public void allocateTeams() {
+		for( int i = 0; i < slots.length; i++ ) {
+			if( slots[i] == null ) break;
+			slots[i].team = i % map.teams;
 		}
 		updateRows();
 	}

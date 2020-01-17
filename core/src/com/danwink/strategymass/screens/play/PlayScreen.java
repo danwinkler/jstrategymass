@@ -179,6 +179,7 @@ public class PlayScreen implements Screen, InputProcessor
 	
 	public void clampCamera()
 	{
+		if( client.gameOver ) return;
 		camera.position.x = MathUtils.clamp( camera.position.x, 0, client.state.map.width * client.state.map.tileWidth );
 		camera.position.y = MathUtils.clamp( camera.position.y, 0, client.state.map.height * client.state.map.tileHeight );
 	}

@@ -1,5 +1,6 @@
 package com.danwink.strategymass.game.objects;
 
+import com.danwink.strategymass.GridBucket;
 import com.danwink.strategymass.game.GameLogic;
 import com.danwink.strategymass.game.GameState;
 
@@ -17,12 +18,13 @@ public class ServerUnit implements UnitWrapper
 		return u;
 	}
 
-	public void update( float dt, GameLogic logic, GameState state )
+	public void update( float dt, GameLogic logic, GameState state, GridBucket<UnitWrapper> gridBucket )
 	{
-		u.move( dt, state );
+		u.move( dt, state, gridBucket );
 		u.shoot( dt, logic, state );
 		
-		if( u.absorbCount >= 9 )
+		// -1 because we count ourselves
+		if( u.absorbCount >= MegaUnit.NUM_UNITS_TO_CREATE-1 )
 		{
 			u.remove = true;
 			logic.buildMegaUnit( u.owner, u.pos );

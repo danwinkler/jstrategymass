@@ -41,6 +41,7 @@ public class PlayUI
 	
 	Label fps;
 	Label money;
+	Label unitCount;
 	TextButton addUnit;
 	TextButton megaUnit;
 	
@@ -49,7 +50,6 @@ public class PlayUI
 	VisWindow aiEditor;
 	
 	VisTable debugPanel;
-	Label unitCount;
 	
 	float playerInfoTimer = 0;
 	
@@ -73,6 +73,7 @@ public class PlayUI
 		megaUnit = new VisTextButton( "Combine" );
 		fps = new VisLabel( "FPS: 0" );
 		money = new VisLabel( "Money: 0" );
+		unitCount = new VisLabel( "Units:" );
 		
 		addUnit.addListener( new ClickListener() {
 			public void clicked( InputEvent e, float x, float y ) {
@@ -91,7 +92,8 @@ public class PlayUI
 			}
 		});
 		
-		table.add( money ).top().left(); 
+		table.add( money ).top().left();
+		table.add( unitCount ).top().left();
 		table.add( fps ).top().right().expand();
 		
 		table.row();
@@ -123,9 +125,7 @@ public class PlayUI
 		debugPanel.setVisible( false );
 		debugPanel.setFillParent( true );
 		debugPanel.top().left();
-		unitCount = new VisLabel();
 			
-		debugPanel.add( unitCount ).padTop( 30 );
 		stage.addActor( debugPanel );
 		
 		aiEditor = new VisWindow( "AI Editor" );
@@ -196,11 +196,8 @@ public class PlayUI
 	public void render()
 	{
 		fps.setText( "FPS: " + Gdx.graphics.getFramesPerSecond() );
+		unitCount.setText( "Units: " + play.client.state.units.stream().filter(u -> u.getUnit().owner == play.client.me.playerId ).count() );
 		
-		if( debugPanel.isVisible() )
-		{
-			unitCount.setText( "UNIT COUNT:" + play.client.state.units.size() );
-		}
 		
 		stage.act( Gdx.graphics.getDeltaTime() );
 		stage.draw();

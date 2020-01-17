@@ -6,6 +6,8 @@ import com.danwink.strategymass.game.GameState;
 
 public class MegaUnit extends Unit
 {
+	public static final int NUM_UNITS_TO_CREATE = 8;
+	
 	public MegaUnit()
 	{
 		radius = 24;

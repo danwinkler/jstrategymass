@@ -9,8 +9,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
@@ -25,10 +23,10 @@ import com.danwink.fieldaccess.Accessable;
 import com.danwink.fieldaccess.FieldManager;
 import com.danwink.strategymass.ai.MapAnalysis.Neighbor;
 import com.danwink.strategymass.ai.MapAnalysis.Zone;
-import com.danwink.strategymass.ai.SectorAI.Army;
 import com.danwink.strategymass.game.GameState;
+import com.danwink.strategymass.game.objects.MegaUnit;
 import com.danwink.strategymass.game.objects.Player;
-import com.danwink.strategymass.game.objects.Point;
+import com.danwink.strategymass.game.objects.RegularUnit;
 import com.danwink.strategymass.game.objects.Unit;
 import com.danwink.strategymass.game.objects.UnitWrapper;
 import com.danwink.strategymass.nethelpers.ClientMessages;
@@ -446,7 +444,8 @@ public class Tiberius extends Bot
 		{
 			for( Unit u : units )
 			{
-				if( u.isMoving() )
+				// Don't wait for MegaUnits
+				if( u.isMoving() && u instanceof RegularUnit )
 				{
 					return true;
 				}
@@ -520,6 +519,20 @@ public class Tiberius extends Bot
 			Zone currentZone = ma.getZone( location.x, location.y );
 			if( currentZone.p.team == c.me.team )
 			{
+				// Create megaunit if necessary
+				int numFriendlies = api.numUnitsInZone(currentZone, ma, u -> u.team == c.me.team && u instanceof RegularUnit );
+				int numMegaUnits = api.numUnitsInZone(currentZone, ma, u -> u.team == c.me.team && u instanceof MegaUnit );
+				int numOwnedBasicUnits = (int)units.stream().filter(u -> u instanceof RegularUnit ).count();
+				float megaUnitRatio = numMegaUnits / (float)numFriendlies;
+				if( numOwnedBasicUnits > MegaUnit.NUM_UNITS_TO_CREATE && megaUnitRatio < .15f ) {
+					send(
+						ClientMessages.MEGAUNIT,
+						units.stream().filter( u -> u instanceof RegularUnit ).map(u -> u.syncId).limit(MegaUnit.NUM_UNITS_TO_CREATE).collect(Collectors.toList())
+					);
+				}
+			
+
+
 				if( api.isBorder( currentZone ) )
 				{
 					//If home base is border, treat as normal border
