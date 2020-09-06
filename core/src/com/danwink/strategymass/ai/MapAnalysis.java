@@ -115,7 +115,7 @@ public class MapAnalysis
 		TileAnalysis a = tiles[tx][ty];
 		if( t.zone != null && a.zone != null && t.zone != a.zone )
 		{
-			t.zone.addNeightbor( a.zone );
+			t.zone.addNeighbor( a.zone );
 		}
 	}
 	
@@ -322,15 +322,25 @@ public class MapAnalysis
 		Point p;
 		GridPoint2 adjacent;
 		int[] baseDistances = new int[4];
-		String bdString;
+		String bdString; // String showing distances to bases (for debug)
 		
-		public void addNeightbor( Zone z )
+		public void addNeighbor( Zone z )
 		{
 			for( Neighbor n : neighbors )
 			{
 				if( n.z == z ) return;
 			}
-			neighbors.add( new Neighbor( z ) );
+			Neighbor n = new Neighbor( z );
+
+			// Calculate distance
+			GridPoint2 localPos = p.findAjacent(m);
+			GridPoint2 neighborPos = z.p.findAjacent(m);
+			ArrayList<GridPoint2> path = graph.search( localPos.x, localPos.y, neighborPos.x, neighborPos.y );
+			if( path != null ) {
+				n.distance = path.size();
+			}
+			
+			neighbors.add( n );
 		}
 	}
 	

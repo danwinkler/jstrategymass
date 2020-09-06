@@ -21,6 +21,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.danwink.fieldaccess.Accessable;
 import com.danwink.fieldaccess.FieldManager;
+import com.danwink.strategymass.ai.LearnAI.CallBag;
 import com.danwink.strategymass.ai.MapAnalysis.Neighbor;
 import com.danwink.strategymass.ai.MapAnalysis.Zone;
 import com.danwink.strategymass.game.GameState;
@@ -57,7 +58,8 @@ import com.danwink.strategymass.nethelpers.Packets;
  */
 public class Tiberius extends Bot
 {
-	
+	public static boolean RECORDING_BATTLEGROUP_DATA = true;
+
 	@Accessable public static float ownUnitsInZoneScalar = 1;
 	@Accessable public static float zoneIsBorderBuff = 500;
 	@Accessable public static float neighborUnitsScalar = 15;
@@ -95,6 +97,8 @@ public class Tiberius extends Bot
 	int numAllies;
 	int playerTeamIndex;
 
+	CallBag<LearnAI.BattleGroupNetwork.Input, LearnAI.BattleGroupNetwork.Output> calls;
+
 	public void reset()
 	{
 		
@@ -111,6 +115,8 @@ public class Tiberius extends Bot
 			
 			api = new AIAPI( c );
 			sm = new DefaultStateMachine<>( this, AIState.EXPAND );
+
+			calls = new CallBag<>();
 			
 			//Initialize globalScores, teamScore
 			ma.zones.forEach( z -> globalScores.add( new ZoneScore( z ) ) );
@@ -139,6 +145,15 @@ public class Tiberius extends Bot
 		}
 		
 		sm.update();
+	}
+
+	@Override
+	public void stop() {
+		super.stop();
+		if( RECORDING_BATTLEGROUP_DATA ) {
+			calls.save();
+			calls.clear();
+		}
 	}
 	
 	public enum AIState implements State<Tiberius>
@@ -324,6 +339,12 @@ public class Tiberius extends Bot
 			if( maxDistanceFromBase != 0 ) score -= (z.baseDistances[c.me.team] * distanceFromHomeBaseScalar) / maxDistanceFromBase;
 			// + Zone is next to zone owned by strongest team
 			if( teamScores.get( 0 ).team != c.me.team ) score += strongestTeamNeighbors * strongestTeamBuff;
+
+			// Note: Up until Sept 2020 the following line wasn't present. I'm assuming this was a bug.
+			// As such, global scores were always == 0. After doing some rough testing with the following uncommented for a single team
+			// I was unable to tell that this was having any positive effect on the score. If anything it appeared to have a slight negative effect.
+			// More testing would need to be done to verify if bots are better with this over the long run.
+			//s.score = score;
 		});
 		
 		teamStrength = (int)c.state.units.stream().filter( uw -> uw.getUnit().team == c.me.team ).count();
@@ -354,6 +375,7 @@ public class Tiberius extends Bot
 		int attackCooldown = 0;
 		Tiberius t;
 		StateMachine<BattleGroup, BattleGroupState> sm;
+		Zone lastMovedTo;
 		
 		public BattleGroup( Tiberius t )
 		{
@@ -431,7 +453,7 @@ public class Tiberius extends Bot
 			GridPoint2 locGrid = z.p.randomAdjacent( c.state.map );
 			location.x = (locGrid.x + .5f) * c.state.map.tileWidth;
 			location.y = (locGrid.y + .5f) * c.state.map.tileHeight;
-			
+			lastMovedTo = z;
 			ArrayList<Integer> unitIdsToMove = new ArrayList<Integer>();
 			for( Unit u : units )
 			{
@@ -637,9 +659,48 @@ public class Tiberius extends Bot
 		WAITING() {
 			public void update( BattleGroup g )
 			{
+				final Zone current = RECORDING_BATTLEGROUP_DATA ? g.t.ma.getZone(g.location.x, g.location.y) : null;
+
 				g.calculateZoneScores();
 				
 				g.waitingUpdate();
+				if( RECORDING_BATTLEGROUP_DATA ) {
+					if( g.sm.getCurrentState() == BattleGroupState.WAITING ) {
+						for( Neighbor n : current.neighbors ) {
+							LearnAI.BattleGroupNetwork.Input input = LearnAI.BattleGroupNetwork.Input.capture(
+								g.t.api,
+								g.t.ma,
+								current,
+								n.z,
+								n.distance,
+								g.t.team,
+								g.units.size()
+							);
+							if( input != null ) {
+								g.t.calls.add(input, new LearnAI.BattleGroupNetwork.Output(-1));
+							}
+							//LearnAI.Call<LearnAI.BattleGroupNetwork.Input, LearnAI.BattleGroupNetwork.Output> call = g.t.calls.calls.get(g.t.calls.calls.size()-1);
+							//System.out.println(n.distance);
+							//System.out.println(call.input.toLine() + "=>" + call.output.toLine());
+						}
+					} else {
+						Optional<Neighbor> target = current.neighbors.stream().filter(n -> n.z == g.lastMovedTo).findAny();
+						target.ifPresent(n -> {
+							LearnAI.BattleGroupNetwork.Input input = LearnAI.BattleGroupNetwork.Input.capture(
+								g.t.api,
+								g.t.ma,
+								current,
+								n.z,
+								n.distance,
+								g.t.team,
+								g.units.size()
+							);
+							if( input != null ) {
+								g.t.calls.add(input, new LearnAI.BattleGroupNetwork.Output(1));
+							}
+						});
+					}
+				}
 			}
 		},
 		MOVING() {
