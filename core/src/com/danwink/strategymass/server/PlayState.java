@@ -75,8 +75,8 @@ public class PlayState implements com.danwink.dsync.ServerState {
 		for (LobbyPlayer lp : players) {
 			if (lp != null) {
 				if (lp.bot) {
-					//Bot a = new Tiberius();
-					Bot a = new LearnAI();
+					Bot a = new Tiberius();
+					// Bot a = new LearnAI();
 					a.team = lp.team;
 					a.name = lp.name;
 					a.key = key++;
